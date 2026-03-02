@@ -215,10 +215,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
                 </div></div><div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">6. 최근의 관심사 및 키워드는?<span style="color:#e55;margin-left:.2rem">*</span></label><textarea id="field_5" rows="3" required style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div><div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">7. 현재 어떤 업무를 하고 계세요?<span style="color:#e55;margin-left:.2rem">*</span></label><textarea id="field_6" rows="3" required style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div><div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">8. 커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?<span style="color:#e55;margin-left:.2rem">*</span></label><textarea id="field_7" rows="3" required style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div><div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">9. 나에게 &#39;조직문화&amp;교육&#39;이란?<span style="color:#e55;margin-left:.2rem">*</span></label><textarea id="field_8" rows="3" required style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div><div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">10. 이번 조니딥 참여 계기와 기대하는 점을 알려주세요.<span style="color:#e55;margin-left:.2rem">*</span></label><textarea id="field_9" rows="3" required style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div>
       
 <div style="margin:2.5rem 0;padding:2rem;background:linear-gradient(135deg,rgba(201,169,110,.08),rgba(196,119,90,.05));border:1px solid rgba(201,169,110,.3);border-radius:16px">
-  <div style="font-size:.82rem;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:.75rem">💰 입금 안내</div>
-  <p style="font-size:.9rem;color:var(--ts);line-height:1.9;white-space:pre-line">총 
-(*이전 조니딥 참여 멤버 : 12만원)
-- 5회 모임의 대관비, 프로그램 진행, 기획, 간식비 등 제반 비용
+  <div style="font-size:.82rem;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:.75rem">💰 회비 안내</div>
+  <p style="font-size:.9rem;color:var(--ts);line-height:1.9;white-space:pre-line">모임 1회 비용 : 3.5만원
+(이전 조니딥 참여 멤버 : 3만원)
+- 모임 대관비, 프로그램 진행, 기획, 간식비 등 제반 비용
 
 토스뱅크 1000-5640-5468 염제명</p>
   <p style="margin-top:.75rem;font-size:.88rem;font-weight:600;color:var(--dk)">입금 후 [제출] 버튼을 꼭 클릭하세요!</p>
@@ -234,7 +234,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <script>
 document.getElementById('applyForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const sheetUrl = "";
+  const sheetUrl = "https://script.google.com/macros/s/AKfycbwowCO45_C32BfYCJqUrVpJfSdX_8USAORmX0Hz7wlcpyRfFByNot-pJyGJH-29K7NS/exec";
   const data = {};
   
   if (document.getElementById('field_0')) data["성함을 알려주세요."] = document.getElementById('field_0').value;

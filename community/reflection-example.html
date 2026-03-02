@@ -219,9 +219,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       <div id="r_success" style="display:none;margin-top:1rem;text-align:center;color:var(--ac);font-weight:600">✅ 성찰이 저장되었습니다!</div>
     </div>
     <!-- 성찰 게시판 -->
-    <div>
-      <h2 style="font-family:'Noto Serif KR',serif;font-size:1.2rem;font-weight:600;color:var(--dk);margin-bottom:1.25rem">📋 성찰 게시판</h2>
-      <div id="r_board" style="display:flex;flex-direction:column;gap:1rem">
+    
+    <div id="r_board_wrap" style="margin-top:3rem">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-family:'Noto Serif KR',serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">함께한 성찰 기록</h2>
+        
+      </div>
+      <!-- 회차 필터 탭 -->
+      <div id="r_filter" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem"></div>
+      <!-- 기록 목록 -->
+      <div id="r_board" style="display:flex;flex-direction:column;gap:.75rem">
         <p style="color:var(--tl);font-size:.9rem;text-align:center;padding:2rem">첫 번째 성찰을 기록해보세요 🌱</p>
       </div>
     </div>
@@ -238,35 +245,136 @@ const _qLabels = ["모임 전 성찰","모임 후 성찰"];
 const _bc = 'rgba(232,213,183,.4)';
 const _hasFirebase = !!((_FB_CONFIG.apiKey||'').trim() && (_FB_CONFIG.projectId||'').trim());
 let _db = null, _fbStore = null;
+let _deleteDoc = null, _docCollection = null, _db2 = null;
+let _allRecords = [];
+let _activeFilter = 'all';
+const _boardCollapse = false;
 
-function renderBoard(records) {
-  const board = document.getElementById('r_board');
-  if (!records || !records.length) {
-    board.innerHTML = '<p style="color:var(--tl);font-size:.9rem;text-align:center;padding:2rem">첫 번째 성찰을 기록해보세요 🌱</p>';
-    return;
+// ── 카드 한 장 HTML 생성 ──────────────────────────────────────
+window.deleteRecord = async function(docId, localId) {
+  if (!confirm('이 성찰 기록을 삭제할까요?')) return;
+  if (docId && _deleteDoc && _db2) {
+    // Firebase에서 실제 삭제
+    try {
+      const { doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      await _deleteDoc(doc(_db2, _FB_COLLECTION, docId));
+    } catch(e) { alert('삭제 실패: ' + e.message); }
+    // onSnapshot이 자동으로 renderBoard를 다시 호출하므로 별도 처리 불필요
+  } else {
+    // 로컬 임시 삭제
+    _allRecords = _allRecords.filter(function(r){ return r._id !== localId; });
+    renderBoard(_allRecords);
   }
-  board.innerHTML = records.map(function(r) {
-    return '<div style="padding:1.5rem;background:var(--wh);border-radius:16px;border:1px solid ' + _bc + ';margin-bottom:.75rem">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">'
-      + '<div style="display:flex;align-items:center;gap:.6rem">'
-      + '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff;font-size:.9rem">' + ((r.name||'?')[0]) + '</div>'
-      + '<span style="font-weight:600;color:var(--dk);font-size:.95rem">' + (r.name||'') + '</span>'
-      + '</div><span style="font-size:.78rem;color:var(--tl)">' + (r.session||'') + ' · ' + (r.time||'') + '</span></div>'
-      + (r.answers||[]).map(function(a,i){ return a ? '<div style="margin-bottom:.75rem"><div style="font-size:.75rem;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:.3rem">' + (_qLabels[i]||'') + '</div><p style="font-size:.9rem;color:var(--ts);line-height:1.75;white-space:pre-line">' + a + '</p></div>' : ''; }).join('')
+};
+
+function makeCard(r, isNew) {
+  var initials = (r.name||'?').split('').slice(0,2).join('');
+  var answers = (r.answers||[]).map(function(a, i) {
+    if (!a) return '';
+    var collapsed = _boardCollapse && a.length > 120;
+    var preview = collapsed ? a.slice(0, 100) + '…' : a;
+    return '<div style="margin-bottom:.85rem">'
+      + '<div style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.35rem">' + (_qLabels[i]||'') + '</div>'
+      + '<p id="ans_' + (r._id||i) + '_' + i + '" style="font-size:.9rem;color:var(--ts);line-height:1.8;white-space:pre-line;margin:0">' + preview + '</p>'
+      + (collapsed ? '<button onclick="toggleAns(this,''+a.replace(/'/g,"\'")+'',''+preview.replace(/'/g,"\'")+'')" style="margin-top:.3rem;background:none;border:none;color:var(--ac);font-size:.8rem;cursor:pointer;padding:0">더 보기 ▾</button>' : '')
       + '</div>';
   }).join('');
+
+  return '<div style="padding:1.5rem 1.75rem;background:var(--wh);border-radius:16px;border:1px solid '
+    + (isNew ? 'var(--ac)' : _bc)
+    + ';box-shadow:' + (isNew ? '0 0 0 2px rgba(201,169,110,.25)' : 'none')
+    + ';transition:box-shadow .3s">'
+    // 헤더
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem">'
+    + '<div style="display:flex;align-items:center;gap:.65rem">'
+    + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.85rem;flex-shrink:0">' + initials + '</div>'
+    + '<div><div style="font-weight:700;color:var(--dk);font-size:.95rem;line-height:1.2">' + (r.name||'') + '</div>'
+    + '<div style="font-size:.75rem;color:var(--tl);margin-top:.1rem">' + (r.time||'') + '</div></div>'
+    + '</div>'
+    + '<div style="display:flex;align-items:center;gap:.5rem">'    + '<span style="font-size:.78rem;font-weight:600;padding:.2rem .7rem;background:rgba(201,169,110,.12);color:var(--ac);border-radius:100px;white-space:nowrap">' + (r.session||'') + '</span>'    + '<button data-docid="' + (r._docId||'') + '" data-localid="' + (r._id||'') + '" class="r-del-btn" title="삭제" style="background:none;border:none;color:var(--tl);cursor:pointer;font-size:.9rem;opacity:.4;padding:.15rem .35rem;border-radius:6px;line-height:1;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4">✕</button>'    + '</div>'
+    + '</div>'
+    // 답변
+    + '<div style="border-top:1px solid ' + _bc + ';padding-top:.9rem">' + answers + '</div>'
+    + '</div>';
+}
+
+function toggleAns(btn, full, preview) {
+  var p = btn.previousElementSibling;
+  if (btn.textContent.includes('더 보기')) {
+    p.textContent = full;
+    btn.textContent = '접기 ▴';
+  } else {
+    p.textContent = preview;
+    btn.textContent = '더 보기 ▾';
+  }
+}
+
+// ── 필터 탭 렌더링 ────────────────────────────────────────────
+function renderFilter(records) {
+  var filterEl = document.getElementById('r_filter');
+  if (!filterEl) return;
+  var sessions = [];
+  records.forEach(function(r) { if (r.session && sessions.indexOf(r.session) === -1) sessions.push(r.session); });
+  if (sessions.length < 2) { filterEl.style.display = 'none'; return; }
+  filterEl.style.display = 'flex';
+  var tabs = ['all'].concat(sessions);
+  filterEl.innerHTML = tabs.map(function(s) {
+    var active = s === _activeFilter;
+    return '<button onclick="setFilter(''+s+'')" style="padding:.35rem .85rem;border-radius:100px;border:1px solid '
+      + (active ? 'var(--ac)' : 'var(--bo)')
+      + ';background:' + (active ? 'var(--ac)' : 'transparent')
+      + ';color:' + (active ? '#fff' : 'var(--ts)')
+      + ';font-size:.8rem;font-weight:' + (active ? '700' : '500')
+      + ';cursor:pointer;transition:all .2s">' + (s === 'all' ? '전체' : s) + '</button>';
+  }).join('');
+}
+
+function setFilter(session) {
+  _activeFilter = session;
+  renderFilter(_allRecords);
+  var filtered = session === 'all' ? _allRecords : _allRecords.filter(function(r){ return r.session === session; });
+  renderCards(filtered);
+}
+
+// ── 카드 목록 렌더링 ──────────────────────────────────────────
+function renderCards(records) {
+  var board = document.getElementById('r_board');
+  if (!board) return;
+  if (!records || !records.length) {
+    board.innerHTML = '<p style="color:var(--tl);font-size:.9rem;text-align:center;padding:3rem 1rem">아직 성찰 기록이 없어요 🌱</p>';
+    return;
+  }
+  board.innerHTML = records.map(function(r) { return makeCard(r, false); }).join('');
+}
+
+// 이벤트 위임 — board에서 삭제 버튼 클릭 처리
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.r-del-btn');
+  if (!btn) return;
+  var docId = btn.dataset.docid || '';
+  var localId = btn.dataset.localid || '';
+  deleteRecord(docId, localId);
+});
+
+function renderBoard(records) {
+  _allRecords = records || [];
+  renderFilter(_allRecords);
+  var filtered = _activeFilter === 'all' ? _allRecords
+    : _allRecords.filter(function(r){ return r.session === _activeFilter; });
+  renderCards(filtered);
 }
 
 async function initFirebase() {
   if (!_hasFirebase) return;
   try {
     const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-    const { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
     const app = getApps().length ? getApps()[0] : initializeApp(_FB_CONFIG);
     _db = getFirestore(app);
     _fbStore = { collection, addDoc, serverTimestamp };
     const q = query(collection(_db, _FB_COLLECTION), where('pageId','==',_PAGE_ID), orderBy('createdAt','desc'));
-    onSnapshot(q, function(snap){ renderBoard(snap.docs.map(function(d){ return d.data(); })); });
+    _deleteDoc = deleteDoc; _docCollection = collection; _db2 = _db;
+    onSnapshot(q, function(snap){ renderBoard(snap.docs.map(function(d){ return Object.assign({_docId: d.id}, d.data()); })); });
   } catch(e) { console.error('Firebase 초기화 오류:', e); }
 }
 
@@ -301,19 +409,30 @@ window.submitReflection = async function() {
       return;
     }
   } else {
-    const board = document.getElementById('r_board');
-    if (board.querySelector('p')) board.innerHTML = '';
-    const div = document.createElement('div');
-    div.style.cssText = 'padding:1.5rem;background:var(--wh);border-radius:16px;border:1px solid ' + _bc + ';margin-bottom:.75rem';
-    div.innerHTML = '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff">' + name[0] + '</div><span style="font-weight:600;color:var(--dk)">' + name + '</span><span style="margin-left:auto;font-size:.78rem;color:var(--tl)">' + session + '</span></div>'
-      + answers.map(function(a,i){ return a ? '<div style="margin-bottom:.75rem"><div style="font-size:.75rem;font-weight:700;color:var(--ac);margin-bottom:.3rem">' + _qLabels[i] + '</div><p style="font-size:.9rem;color:var(--ts);line-height:1.75;white-space:pre-line">' + a + '</p></div>' : ''; }).join('');
-    board.insertBefore(div, board.firstChild);
+    // Firebase 없을 때: 임시 로컬 카드 추가
+    var newRecord = {name: name, session: session, answers: answers, time: new Date().toLocaleDateString('ko-KR'), _id: Date.now()};
+    _allRecords.unshift(newRecord);
+    renderFilter(_allRecords);
+    if (_activeFilter !== 'all' && _activeFilter !== session) _activeFilter = 'all';
+    renderFilter(_allRecords);
+    var filtered = _activeFilter === 'all' ? _allRecords : _allRecords.filter(function(r){ return r.session === _activeFilter; });
+    var board = document.getElementById('r_board');
+    if (!board) return;
+    board.innerHTML = filtered.map(function(r, idx){ return makeCard(r, idx === 0); }).join('');
+    // 2초 후 새 카드 하이라이트 해제
+    setTimeout(function(){
+      var cards = board.querySelectorAll('div[style*="box-shadow"]');
+      if (cards[0]) cards[0].style.boxShadow = 'none';
+    }, 2500);
   }
   _qLabels.forEach(function(_,i){ const el=document.getElementById('r_q'+i); if(el) el.value=''; });
   if (nameEl && _authMode !== 'select') nameEl.value = '';
   if (btn) { btn.disabled=false; btn.textContent='기록 저장하기 →'; }
   const msg = document.getElementById('r_success');
   if (msg) { msg.style.display='block'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
+  // 게시판으로 부드럽게 스크롤
+  var wrap = document.getElementById('r_board_wrap');
+  if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 400);
 };
 
 renderBoard([]);
