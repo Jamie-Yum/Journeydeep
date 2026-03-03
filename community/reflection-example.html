@@ -419,7 +419,7 @@ window.submitReflection = async function() {
       if (_SHEET_URL) {
         const sd = { pageId: _PAGE_ID, name: name, session: session, time: new Date().toLocaleDateString('ko-KR') };
         _qLabels.forEach(function(label,i){ sd['q'+(i+1)+'_'+label] = answers[i]||''; });
-        fetch(_SHEET_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sd)}).catch(function(){});
+        fetch(_SHEET_URL, {method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(sd)}).catch(function(){});
       }
     } catch(e) {
       alert('저장 오류: ' + e.message);
