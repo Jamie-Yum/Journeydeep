@@ -254,7 +254,7 @@ document.getElementById('applyForm').addEventListener('submit', function(e) {
   if (document.getElementById('field_8')) data["나에게 '조직문화&교육'이란?"] = document.getElementById('field_8').value;
   if (document.getElementById('field_9')) data["이번 조니딥 참여 계기와 기대하는 점을 알려주세요."] = document.getElementById('field_9').value;
   if (sheetUrl) {
-    fetch(sheetUrl, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    fetch(sheetUrl, {method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)})
       .then(() => { document.getElementById('applyForm').style.display='none'; document.getElementById('applySuccess').style.display='block'; })
       .catch(() => { document.getElementById('applyForm').style.display='none'; document.getElementById('applySuccess').style.display='block'; });
   } else {
