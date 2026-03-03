@@ -387,7 +387,25 @@ window.submitReflection = async function() {
   const answers = _qLabels.map(function(_,i){ return ((document.getElementById('r_q'+i)||{}).value||'').trim(); });
   if (answers.every(function(a){ return !a; })) { alert('성찰 내용을 한 가지 이상 입력해 주세요'); return; }
   const btn = document.querySelector('[onclick*="submitReflection"]');
+
+  // 어떤 경우에도 버튼 반드시 복원
+  function restoreBtn() {
+    if (btn) { btn.disabled = false; btn.textContent = '기록 저장하기 →'; }
+  }
+
   if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+
+  // Firebase가 아직 초기화 중이면 최대 5초 대기
+  if (_hasFirebase && !_fbStore) {
+    let waited = 0;
+    await new Promise(function(resolve) {
+      var check = setInterval(function() {
+        waited += 200;
+        if (_fbStore || waited >= 5000) { clearInterval(check); resolve(); }
+      }, 200);
+    });
+  }
+
   if (_hasFirebase && _fbStore) {
     try {
       await _fbStore.addDoc(_fbStore.collection(_db, _FB_COLLECTION), {
@@ -401,7 +419,7 @@ window.submitReflection = async function() {
       }
     } catch(e) {
       alert('저장 오류: ' + e.message);
-      if (btn) { btn.disabled=false; btn.textContent='기록 저장하기 →'; }
+      restoreBtn();
       return;
     }
   } else {
@@ -413,9 +431,8 @@ window.submitReflection = async function() {
     renderFilter(_allRecords);
     var filtered = _activeFilter === 'all' ? _allRecords : _allRecords.filter(function(r){ return r.session === _activeFilter; });
     var board = document.getElementById('r_board');
-    if (!board) return;
+    if (!board) { restoreBtn(); return; }
     board.innerHTML = filtered.map(function(r, idx){ return makeCard(r, idx === 0); }).join('');
-    // 2초 후 새 카드 하이라이트 해제
     setTimeout(function(){
       var cards = board.querySelectorAll('div[style*="box-shadow"]');
       if (cards[0]) cards[0].style.boxShadow = 'none';
@@ -423,10 +440,9 @@ window.submitReflection = async function() {
   }
   _qLabels.forEach(function(_,i){ const el=document.getElementById('r_q'+i); if(el) el.value=''; });
   if (nameEl && _authMode !== 'select') nameEl.value = '';
-  if (btn) { btn.disabled=false; btn.textContent='기록 저장하기 →'; }
+  restoreBtn();
   const msg = document.getElementById('r_success');
   if (msg) { msg.style.display='block'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
-  // 게시판으로 부드럽게 스크롤
   var wrap = document.getElementById('r_board_wrap');
   if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 400);
 };
