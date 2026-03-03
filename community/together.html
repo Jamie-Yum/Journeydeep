@@ -198,4 +198,57 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <p style="font-size:.88rem;color:var(--tl);line-height:1.7;margin-bottom:.6rem">루크 버기스의 Wanting을 읽고, 모임 전후로 짧게 기록해보세요. 내 욕망이 어디서 왔는지 들여다보는 시간입니다.</p>
   <div style="font-size:.8rem;color:var(--dm)"></div>
 </a>
-</div><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}</script></body></html>
+</div><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}</script>
+<!-- GitHub Deploy Modal -->
+<div id="ghModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:2rem;width:min(520px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--dk)">&#128640; 깃허브 Pages 배포</div>
+        <div style="font-size:.8rem;color:var(--tl);margin-top:.2rem">ZIP 없이 에디터에서 바로 배포</div>
+      </div>
+      <button onclick="closeGhModal()" style="background:none;border:none;font-size:1.3rem;color:var(--tl);cursor:pointer">&#x2715;</button>
+    </div>
+    <div id="ghSetupArea">
+      <div style="padding:.75rem 1rem;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);border-radius:10px;margin-bottom:1.25rem;font-size:.82rem;color:var(--ts);line-height:1.7">
+        &#128161; 처음 한 번만 토큰과 리포지토리를 입력하면 돼요. 브라우저에 저장되어 다음엔 바로 배포돼요.
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">깃허브 Personal Access Token</label>
+        <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
+        <p style="font-size:.75rem;color:var(--tl);margin-top:.3rem">토큰 발급 방법은 아래 안내를 참고하세요</p>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">깃허브 사용자명</label>
+        <input id="ghOwner" placeholder="예: johndoe" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">리포지토리 이름</label>
+        <input id="ghRepo" placeholder="예: journey-deep" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
+        <p style="font-size:.75rem;color:var(--tl);margin-top:.3rem">깃허브 Pages가 활성화된 리포지토리 이름</p>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">배포 브랜치</label>
+        <input id="ghBranch" value="main" placeholder="main" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
+      </div>
+      <button onclick="startGithubDeploy()" style="width:100%;padding:.9rem;background:linear-gradient(135deg,#24292e,#404448);color:#fff;border:none;border-radius:100px;font-size:.97rem;font-weight:600;cursor:pointer">&#128640; 지금 배포하기</button>
+    </div>
+    <div id="ghProgress" style="display:none;margin-top:1rem">
+      <div id="ghProgressLog" style="font-size:.83rem;color:var(--ts);line-height:2;min-height:120px"></div>
+    </div>
+    <div style="margin-top:1.5rem;border-top:1px solid var(--bd);padding-top:1.25rem">
+      <button onclick="toggleGhGuide()" style="background:none;border:none;color:var(--ac);font-size:.82rem;font-weight:600;cursor:pointer;padding:0">&#128216; 토큰 발급 방법 보기 &#9660;</button>
+      <div id="ghGuide" style="display:none;margin-top:.75rem;font-size:.8rem;color:var(--ts);line-height:2">
+        <b style="color:var(--dk)">1.</b> <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--ac)">github.com/settings/tokens/new</a> 접속<br>
+        <b style="color:var(--dk)">2.</b> Note: 아무 이름 입력 (예: journey-deep)<br>
+        <b style="color:var(--dk)">3.</b> Expiration: No expiration 선택<br>
+        <b style="color:var(--dk)">4.</b> Select scopes에서 <b style="color:var(--dk)">repo</b> 체크박스 선택<br>
+        <b style="color:var(--dk)">5.</b> Generate token 클릭<br>
+        <b style="color:var(--dk)">6.</b> 생성된 ghp_xxx 토큰 복사해서 위에 붙여넣기<br>
+        <div style="margin-top:.5rem;padding:.5rem .75rem;background:rgba(255,100,100,.08);border-radius:8px;color:#e55;font-size:.76rem">&#9888;&#65039; 토큰은 한 번만 보여요. 꼭 복사해두세요!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body></html>
