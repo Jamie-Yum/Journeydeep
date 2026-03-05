@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>성찰_Wanting - 조니딥</title>
+<title>성찰_시즌8 2회차 - 조니딥</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>:root{--bg:#FDF6EC;--wh:#FFFDF9;--be:#F5EBD8;--sa:#E8D5B7;--ac:#C9A96E;--te:#C4775A;--dk:#3D2B1F;--ol:#7A8B6F;--tp:#2C1810;--ts:#5C4A3A;--tl:#8B7355;--dm:#8B7355;--sw:rgba(60,43,31,.08);--sd:rgba(60,43,31,.15)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);overflow-x:hidden;line-height:1.8}
@@ -161,310 +161,305 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <span class="nav-link-main">Begin</span>
   <span class="nav-link-sub">신청하기</span>
 </a>
-<div class="nav-dropdown"><a href="../program/s8-guest.html" class="nav-dd-item">시즌 8 게스트 신청</a></div>
+<div class="nav-dropdown"><a href="../program/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#journeys" class="nav-link-item">
   <span class="nav-link-main">Journeys</span>
   <span class="nav-link-sub">프로그램</span>
 </a>
-<div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">시즌 8</a></div>
+<div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">조니딥 시즌 8</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#together" class="nav-link-item">
   <span class="nav-link-main">Together</span>
   <span class="nav-link-sub">커뮤니티</span>
 </a>
-<div class="nav-dropdown"><a href="../community/wanting-proposal.html" class="nav-dd-item">발제문_Wanting</a><div class="nav-dd-divider"></div><a href="../community/wanting-reflection.html" class="nav-dd-item">성찰_Wanting</a></div>
+<div class="nav-dropdown"><a href="../community/wanting-proposal.html" class="nav-dd-item">발제문_시즌 8 2회차</a><div class="nav-dd-divider"></div><a href="../community/wanting-reflection.html" class="nav-dd-item">성찰_시즌8 2회차</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#trace" class="nav-link-item">
   <span class="nav-link-main">Trace</span>
   <span class="nav-link-sub">아카이브</span>
 </a>
-<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">Book List</a></div>
+<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">조니딥 Book List</a></div>
 </li></ul>
 <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 </nav>
-<div style="min-height:100vh;padding:6rem 1.5rem 4rem;background:var(--bg);position:relative">
-  
-  <div style="max-width:680px;margin:0 auto;position:relative;z-index:1">
+<div style="min-height:100vh;padding:6rem 1.5rem 4rem;background:var(--bg)">
+  <div style="max-width:640px;margin:0 auto">
     <a href="../index.html" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--tl);text-decoration:none;font-size:.85rem;margin-bottom:2rem">← 홈으로</a>
     <div style="margin-bottom:2.5rem">
       <div style="display:inline-block;padding:.3rem 1rem;background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);border-radius:100px;font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:1rem">REFLECTION</div>
       <h1 style="font-family:'Noto Serif KR',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;color:var(--dk);line-height:1.4;margin-bottom:.75rem">Wanting — 나는 정말 내가 원하는 것을 원하는가</h1>
       <p style="font-size:.97rem;color:var(--ts);line-height:1.8">루크 버기스의 Wanting을 읽고, 모임 전후로 짧게 기록해보세요. 내 욕망이 어디서 왔는지 들여다보는 시간입니다.</p>
     </div>
-    <!-- 성찰 입력 폼 -->
-    <div style="background:var(--wh);padding:2rem 2.5rem;border-radius:20px;border:1px solid rgba(232,213,183,.4);margin-bottom:2.5rem">
-      <h2 style="font-family:'Noto Serif KR',serif;font-size:1.2rem;font-weight:600;color:var(--dk);margin-bottom:1.5rem">✍️ 성찰 기록하기</h2>
-      <div style="margin-bottom:1.25rem">
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">이름</label>
-        <select id="r_name" style="width:100%;padding:.75rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem">
-          <option value="">이름을 선택하세요</option><option value="김예원">김예원</option><option value="김유희">김유희</option><option value="박정환">박정환</option><option value="송민정">송민정</option><option value="염제명">염제명</option><option value="임상우">임상우</option><option value="제갈란">제갈란</option><option value="최지명">최지명</option>
-        </select></div>
-      <div style="margin-bottom:1.25rem">
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">회차</label>
-        <select id="r_session" style="width:100%;padding:.75rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem">
-          <option value="">회차를 선택하세요</option><option value="S8-2">S8-2 · 03/07 · Wanting — 루크 버기스</option>
-        </select>
-      </div>
-      
-      <div style="margin-bottom:1.25rem">
-        <label style="display:block;font-size:.85rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">모임 전 성찰</label>
-        <textarea id="r_q0" rows="3" style="width:100%;padding:.75rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;font-family:inherit;line-height:1.7;resize:vertical" placeholder="이 책을 읽으면서 어떤 생각들을 많이 떠올리고 계신가요? "></textarea>
-      </div>
-      <button onclick="submitReflection()" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:.97rem;font-weight:600;cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
-      <div id="r_success" style="display:none;margin-top:1rem;text-align:center;color:var(--ac);font-weight:600">✅ 성찰이 저장되었습니다!</div>
+
+    <!-- 입력 폼 (신청 페이지와 동일 구조) -->
+    <form id="r_form" style="background:var(--wh);padding:2.5rem;border-radius:20px;border:1px solid rgba(232,213,183,.4)">
+      <div style="margin-bottom:1.75rem">
+  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">이름 <span style="color:#e55">*</span></label>
+  <select id="r_name" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none">
+    <option value="">이름을 선택하세요</option><option value="김예원">김예원</option><option value="김유희">김유희</option><option value="박정환">박정환</option><option value="송민정">송민정</option><option value="염제명">염제명</option><option value="임상우">임상우</option><option value="제갈란">제갈란</option><option value="최지명">최지명</option>
+  </select>
+</div>
+      <div style="margin-bottom:1.75rem">
+  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">회차 <span style="color:#e55">*</span></label>
+  <select id="r_session" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none">
+    <option value="">회차를 선택하세요</option><option value="S8-2">S8-2 · 03/07 · Wanting — 루크 버기스</option>
+  </select>
+</div>
+      <div style="margin-bottom:1.75rem">
+  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">모임 전 성찰 <span style="color:#e55">*</span></label>
+  <p style="font-size:.85rem;color:var(--tl);margin-bottom:.5rem">이 책을 읽으면서 어떤 생각들을 많이 떠올리고 계신가요? </p>
+  <textarea id="r_q0" rows="3" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea>
+</div>
+      <button type="submit" style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
+    </form>
+
+    <!-- 완료 메시지 -->
+    <div id="r_success_banner" style="display:none;text-align:center;padding:2rem;background:var(--wh);border-radius:16px;border:1px solid rgba(201,169,110,.3);margin-top:1rem">
+      <div style="font-size:2rem;margin-bottom:.5rem">✅</div>
+      <p style="color:var(--dk);font-weight:600">성찰이 저장되었습니다!</p>
     </div>
-    <!-- 성찰 게시판 -->
+
     
-    <div id="r_board_wrap" style="margin-top:3rem">
-      <div style="margin-bottom:1.5rem">
-        <h2 style="font-family:'Noto Serif KR',serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">함께한 성찰 기록</h2>
-        
-      </div>
-      <!-- 회차 필터 탭 -->
-      <div id="r_filter" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem"></div>
-      <!-- 기록 목록 -->
-      <div id="r_board" style="display:flex;flex-direction:column;gap:.75rem">
-        <p style="color:var(--tl);font-size:.9rem;text-align:center;padding:2rem">첫 번째 성찰을 기록해보세요 🌱</p>
-      </div>
-    </div>
+<div id="r_board_wrap" style="margin-top:3rem">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem">
+    <h2 style="font-family:'Noto Serif KR',serif;font-size:1.2rem;font-weight:600;color:var(--dk)">함께한 성찰</h2>
+    <div id="r_filter_wrap" style="display:flex;gap:.4rem;flex-wrap:wrap"></div>
+  </div>
+  <div id="r_board" style="display:flex;flex-direction:column;gap:1rem"></div>
+  <div id="r_empty" style="text-align:center;padding:3rem;color:var(--tl);font-size:.9rem">아직 기록이 없습니다. 첫 번째 성찰을 남겨보세요 🌱</div>
+</div>
   </div>
 </div>
-<script type="module">
-const _FB_CONFIG = {"apiKey":"AIzaSyBGj5bZmxUKv8ohFMrtKZ-40LUvl6VkKBQ","authDomain":"journey-deep.firebaseapp.com","projectId":"journey-deep","appId":"1:806267289514:web:00ab31b960ce55d372b5d3"};
-const _FB_COLLECTION = "reflections";
-const _PAGE_ID = "wanting_reflection";
-const _SHEET_URL = "https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
-const _authMode = "select";
-const _correctPw = "";
-const _qLabels = ["모임 전 성찰"];
-const _bc = 'rgba(232,213,183,.4)';
-const _hasFirebase = !!((_FB_CONFIG.apiKey||'').trim() && (_FB_CONFIG.projectId||'').trim());
-let _db = null, _fbStore = null;
-let _deleteDoc = null, _docCollection = null, _db2 = null;
-let _allRecords = [];
-let _activeFilter = 'all';
-const _boardCollapse = false;
+<script>
+// ── 설정 ─────────────────────────────────────────────
+var _FB_CONFIG   = {"apiKey":"AIzaSyBGj5bZmxUKv8ohFMrtKZ-40LUvl6VkKBQ","authDomain":"journey-deep.firebaseapp.com","projectId":"journey-deep","appId":"1:806267289514:web:00ab31b960ce55d372b5d3"};
+var _FB_COLL     = "reflections";
+var _PAGE_ID     = "wanting_reflection";
+var _SHEET_URL   = "https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
+var _AUTH_MODE   = "select";
+var _CORRECT_PW  = "";
+var _Q_LABELS    = ["모임 전 성찰"];
+var _HAS_FB      = !!((_FB_CONFIG.apiKey||'').trim() && (_FB_CONFIG.projectId||'').trim());
+var _db = null, _fbStore = null, _db2 = null, _deleteDoc2 = null;
+var _allRecords  = [];
+var _activeFilter = 'all';
 
-// ── 카드 한 장 HTML 생성 ──────────────────────────────────────
-window.deleteRecord = async function(docId, localId) {
-  if (!confirm('이 성찰 기록을 삭제할까요?')) return;
-  if (docId && _deleteDoc && _db2) {
-    // Firebase에서 실제 삭제
-    try {
-      const { doc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      await _deleteDoc(doc(_db2, _FB_COLLECTION, docId));
-    } catch(e) { alert('삭제 실패: ' + e.message); }
-    // onSnapshot이 자동으로 renderBoard를 다시 호출하므로 별도 처리 불필요
-  } else {
-    // 로컬 임시 삭제
-    _allRecords = _allRecords.filter(function(r){ return r._id !== localId; });
-    renderBoard(_allRecords);
-  }
-};
-
+// ── 카드 렌더링 ──────────────────────────────────────
 function makeCard(r, isNew) {
-  var initials = (r.name||'?').split('').slice(0,2).join('');
-  var answers = (r.answers||[]).map(function(a, i) {
-    if (!a) return '';
-    var collapsed = _boardCollapse && a.length > 120;
-    var preview = collapsed ? a.slice(0, 100) + '…' : a;
+  var border = isNew ? '2px solid var(--ac)' : '1px solid ' + (false ? 'rgba(255,255,255,.06)' : 'rgba(232,213,183,.35)');
+  var qHTML = _Q_LABELS.map(function(lbl, i) {
+    if (!r.answers || !r.answers[i]) return '';
     return '<div style="margin-bottom:.85rem">'
-      + '<div style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.35rem">' + (_qLabels[i]||'') + '</div>'
-      + '<p id="ans_' + (r._id||i) + '_' + i + '" style="font-size:.9rem;color:var(--ts);line-height:1.8;white-space:pre-line;margin:0">' + preview + '</p>'
-      + (collapsed ? '<button onclick="toggleAns(this,''+a.replace(/'/g,"\'")+'',''+preview.replace(/'/g,"\'")+'')" style="margin-top:.3rem;background:none;border:none;color:var(--ac);font-size:.8rem;cursor:pointer;padding:0">더 보기 ▾</button>' : '')
+      + '<div style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem">' + lbl + '</div>'
+      + '<p style="font-size:.9rem;color:var(--ts);line-height:1.75;white-space:pre-wrap">' + (r.answers[i]||'').replace(/</g,'&lt;') + '</p>'
       + '</div>';
   }).join('');
-
-  return '<div style="padding:1.5rem 1.75rem;background:var(--wh);border-radius:16px;border:1px solid '
-    + (isNew ? 'var(--ac)' : _bc)
-    + ';box-shadow:' + (isNew ? '0 0 0 2px rgba(201,169,110,.25)' : 'none')
-    + ';transition:box-shadow .3s">'
-    // 헤더
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem">'
-    + '<div style="display:flex;align-items:center;gap:.65rem">'
-    + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.85rem;flex-shrink:0">' + initials + '</div>'
-    + '<div><div style="font-weight:700;color:var(--dk);font-size:.95rem;line-height:1.2">' + (r.name||'') + '</div>'
-    + '<div style="font-size:.75rem;color:var(--tl);margin-top:.1rem">' + (r.time||'') + '</div></div>'
-    + '</div>'
-    + '<div style="display:flex;align-items:center;gap:.5rem">'    + '<span style="font-size:.78rem;font-weight:600;padding:.2rem .7rem;background:rgba(201,169,110,.12);color:var(--ac);border-radius:100px;white-space:nowrap">' + (r.session||'') + '</span>'    + '<button data-docid="' + (r._docId||'') + '" data-localid="' + (r._id||'') + '" class="r-del-btn" title="삭제" style="background:none;border:none;color:var(--tl);cursor:pointer;font-size:.9rem;opacity:.4;padding:.15rem .35rem;border-radius:6px;line-height:1;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4">✕</button>'    + '</div>'
-    + '</div>'
-    // 답변
-    + '<div style="border-top:1px solid ' + _bc + ';padding-top:.9rem">' + answers + '</div>'
-    + '</div>';
+  var delBtn = r._id ? '<button onclick="deleteRecord('' + (r.docId||'') + '',' + (r._localId||0) + ')" style="background:none;border:none;font-size:.75rem;color:var(--tl);cursor:pointer;padding:.2rem .5rem;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#e55'" onmouseout="this.style.color='var(--tl)'">삭제</button>' : '';
+  return '<div style="background:var(--wh);border-radius:16px;border:' + border + ';padding:1.5rem;transition:border .5s">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.4rem">'
+    + '<div style="display:flex;align-items:center;gap:.75rem">'
+    + '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff">' + ((r.name||'?')[0]) + '</div>'
+    + '<div><div style="font-size:.9rem;font-weight:600;color:var(--dk)">' + (r.name||'') + '</div>'
+    + '<div style="font-size:.75rem;color:var(--tl)">' + (r.session||'') + (r.time ? ' · ' + r.time : '') + '</div></div>'
+    + '</div>' + delBtn + '</div>'
+    + qHTML + '</div>';
 }
-
-function toggleAns(btn, full, preview) {
-  var p = btn.previousElementSibling;
-  if (btn.textContent.includes('더 보기')) {
-    p.textContent = full;
-    btn.textContent = '접기 ▴';
-  } else {
-    p.textContent = preview;
-    btn.textContent = '더 보기 ▾';
-  }
-}
-
-// ── 필터 탭 렌더링 ────────────────────────────────────────────
-function renderFilter(records) {
-  var filterEl = document.getElementById('r_filter');
-  if (!filterEl) return;
-  var sessions = [];
-  records.forEach(function(r) { if (r.session && sessions.indexOf(r.session) === -1) sessions.push(r.session); });
-  if (sessions.length < 2) { filterEl.style.display = 'none'; return; }
-  filterEl.style.display = 'flex';
-  var tabs = ['all'].concat(sessions);
-  filterEl.innerHTML = tabs.map(function(s) {
-    var active = s === _activeFilter;
-    return '<button onclick="setFilter(''+s+'')" style="padding:.35rem .85rem;border-radius:100px;border:1px solid '
-      + (active ? 'var(--ac)' : 'var(--bo)')
-      + ';background:' + (active ? 'var(--ac)' : 'transparent')
-      + ';color:' + (active ? '#fff' : 'var(--ts)')
-      + ';font-size:.8rem;font-weight:' + (active ? '700' : '500')
-      + ';cursor:pointer;transition:all .2s">' + (s === 'all' ? '전체' : s) + '</button>';
-  }).join('');
-}
-
-function setFilter(session) {
-  _activeFilter = session;
-  renderFilter(_allRecords);
-  var filtered = session === 'all' ? _allRecords : _allRecords.filter(function(r){ return r.session === session; });
-  renderCards(filtered);
-}
-
-// ── 카드 목록 렌더링 ──────────────────────────────────────────
-function renderCards(records) {
-  var board = document.getElementById('r_board');
-  if (!board) return;
-  if (!records || !records.length) {
-    board.innerHTML = '<p style="color:var(--tl);font-size:.9rem;text-align:center;padding:3rem 1rem">아직 성찰 기록이 없어요 🌱</p>';
-    return;
-  }
-  board.innerHTML = records.map(function(r) { return makeCard(r, false); }).join('');
-}
-
-// 이벤트 위임 — board에서 삭제 버튼 클릭 처리
-document.addEventListener('click', function(e) {
-  var btn = e.target.closest('.r-del-btn');
-  if (!btn) return;
-  var docId = btn.dataset.docid || '';
-  var localId = btn.dataset.localid || '';
-  deleteRecord(docId, localId);
-});
 
 function renderBoard(records) {
-  _allRecords = records || [];
-  renderFilter(_allRecords);
-  var filtered = _activeFilter === 'all' ? _allRecords
-    : _allRecords.filter(function(r){ return r.session === _activeFilter; });
-  renderCards(filtered);
+  var board = document.getElementById('r_board');
+  var empty = document.getElementById('r_empty');
+  if (!board) return;
+  var filtered = _activeFilter === 'all' ? records : records.filter(function(r){ return r.session === _activeFilter; });
+  board.innerHTML = filtered.map(function(r, i){ return makeCard(r, i===0 && r._new); }).join('');
+  if (empty) empty.style.display = filtered.length ? 'none' : 'block';
+  // 필터 버튼
+  var fw = document.getElementById('r_filter_wrap');
+  if (fw) {
+    var sessions = ['all'].concat(_allRecords.map(function(r){ return r.session; }).filter(function(v,i,a){ return a.indexOf(v)===i; }));
+    fw.innerHTML = sessions.map(function(s) {
+      var active = _activeFilter === s;
+      return '<button onclick="setFilter('' + s + '')" style="padding:.3rem .85rem;border-radius:100px;border:1px solid ' + (active?'var(--ac)':'rgba(201,169,110,.3)') + ';background:' + (active?'rgba(201,169,110,.15)':'transparent') + ';color:' + (active?'var(--ac)':'var(--tl)') + ';font-size:.78rem;font-weight:600;cursor:pointer">' + (s==='all'?'전체':s) + '</button>';
+    }).join('');
+  }
 }
 
-async function initFirebase() {
-  if (!_hasFirebase) return;
-  try {
-    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-    const { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-    const app = getApps().length ? getApps()[0] : initializeApp(_FB_CONFIG);
-    _db = getFirestore(app);
-    _fbStore = { collection, addDoc, serverTimestamp };
-    const q = query(collection(_db, _FB_COLLECTION), where('pageId','==',_PAGE_ID), orderBy('createdAt','desc'));
-    _deleteDoc = deleteDoc; _docCollection = collection; _db2 = _db;
-    onSnapshot(q, function(snap){ renderBoard(snap.docs.map(function(d){ return Object.assign({_docId: d.id}, d.data()); })); });
-  } catch(e) { console.error('Firebase 초기화 오류:', e); }
+function setFilter(s) {
+  _activeFilter = s;
+  renderBoard(_allRecords);
 }
 
-window.submitReflection = async function() {
-  const nameEl = document.getElementById('r_name');
-  const name = nameEl ? nameEl.value.trim() : '';
+window.deleteRecord = function(docId, localId) {
+  if (!confirm('이 성찰 기록을 삭제할까요?')) return;
+  if (docId && _deleteDoc2 && _db2) {
+    try {
+      var imp = import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      imp.then(function(m){ m.deleteDoc(m.doc(_db2, _FB_COLL, docId)); });
+    } catch(e) {}
+  }
+  _allRecords = _allRecords.filter(function(r){ return !(r.docId===docId && r._localId===localId); });
+  renderBoard(_allRecords);
+};
 
-  // ── 유효성 검사 ──────────────────────────────────
-  // 이름
-  if (!name) {
-    markFieldError(nameEl, '이름을 입력/선택해 주세요');
-    return;
+// ── 유효성 검사 헬퍼 ────────────────────────────────
+function fieldErr(el, msg) {
+  if (!el) return;
+  el.style.borderColor = '#e55';
+  el.style.boxShadow = '0 0 0 2px rgba(229,85,85,.18)';
+  var prev = el.nextElementSibling;
+  if (prev && prev.dataset && prev.dataset.ferr) prev.remove();
+  var em = document.createElement('span');
+  em.dataset.ferr = '1';
+  em.style.cssText = 'font-size:.78rem;color:#e55;margin-top:.3rem;display:block';
+  em.textContent = msg || '필수 항목이에요';
+  el.parentNode.insertBefore(em, el.nextSibling);
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  if (el.focus) el.focus();
+  el.addEventListener('input', function clr(){
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+    var e = el.nextElementSibling;
+    if (e && e.dataset && e.dataset.ferr) e.remove();
+    el.removeEventListener('input', clr);
+  }, {once:true});
+}
+
+function showPopup(title, msg, icon) {
+  var pop = document.getElementById('_rpop');
+  if (!pop) {
+    pop = document.createElement('div'); pop.id = '_rpop';
+    pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';
+    pop.innerHTML = '<div id="_rpbox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="_rpico" style="font-size:3rem;margin-bottom:.75rem"></div><div id="_rptit" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="_rpmsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';
+    document.body.appendChild(pop);
   }
-  // 비밀번호
-  if (_authMode === 'password') {
-    const pw = (document.getElementById('r_pw')||{}).value||'';
-    if (pw !== _correctPw) {
-      markFieldError(document.getElementById('r_pw'), '비밀번호가 올바르지 않습니다');
-      return;
-    }
+  document.getElementById('_rpico').textContent = icon || '✅';
+  document.getElementById('_rptit').textContent = title || '완료!';
+  document.getElementById('_rpmsg').textContent = msg || '';
+  pop.style.opacity = '1'; pop.style.pointerEvents = 'auto';
+  pop.querySelector('#_rpbox').style.transform = 'scale(1)';
+  setTimeout(function(){
+    pop.style.opacity = '0'; pop.style.pointerEvents = 'none';
+    pop.querySelector('#_rpbox').style.transform = 'scale(.85)';
+  }, 2800);
+}
+
+// ── 폼 제출 (신청 페이지와 동일 패턴, 일반 script) ──
+document.getElementById('r_form').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  // 에러 초기화
+  document.querySelectorAll('[data-ferr]').forEach(function(el){ el.remove(); });
+  document.getElementById('r_name').style.borderColor = '';
+  document.getElementById('r_session').style.borderColor = '';
+
+  // 유효성 검사
+  var nameEl = document.getElementById('r_name');
+  var name = nameEl ? nameEl.value.trim() : '';
+  if (!name) { fieldErr(nameEl, '이름을 입력/선택해 주세요'); return; }
+
+  if (_AUTH_MODE === 'password') {
+    var pwEl = document.getElementById('r_pw');
+    var pw = pwEl ? pwEl.value : '';
+    if (pw !== _CORRECT_PW) { fieldErr(pwEl, '비밀번호가 올바르지 않습니다'); return; }
   }
-  // 회차
-  const sessionEl = document.getElementById('r_session');
-  const session = sessionEl ? sessionEl.value : '';
-  if (!session) {
-    markFieldError(sessionEl, '회차를 선택해 주세요');
-    return;
-  }
-  // 성찰 내용 (하나 이상)
-  const answers = _qLabels.map(function(_,i){ return ((document.getElementById('r_q'+i)||{}).value||'').trim(); });
+
+  var sessionEl = document.getElementById('r_session');
+  var session = sessionEl ? sessionEl.value : '';
+  if (!session) { fieldErr(sessionEl, '회차를 선택해 주세요'); return; }
+
+  var answers = _Q_LABELS.map(function(_, i) {
+    var el = document.getElementById('r_q' + i);
+    return el ? el.value.trim() : '';
+  });
   if (answers.every(function(a){ return !a; })) {
-    var firstQ = document.getElementById('r_q0');
-    markFieldError(firstQ, '성찰 내용을 한 가지 이상 입력해 주세요');
+    fieldErr(document.getElementById('r_q0'), '성찰 내용을 한 가지 이상 입력해 주세요');
     return;
   }
-  const btn = document.querySelector('[onclick*="submitReflection"]');
 
-  // 어떤 경우에도 버튼 반드시 복원
-  function restoreBtn() {
-    if (btn) { btn.disabled = false; btn.textContent = '기록 저장하기 →'; }
-  }
-
+  // 제출 버튼 비활성화
+  var btn = e.target.querySelector('button[type="submit"]');
   if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
 
-  // Firebase가 아직 초기화 중이면 최대 5초 대기
-  if (_hasFirebase && !_fbStore) {
-    let waited = 0;
-    await new Promise(function(resolve) {
-      var check = setInterval(function() {
-        waited += 200;
-        if (_fbStore || waited >= 5000) { clearInterval(check); resolve(); }
-      }, 200);
-    });
+  function restoreBtn() { if (btn) { btn.disabled = false; btn.textContent = '기록 저장하기 →'; } }
+
+  function onSaved(docId) {
+    // 폼 초기화
+    _Q_LABELS.forEach(function(_, i){ var el = document.getElementById('r_q'+i); if(el) el.value=''; });
+    if (nameEl && _AUTH_MODE !== 'select') nameEl.value = '';
+    restoreBtn();
+    // 팝업
+    showPopup('기록 저장 완료!', '성찰이 저장되었습니다 🌱  함께한 기록이 아래에 남아요.', '✅');
+    // 로컬 카드 즉시 추가 (Firebase onSnapshot 오기 전에도 보이게)
+    if (!_HAS_FB) {
+      var rec = {name:name, session:session, answers:answers, time:new Date().toLocaleDateString('ko-KR'), _localId:Date.now(), _id:Date.now(), _new:true};
+      _allRecords.unshift(rec);
+      renderBoard(_allRecords);
+    }
+    // 게시판으로 스크롤
+    var wrap = document.getElementById('r_board_wrap');
+    if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 2900);
   }
 
-  if (_hasFirebase && _fbStore) {
-    try {
-      await _fbStore.addDoc(_fbStore.collection(_db, _FB_COLLECTION), {
-        pageId: _PAGE_ID, name: name, session: session, answers: answers,
-        time: new Date().toLocaleDateString('ko-KR'), createdAt: _fbStore.serverTimestamp()
-      });
-      if (_SHEET_URL) {
-        const sd = { pageId: _PAGE_ID, name: name, session: session, time: new Date().toLocaleDateString('ko-KR') };
-        _qLabels.forEach(function(label,i){ sd['q'+(i+1)+'_'+label] = answers[i]||''; });
-        fetch(_SHEET_URL, {method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(sd)}).catch(function(){});
-      }
-    } catch(e) {
-      console.error('Firebase 저장 오류:', e);
-      // Firebase 오류여도 성공 메시지는 표시 (onSnapshot으로 이미 저장됐을 수 있음)
-    }
-  } else {
-    // Firebase 없을 때: 임시 로컬 카드 추가
-    var newRecord = {name: name, session: session, answers: answers, time: new Date().toLocaleDateString('ko-KR'), _id: Date.now()};
-    _allRecords.unshift(newRecord);
-    renderFilter(_allRecords);
-    if (_activeFilter !== 'all' && _activeFilter !== session) _activeFilter = 'all';
-    renderFilter(_allRecords);
-    var filtered = _activeFilter === 'all' ? _allRecords : _allRecords.filter(function(r){ return r.session === _activeFilter; });
-    var board = document.getElementById('r_board');
-    if (!board) { restoreBtn(); return; }
-    board.innerHTML = filtered.map(function(r, idx){ return makeCard(r, idx === 0); }).join('');
-    setTimeout(function(){
-      var cards = board.querySelectorAll('div[style*="box-shadow"]');
-      if (cards[0]) cards[0].style.boxShadow = 'none';
-    }, 2500);
+  // Sheet 전송
+  if (_SHEET_URL) {
+    var sd = {pageId:_PAGE_ID, name:name, session:session, time:new Date().toLocaleDateString('ko-KR')};
+    _Q_LABELS.forEach(function(lbl,i){ sd['q'+(i+1)+'_'+lbl] = answers[i]||''; });
+    fetch(_SHEET_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(sd)}).catch(function(){});
   }
-  _qLabels.forEach(function(_,i){ const el=document.getElementById('r_q'+i); if(el) el.value=''; });
-  if (nameEl && _authMode !== 'select') nameEl.value = '';
-  restoreBtn();
-  showSubmitPopup('기록 저장 완료!', '성찰이 저장되었습니다 🌱
-함께한 기록이 아래에 남아요.', '✅');
-  var wrap = document.getElementById('r_board_wrap');
-  if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 2900);
-};
+
+  // Firebase 저장
+  if (_HAS_FB && _fbStore) {
+    _fbStore.addDoc(_fbStore.collection(_db, _FB_COLL), {
+      pageId:_PAGE_ID, name:name, session:session, answers:answers,
+      time:new Date().toLocaleDateString('ko-KR'), createdAt:_fbStore.serverTimestamp()
+    }).then(function(ref){ onSaved(ref.id); }).catch(function(){ onSaved(null); });
+  } else if (_HAS_FB && !_fbStore) {
+    // Firebase 아직 초기화 중 → 잠시 대기
+    var waited = 0;
+    var check = setInterval(function(){
+      waited += 200;
+      if (_fbStore) {
+        clearInterval(check);
+        _fbStore.addDoc(_fbStore.collection(_db, _FB_COLL), {
+          pageId:_PAGE_ID, name:name, session:session, answers:answers,
+          time:new Date().toLocaleDateString('ko-KR'), createdAt:_fbStore.serverTimestamp()
+        }).then(function(ref){ onSaved(ref.id); }).catch(function(){ onSaved(null); });
+      } else if (waited >= 5000) {
+        clearInterval(check);
+        onSaved(null);
+      }
+    }, 200);
+  } else {
+    onSaved(null);
+  }
+});
+
+// ── Firebase 초기화 (동적 import, 별도 script에서) ──
+function initFirebase() {
+  if (!_HAS_FB) { renderBoard([]); return; }
+  var s = document.createElement('script');
+  s.type = 'module';
+  s.textContent = [
+    'import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";',
+    'import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";',
+    'var cfg = ' + JSON.stringify(fbConfig) + ';',
+    'var app = getApps().length ? getApps()[0] : initializeApp(cfg);',
+    'var db = getFirestore(app);',
+    'window._db = db; window._db2 = db;',
+    'window._deleteDoc2 = deleteDoc;',
+    'window._fbStore = { collection, addDoc, serverTimestamp };',
+    'window._fbStore.collection = collection;',
+    'window._fbStore.addDoc = addDoc;',
+    'window._fbStore.serverTimestamp = serverTimestamp;',
+    'var q = query(collection(db, "' + fbCollection + '"), where("pageId","==","' + pageId + '"), orderBy("createdAt","desc"));',
+    'onSnapshot(q, function(snap) {',
+    '  window._allRecords = snap.docs.map(function(d){ var r=d.data(); r.docId=d.id; r._localId=d.id; r._id=d.id; return r; });',
+    '  if (window.renderBoard) window.renderBoard(window._allRecords);',
+    '});'
+  ].join('
+');
+  document.head.appendChild(s);
+}
 
 renderBoard([]);
 initFirebase();
