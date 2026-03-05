@@ -234,6 +234,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <script>
 document.getElementById('applyForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  var form = document.getElementById('applyForm');
+
+  // 기존 에러 초기화
+  form.querySelectorAll('.field-error').forEach(function(el){ el.classList.remove('field-error'); });
+  form.querySelectorAll('.field-error-msg').forEach(function(el){ el.remove(); });
+
+  // 데이터 수집
   const sheetUrl = "https://script.google.com/macros/s/AKfycbwowCO45_C32BfYCJqUrVpJfSdX_8USAORmX0Hz7wlcpyRfFByNot-pJyGJH-29K7NS/exec";
   const data = {};
   
@@ -253,13 +260,50 @@ document.getElementById('applyForm').addEventListener('submit', function(e) {
   if (document.getElementById('field_7')) data["커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?"] = document.getElementById('field_7').value;
   if (document.getElementById('field_8')) data["나에게 '조직문화&교육'이란?"] = document.getElementById('field_8').value;
   if (document.getElementById('field_9')) data["이번 조니딥 참여 계기와 기대하는 점을 알려주세요."] = document.getElementById('field_9').value;
+
+  // 유효성 검사
+  var errorFound = false;
+  
+  if (!errorFound) { var el_0=document.getElementById('field_0'); if(el_0&&!el_0.value.trim()){errorFound=true;el_0.scrollIntoView({behavior:'smooth',block:'center'});el_0.classList.add('field-error');el_0.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_0.parentNode.insertBefore(em,el_0.nextSibling);el_0.addEventListener('input',function(){el_0.classList.remove('field-error');var e=el_0.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound && document.querySelectorAll('input[name="field_1"]:checked').length === 0) {
+    errorFound = true;
+    var el = document.querySelector('input[name="field_1"]');
+    if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('field-error'); var em=document.createElement('span'); em.className='field-error-msg'; em.textContent='하나 이상 선택해주세요'; el.parentNode.appendChild(em); }
+  }
+  if (!errorFound) { var el_2=document.getElementById('field_2'); if(el_2&&!el_2.value.trim()){errorFound=true;el_2.scrollIntoView({behavior:'smooth',block:'center'});el_2.classList.add('field-error');el_2.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_2.parentNode.insertBefore(em,el_2.nextSibling);el_2.addEventListener('input',function(){el_2.classList.remove('field-error');var e=el_2.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound) { var el_3=document.getElementById('field_3'); if(el_3&&!el_3.value.trim()){errorFound=true;el_3.scrollIntoView({behavior:'smooth',block:'center'});el_3.classList.add('field-error');el_3.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_3.parentNode.insertBefore(em,el_3.nextSibling);el_3.addEventListener('input',function(){el_3.classList.remove('field-error');var e=el_3.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound && !document.querySelector('input[name="field_4"]:checked')) {
+    errorFound = true;
+    var el = document.querySelector('input[name="field_4"]');
+    if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); var em=document.createElement('span'); em.className='field-error-msg'; em.textContent='선택해주세요'; el.parentNode.appendChild(em); }
+  }
+  if (!errorFound) { var el_5=document.getElementById('field_5'); if(el_5&&!el_5.value.trim()){errorFound=true;el_5.scrollIntoView({behavior:'smooth',block:'center'});el_5.classList.add('field-error');el_5.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_5.parentNode.insertBefore(em,el_5.nextSibling);el_5.addEventListener('input',function(){el_5.classList.remove('field-error');var e=el_5.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound) { var el_6=document.getElementById('field_6'); if(el_6&&!el_6.value.trim()){errorFound=true;el_6.scrollIntoView({behavior:'smooth',block:'center'});el_6.classList.add('field-error');el_6.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_6.parentNode.insertBefore(em,el_6.nextSibling);el_6.addEventListener('input',function(){el_6.classList.remove('field-error');var e=el_6.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound) { var el_7=document.getElementById('field_7'); if(el_7&&!el_7.value.trim()){errorFound=true;el_7.scrollIntoView({behavior:'smooth',block:'center'});el_7.classList.add('field-error');el_7.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_7.parentNode.insertBefore(em,el_7.nextSibling);el_7.addEventListener('input',function(){el_7.classList.remove('field-error');var e=el_7.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound) { var el_8=document.getElementById('field_8'); if(el_8&&!el_8.value.trim()){errorFound=true;el_8.scrollIntoView({behavior:'smooth',block:'center'});el_8.classList.add('field-error');el_8.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_8.parentNode.insertBefore(em,el_8.nextSibling);el_8.addEventListener('input',function(){el_8.classList.remove('field-error');var e=el_8.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+  if (!errorFound) { var el_9=document.getElementById('field_9'); if(el_9&&!el_9.value.trim()){errorFound=true;el_9.scrollIntoView({behavior:'smooth',block:'center'});el_9.classList.add('field-error');el_9.focus();var em=document.createElement('span');em.className='field-error-msg';em.textContent='필수 항목이에요';el_9.parentNode.insertBefore(em,el_9.nextSibling);el_9.addEventListener('input',function(){el_9.classList.remove('field-error');var e=el_9.nextElementSibling;if(e&&e.classList.contains('field-error-msg'))e.remove();},{once:true});} }
+
+  if (errorFound) return;
+
+  // 제출
+  var submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '제출 중...'; }
+
+  function onSuccess() {
+    if (typeof showSubmitPopup === 'function') {
+      showSubmitPopup('신청 완료!', "신청이 완료되었습니다. 의미있는 시간 되도록 잘 만들겠습니다 :)", '🎉');
+    }
+    setTimeout(function(){
+      document.getElementById('applyForm').style.display = 'none';
+      document.getElementById('applySuccess').style.display = 'block';
+    }, 2800);
+  }
+
   if (sheetUrl) {
-    fetch(sheetUrl, {method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)})
-      .then(() => { document.getElementById('applyForm').style.display='none'; document.getElementById('applySuccess').style.display='block'; })
-      .catch(() => { document.getElementById('applyForm').style.display='none'; document.getElementById('applySuccess').style.display='block'; });
+    fetch(sheetUrl, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(data)})
+      .then(onSuccess).catch(onSuccess);
   } else {
-    document.getElementById('applyForm').style.display='none';
-    document.getElementById('applySuccess').style.display='block';
+    onSuccess();
   }
 });
 </script><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}</script>
@@ -314,5 +358,8 @@ document.getElementById('applyForm').addEventListener('submit', function(e) {
     </div>
   </div>
 </div>
+
+
+
 
 </body></html>

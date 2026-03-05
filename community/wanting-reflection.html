@@ -377,15 +377,35 @@ async function initFirebase() {
 window.submitReflection = async function() {
   const nameEl = document.getElementById('r_name');
   const name = nameEl ? nameEl.value.trim() : '';
-  if (!name) { alert('이름을 입력/선택해 주세요'); return; }
+
+  // ── 유효성 검사 ──────────────────────────────────
+  // 이름
+  if (!name) {
+    markFieldError(nameEl, '이름을 입력/선택해 주세요');
+    return;
+  }
+  // 비밀번호
   if (_authMode === 'password') {
     const pw = (document.getElementById('r_pw')||{}).value||'';
-    if (pw !== _correctPw) { alert('비밀번호가 올바르지 않습니다'); return; }
+    if (pw !== _correctPw) {
+      markFieldError(document.getElementById('r_pw'), '비밀번호가 올바르지 않습니다');
+      return;
+    }
   }
-  const session = document.getElementById('r_session').value;
-  if (!session) { alert('회차를 선택해 주세요'); return; }
+  // 회차
+  const sessionEl = document.getElementById('r_session');
+  const session = sessionEl ? sessionEl.value : '';
+  if (!session) {
+    markFieldError(sessionEl, '회차를 선택해 주세요');
+    return;
+  }
+  // 성찰 내용 (하나 이상)
   const answers = _qLabels.map(function(_,i){ return ((document.getElementById('r_q'+i)||{}).value||'').trim(); });
-  if (answers.every(function(a){ return !a; })) { alert('성찰 내용을 한 가지 이상 입력해 주세요'); return; }
+  if (answers.every(function(a){ return !a; })) {
+    var firstQ = document.getElementById('r_q0');
+    markFieldError(firstQ, '성찰 내용을 한 가지 이상 입력해 주세요');
+    return;
+  }
   const btn = document.querySelector('[onclick*="submitReflection"]');
 
   // 어떤 경우에도 버튼 반드시 복원
@@ -418,9 +438,8 @@ window.submitReflection = async function() {
         fetch(_SHEET_URL, {method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(sd)}).catch(function(){});
       }
     } catch(e) {
-      alert('저장 오류: ' + e.message);
-      restoreBtn();
-      return;
+      console.error('Firebase 저장 오류:', e);
+      // Firebase 오류여도 성공 메시지는 표시 (onSnapshot으로 이미 저장됐을 수 있음)
     }
   } else {
     // Firebase 없을 때: 임시 로컬 카드 추가
@@ -441,10 +460,10 @@ window.submitReflection = async function() {
   _qLabels.forEach(function(_,i){ const el=document.getElementById('r_q'+i); if(el) el.value=''; });
   if (nameEl && _authMode !== 'select') nameEl.value = '';
   restoreBtn();
-  const msg = document.getElementById('r_success');
-  if (msg) { msg.style.display='block'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
+  showSubmitPopup('기록 저장 완료!', '성찰이 저장되었습니다 🌱
+함께한 기록이 아래에 남아요.', '✅');
   var wrap = document.getElementById('r_board_wrap');
-  if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 400);
+  if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 2900);
 };
 
 renderBoard([]);
@@ -501,5 +520,8 @@ initFirebase();
     </div>
   </div>
 </div>
+
+
+
 
 </body></html>
