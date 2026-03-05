@@ -144,7 +144,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .prog-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
 .prog-card:hover{transform:translateY(-3px);box-shadow:0 16px 50px var(--sw)}
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
-@media(max-width:900px){.nav{padding:0 1.5rem}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-dropdown{display:none}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}}
+@media(max-width:900px){.nav{padding:0 1.5rem}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}}
 @media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style></head><body><nav class="nav" id="nav">
 <a href="../index.html" class="nav-logo">
   <div class="nav-logo-icon">JD</div>
@@ -156,12 +156,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   
 </a>
 
-</li><li class="nav-li">
+</li><li class="nav-li has-dropdown">
 <a href="../index.html#begin" class="nav-link-item">
   <span class="nav-link-main">Begin</span>
   <span class="nav-link-sub">신청하기</span>
 </a>
-
+<div class="nav-dropdown"><a href="../program/s8-guest.html" class="nav-dd-item">시즌 8 게스트 신청</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#journeys" class="nav-link-item">
   <span class="nav-link-main">Journeys</span>
@@ -314,7 +314,25 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <h2 class="section-title reveal">조니딥 시즌 8 참여하기</h2>
 <p class="section-desc reveal" style="margin:0 auto 2.5rem;text-align:center">조직문화에 관심 있는 분이라면 누구나 환영합니다.<br>함께 읽고, 토론하고, 성장하는 여정에 합류해 주세요.</p>
 <div class="reveal"><a href="program/s8-guest.html" target="_blank" class="apply-cta-btn">시즌 8 게스트 참여 →</a></div>
-</div></section><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}</script>
+</div></section><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
+// 모바일 드롭다운 클릭 토글
+document.addEventListener('click',function(e){
+  if(window.innerWidth>900)return;
+  var li=e.target.closest('.nav-li.has-dropdown');
+  if(!li)return;
+  e.preventDefault();
+  li.classList.toggle('open');
+  // 다른 열린 드롭다운 닫기
+  document.querySelectorAll('.nav-li.open').forEach(function(other){if(other!==li)other.classList.remove('open');});
+});const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}
+// ── 완료 팝업 + 유효성 검사 헬퍼 ─────────────────────────
+function showSubmitPopup(title,msg,icon){var pop=document.getElementById('submitPopup');if(!pop){pop=document.createElement('div');pop.id='submitPopup';pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';pop.innerHTML='<div id="submitPopupBox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="submitPopupIcon" style="font-size:3rem;margin-bottom:.75rem"></div><div id="submitPopupTitle" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="submitPopupMsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';document.body.appendChild(pop);}
+document.getElementById('submitPopupIcon').textContent=icon||'✅';document.getElementById('submitPopupTitle').textContent=title||'완료!';document.getElementById('submitPopupMsg').textContent=msg||'';
+pop.style.pointerEvents='auto';pop.style.opacity='1';pop.querySelector('#submitPopupBox').style.transform='scale(1)';
+setTimeout(function(){pop.style.opacity='0';pop.style.pointerEvents='none';pop.querySelector('#submitPopupBox').style.transform='scale(.85)';},2800);}
+function markFieldError(el,msg){if(!el)return;el.style.borderColor='#e55';el.style.boxShadow='0 0 0 2px rgba(229,85,85,.18)';el.style.animation='shake .35s ease';var prev=el.nextElementSibling;if(prev&&prev.classList&&prev.classList.contains('field-error-msg'))prev.remove();var em=document.createElement('span');em.className='field-error-msg';em.style.cssText='font-size:.78rem;color:#e55;margin-top:.3rem;display:block';em.textContent=msg||'필수 항목이에요';el.parentNode.insertBefore(em,el.nextSibling);el.scrollIntoView({behavior:'smooth',block:'center'});if(el.focus)el.focus();el.addEventListener('input',function clr(){el.style.borderColor='';el.style.boxShadow='';el.style.animation='';var e=el.nextElementSibling;if(e&&e.classList&&e.classList.contains('field-error-msg'))e.remove();el.removeEventListener('input',clr);},{once:true});}
+if(!document.getElementById('shakeStyle')){var ss=document.createElement('style');ss.id='shakeStyle';ss.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}';document.head.appendChild(ss);}</script>
 <!-- GitHub Deploy Modal -->
 <div id="ghModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
   <div style="background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:2rem;width:min(520px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">
