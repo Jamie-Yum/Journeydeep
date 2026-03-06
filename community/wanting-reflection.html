@@ -65,7 +65,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .program-details h3{font-family:'Noto Serif KR',serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:1.5rem}
 .program-list{list-style:none;display:flex;flex-direction:column;gap:1.25rem}.program-list li{display:flex;align-items:flex-start;gap:1rem;font-size:.95rem;color:var(--ts);line-height:1.7}
 .program-list-icon{width:28px;height:28px;border-radius:8px;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem}
-.gallery{background:var(--wh);overflow:hidden}.gallery-track{display:flex;gap:1.5rem;margin-top:3rem;animation:gS 30s linear infinite;width:max-content}.gallery-track:hover{animation-play-state:paused}
+.gallery{background:var(--wh);overflow:hidden}
+.gallery-track{display:flex;gap:1.5rem;margin-top:3rem;animation:gS 30s linear infinite;width:max-content}.gallery-track:hover{animation-play-state:paused}
+.gallery-insta-wrap{margin-top:2.5rem;width:100%;overflow:hidden}
+.gallery-insta-placeholder{margin-top:2.5rem;padding:3rem;text-align:center;font-size:.95rem;color:var(--tl);background:var(--bg);border-radius:16px;border:2px dashed var(--bd)}
 .gallery-item{width:320px;height:220px;border-radius:16px;overflow:hidden;flex-shrink:0;background:var(--be);box-shadow:0 8px 30px var(--sw);transition:transform .4s}.gallery-item:hover{transform:scale(1.03)}
 .gallery-item img{width:100%;height:100%;object-fit:cover}.gallery-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;opacity:.3}
 @keyframes gS{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -191,278 +194,65 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       <h1 style="font-family:'Noto Serif KR',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;color:var(--dk);line-height:1.4;margin-bottom:.75rem">Wanting — 나는 정말 내가 원하는 것을 원하는가</h1>
       <p style="font-size:.97rem;color:var(--ts);line-height:1.8">루크 버기스의 Wanting을 읽고, 모임 전후로 짧게 기록해보세요. 내 욕망이 어디서 왔는지 들여다보는 시간입니다.</p>
     </div>
-
-    <!-- 입력 폼 (신청 페이지와 동일 구조) -->
-    <form id="r_form" style="background:var(--wh);padding:2.5rem;border-radius:20px;border:1px solid rgba(232,213,183,.4)">
+    <div id="r_form_wrap" style="background:var(--wh);padding:2.5rem;border-radius:20px;border:1px solid rgba(232,213,183,.4)">
+      <div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">이름 <span style="color:#e55">*</span></label>
+<select id="r_name" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none"><option value="">이름을 선택하세요</option><option value="김예원">김예원</option><option value="김유희">김유희</option><option value="박정환">박정환</option><option value="송민정">송민정</option><option value="염제명">염제명</option><option value="임상우">임상우</option><option value="제갈란">제갈란</option><option value="최지명">최지명</option></select></div>
+      <div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">회차 <span style="color:#e55">*</span></label>
+      <select id="r_session" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none"><option value="">회차를 선택하세요</option><option value="S8-2">S8-2 · 03/07 · Wanting — 루크 버기스</option></select></div>
       <div style="margin-bottom:1.75rem">
-  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">이름 <span style="color:#e55">*</span></label>
-  <select id="r_name" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none">
-    <option value="">이름을 선택하세요</option><option value="김예원">김예원</option><option value="김유희">김유희</option><option value="박정환">박정환</option><option value="송민정">송민정</option><option value="염제명">염제명</option><option value="임상우">임상우</option><option value="제갈란">제갈란</option><option value="최지명">최지명</option>
-  </select>
-</div>
-      <div style="margin-bottom:1.75rem">
-  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">회차 <span style="color:#e55">*</span></label>
-  <select id="r_session" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none">
-    <option value="">회차를 선택하세요</option><option value="S8-2">S8-2 · 03/07 · Wanting — 루크 버기스</option>
-  </select>
-</div>
-      <div style="margin-bottom:1.75rem">
-  <label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">모임 전 성찰 <span style="color:#e55">*</span></label>
-  <p style="font-size:.85rem;color:var(--tl);margin-bottom:.5rem">이 책을 읽으면서 어떤 생각들을 많이 떠올리고 계신가요? </p>
-  <textarea id="r_q0" rows="3" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea>
-</div>
-      <button type="submit" style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
-    </form>
-
-    <!-- 완료 메시지 -->
-    <div id="r_success_banner" style="display:none;text-align:center;padding:2rem;background:var(--wh);border-radius:16px;border:1px solid rgba(201,169,110,.3);margin-top:1rem">
-      <div style="font-size:2rem;margin-bottom:.5rem">✅</div>
-      <p style="color:var(--dk);font-weight:600">성찰이 저장되었습니다!</p>
+<label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">모임 전 성찰 <span style="color:#e55">*</span></label>
+<p style="font-size:.85rem;color:var(--tl);margin-bottom:.5rem">이 책을 읽으면서 어떤 생각들을 많이 떠올리고 계신가요? </p>
+<textarea id="r_q0" rows="3" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div>
+      <button type="button" id="r_btn" onclick="rDoSubmit()" style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
     </div>
-
-    
-<div id="r_board_wrap" style="margin-top:3rem">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem">
-    <h2 style="font-family:'Noto Serif KR',serif;font-size:1.2rem;font-weight:600;color:var(--dk)">함께한 성찰</h2>
-    <div id="r_filter_wrap" style="display:flex;gap:.4rem;flex-wrap:wrap"></div>
-  </div>
-  <div id="r_board" style="display:flex;flex-direction:column;gap:1rem"></div>
-  <div id="r_empty" style="text-align:center;padding:3rem;color:var(--tl);font-size:.9rem">아직 기록이 없습니다. 첫 번째 성찰을 남겨보세요 🌱</div>
-</div>
+    <div id="r_done" style="display:none;text-align:center;padding:3rem 2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(201,169,110,.3);margin-top:1rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem">🌱</div>
+      <p style="font-size:1.1rem;color:var(--dk);line-height:1.8">성찰이 저장되었습니다.<br>함께해 주셔서 감사합니다.</p>
+    </div>
   </div>
 </div>
 <script>
-// ── 설정 ─────────────────────────────────────────────
-var _FB_CONFIG   = {"apiKey":"AIzaSyBGj5bZmxUKv8ohFMrtKZ-40LUvl6VkKBQ","authDomain":"journey-deep.firebaseapp.com","projectId":"journey-deep","appId":"1:806267289514:web:00ab31b960ce55d372b5d3"};
-var _FB_COLL     = "reflections";
-var _PAGE_ID     = "wanting_reflection";
-var _SHEET_URL   = "https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
-var _AUTH_MODE   = "select";
-var _CORRECT_PW  = "";
-var _Q_LABELS    = ["모임 전 성찰"];
-var _HAS_FB      = !!((_FB_CONFIG.apiKey||'').trim() && (_FB_CONFIG.projectId||'').trim());
-var _db = null, _fbStore = null, _db2 = null, _deleteDoc2 = null;
-var _allRecords  = [];
-var _activeFilter = 'all';
-
-// ── 카드 렌더링 ──────────────────────────────────────
-function makeCard(r, isNew) {
-  var border = isNew ? '2px solid var(--ac)' : '1px solid ' + (false ? 'rgba(255,255,255,.06)' : 'rgba(232,213,183,.35)');
-  var qHTML = _Q_LABELS.map(function(lbl, i) {
-    if (!r.answers || !r.answers[i]) return '';
-    return '<div style="margin-bottom:.85rem">'
-      + '<div style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem">' + lbl + '</div>'
-      + '<p style="font-size:.9rem;color:var(--ts);line-height:1.75;white-space:pre-wrap">' + (r.answers[i]||'').replace(/</g,'&lt;') + '</p>'
-      + '</div>';
-  }).join('');
-  var delBtn = r._id ? '<button onclick="deleteRecord('' + (r.docId||'') + '',' + (r._localId||0) + ')" style="background:none;border:none;font-size:.75rem;color:var(--tl);cursor:pointer;padding:.2rem .5rem;border-radius:6px;transition:all .2s" onmouseover="this.style.color='#e55'" onmouseout="this.style.color='var(--tl)'">삭제</button>' : '';
-  return '<div style="background:var(--wh);border-radius:16px;border:' + border + ';padding:1.5rem;transition:border .5s">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.4rem">'
-    + '<div style="display:flex;align-items:center;gap:.75rem">'
-    + '<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff">' + ((r.name||'?')[0]) + '</div>'
-    + '<div><div style="font-size:.9rem;font-weight:600;color:var(--dk)">' + (r.name||'') + '</div>'
-    + '<div style="font-size:.75rem;color:var(--tl)">' + (r.session||'') + (r.time ? ' · ' + r.time : '') + '</div></div>'
-    + '</div>' + delBtn + '</div>'
-    + qHTML + '</div>';
-}
-
-function renderBoard(records) {
-  var board = document.getElementById('r_board');
-  var empty = document.getElementById('r_empty');
-  if (!board) return;
-  var filtered = _activeFilter === 'all' ? records : records.filter(function(r){ return r.session === _activeFilter; });
-  board.innerHTML = filtered.map(function(r, i){ return makeCard(r, i===0 && r._new); }).join('');
-  if (empty) empty.style.display = filtered.length ? 'none' : 'block';
-  // 필터 버튼
-  var fw = document.getElementById('r_filter_wrap');
-  if (fw) {
-    var sessions = ['all'].concat(_allRecords.map(function(r){ return r.session; }).filter(function(v,i,a){ return a.indexOf(v)===i; }));
-    fw.innerHTML = sessions.map(function(s) {
-      var active = _activeFilter === s;
-      return '<button onclick="setFilter('' + s + '')" style="padding:.3rem .85rem;border-radius:100px;border:1px solid ' + (active?'var(--ac)':'rgba(201,169,110,.3)') + ';background:' + (active?'rgba(201,169,110,.15)':'transparent') + ';color:' + (active?'var(--ac)':'var(--tl)') + ';font-size:.78rem;font-weight:600;cursor:pointer">' + (s==='all'?'전체':s) + '</button>';
-    }).join('');
-  }
-}
-
-function setFilter(s) {
-  _activeFilter = s;
-  renderBoard(_allRecords);
-}
-
-window.deleteRecord = function(docId, localId) {
-  if (!confirm('이 성찰 기록을 삭제할까요?')) return;
-  if (docId && _deleteDoc2 && _db2) {
-    try {
-      var imp = import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      imp.then(function(m){ m.deleteDoc(m.doc(_db2, _FB_COLL, docId)); });
-    } catch(e) {}
-  }
-  _allRecords = _allRecords.filter(function(r){ return !(r.docId===docId && r._localId===localId); });
-  renderBoard(_allRecords);
-};
-
-// ── 유효성 검사 헬퍼 ────────────────────────────────
-function fieldErr(el, msg) {
-  if (!el) return;
-  el.style.borderColor = '#e55';
-  el.style.boxShadow = '0 0 0 2px rgba(229,85,85,.18)';
-  var prev = el.nextElementSibling;
-  if (prev && prev.dataset && prev.dataset.ferr) prev.remove();
-  var em = document.createElement('span');
-  em.dataset.ferr = '1';
-  em.style.cssText = 'font-size:.78rem;color:#e55;margin-top:.3rem;display:block';
-  em.textContent = msg || '필수 항목이에요';
-  el.parentNode.insertBefore(em, el.nextSibling);
-  el.scrollIntoView({behavior:'smooth', block:'center'});
-  if (el.focus) el.focus();
-  el.addEventListener('input', function clr(){
-    el.style.borderColor = '';
-    el.style.boxShadow = '';
-    var e = el.nextElementSibling;
-    if (e && e.dataset && e.dataset.ferr) e.remove();
-    el.removeEventListener('input', clr);
-  }, {once:true});
-}
-
-function showPopup(title, msg, icon) {
-  var pop = document.getElementById('_rpop');
-  if (!pop) {
-    pop = document.createElement('div'); pop.id = '_rpop';
-    pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';
-    pop.innerHTML = '<div id="_rpbox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="_rpico" style="font-size:3rem;margin-bottom:.75rem"></div><div id="_rptit" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="_rpmsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';
-    document.body.appendChild(pop);
-  }
-  document.getElementById('_rpico').textContent = icon || '✅';
-  document.getElementById('_rptit').textContent = title || '완료!';
-  document.getElementById('_rpmsg').textContent = msg || '';
-  pop.style.opacity = '1'; pop.style.pointerEvents = 'auto';
-  pop.querySelector('#_rpbox').style.transform = 'scale(1)';
-  setTimeout(function(){
-    pop.style.opacity = '0'; pop.style.pointerEvents = 'none';
-    pop.querySelector('#_rpbox').style.transform = 'scale(.85)';
-  }, 2800);
-}
-
-// ── 폼 제출 (신청 페이지와 동일 패턴, 일반 script) ──
-document.getElementById('r_form').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  // 에러 초기화
-  document.querySelectorAll('[data-ferr]').forEach(function(el){ el.remove(); });
-  document.getElementById('r_name').style.borderColor = '';
-  document.getElementById('r_session').style.borderColor = '';
-
-  // 유효성 검사
-  var nameEl = document.getElementById('r_name');
-  var name = nameEl ? nameEl.value.trim() : '';
-  if (!name) { fieldErr(nameEl, '이름을 입력/선택해 주세요'); return; }
-
-  if (_AUTH_MODE === 'password') {
-    var pwEl = document.getElementById('r_pw');
-    var pw = pwEl ? pwEl.value : '';
-    if (pw !== _CORRECT_PW) { fieldErr(pwEl, '비밀번호가 올바르지 않습니다'); return; }
-  }
-
-  var sessionEl = document.getElementById('r_session');
-  var session = sessionEl ? sessionEl.value : '';
-  if (!session) { fieldErr(sessionEl, '회차를 선택해 주세요'); return; }
-
-  var answers = _Q_LABELS.map(function(_, i) {
-    var el = document.getElementById('r_q' + i);
-    return el ? el.value.trim() : '';
-  });
-  if (answers.every(function(a){ return !a; })) {
-    fieldErr(document.getElementById('r_q0'), '성찰 내용을 한 가지 이상 입력해 주세요');
-    return;
-  }
-
-  // 제출 버튼 비활성화
-  var btn = e.target.querySelector('button[type="submit"]');
-  if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
-
-  function restoreBtn() { if (btn) { btn.disabled = false; btn.textContent = '기록 저장하기 →'; } }
-
-  function onSaved(docId) {
-    // 폼 초기화
-    _Q_LABELS.forEach(function(_, i){ var el = document.getElementById('r_q'+i); if(el) el.value=''; });
-    if (nameEl && _AUTH_MODE !== 'select') nameEl.value = '';
-    restoreBtn();
-    // 팝업
-    showPopup('기록 저장 완료!', '성찰이 저장되었습니다 🌱  함께한 기록이 아래에 남아요.', '✅');
-    // 로컬 카드 즉시 추가 (Firebase onSnapshot 오기 전에도 보이게)
-    if (!_HAS_FB) {
-      var rec = {name:name, session:session, answers:answers, time:new Date().toLocaleDateString('ko-KR'), _localId:Date.now(), _id:Date.now(), _new:true};
-      _allRecords.unshift(rec);
-      renderBoard(_allRecords);
+(function(){
+  var AM="select", PW="", QL=["모임 전 성찰"], QR=[true], SH="https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
+  window.rDoSubmit = function() {
+    var nameEl=document.getElementById('r_name'), name=(nameEl?nameEl.value.trim():'');
+    if (!name) { markFieldError(nameEl,'이름을 입력/선택해 주세요'); return; }
+    if (AM==='password') {
+      var pwEl=document.getElementById('r_pw');
+      if (!pwEl||pwEl.value!==PW) { markFieldError(pwEl,'비밀번호가 올바르지 않습니다'); return; }
     }
-    // 게시판으로 스크롤
-    var wrap = document.getElementById('r_board_wrap');
-    if (wrap) setTimeout(function(){ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }, 2900);
-  }
-
-  // Sheet 전송
-  if (_SHEET_URL) {
-    var sd = {pageId:_PAGE_ID, name:name, session:session, time:new Date().toLocaleDateString('ko-KR')};
-    _Q_LABELS.forEach(function(lbl,i){ sd['q'+(i+1)+'_'+lbl] = answers[i]||''; });
-    fetch(_SHEET_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(sd)}).catch(function(){});
-  }
-
-  // Firebase 저장
-  if (_HAS_FB && _fbStore) {
-    _fbStore.addDoc(_fbStore.collection(_db, _FB_COLL), {
-      pageId:_PAGE_ID, name:name, session:session, answers:answers,
-      time:new Date().toLocaleDateString('ko-KR'), createdAt:_fbStore.serverTimestamp()
-    }).then(function(ref){ onSaved(ref.id); }).catch(function(){ onSaved(null); });
-  } else if (_HAS_FB && !_fbStore) {
-    // Firebase 아직 초기화 중 → 잠시 대기
-    var waited = 0;
-    var check = setInterval(function(){
-      waited += 200;
-      if (_fbStore) {
-        clearInterval(check);
-        _fbStore.addDoc(_fbStore.collection(_db, _FB_COLL), {
-          pageId:_PAGE_ID, name:name, session:session, answers:answers,
-          time:new Date().toLocaleDateString('ko-KR'), createdAt:_fbStore.serverTimestamp()
-        }).then(function(ref){ onSaved(ref.id); }).catch(function(){ onSaved(null); });
-      } else if (waited >= 5000) {
-        clearInterval(check);
-        onSaved(null);
+    var sesEl=document.getElementById('r_session'), ses=(sesEl?sesEl.value:'');
+    if (!ses) { markFieldError(sesEl,'회차를 선택해 주세요'); return; }
+    var ans=QL.map(function(_,i){ var e=document.getElementById('r_q'+i); return e?e.value.trim():''; });
+    // 필수 질문 각각 검사
+    var reqErr=false;
+    QL.forEach(function(_,i){
+      if (QR[i] && !ans[i]) {
+        if (!reqErr) { markFieldError(document.getElementById('r_q'+i),'필수 질문이에요'); reqErr=true; }
+        else { var el=document.getElementById('r_q'+i); if(el){el.style.borderColor='#e55';} }
       }
-    }, 200);
-  } else {
-    onSaved(null);
-  }
-});
-
-// ── Firebase 초기화 (동적 import, 별도 script에서) ──
-function initFirebase() {
-  if (!_HAS_FB) { renderBoard([]); return; }
-  var s = document.createElement('script');
-  s.type = 'module';
-  s.textContent = [
-    'import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";',
-    'import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";',
-    'var cfg = ' + JSON.stringify(fbConfig) + ';',
-    'var app = getApps().length ? getApps()[0] : initializeApp(cfg);',
-    'var db = getFirestore(app);',
-    'window._db = db; window._db2 = db;',
-    'window._deleteDoc2 = deleteDoc;',
-    'window._fbStore = { collection, addDoc, serverTimestamp };',
-    'window._fbStore.collection = collection;',
-    'window._fbStore.addDoc = addDoc;',
-    'window._fbStore.serverTimestamp = serverTimestamp;',
-    'var q = query(collection(db, "' + fbCollection + '"), where("pageId","==","' + pageId + '"), orderBy("createdAt","desc"));',
-    'onSnapshot(q, function(snap) {',
-    '  window._allRecords = snap.docs.map(function(d){ var r=d.data(); r.docId=d.id; r._localId=d.id; r._id=d.id; return r; });',
-    '  if (window.renderBoard) window.renderBoard(window._allRecords);',
-    '});'
-  ].join('
-');
-  document.head.appendChild(s);
-}
-
-renderBoard([]);
-initFirebase();
+    });
+    if (reqErr) return;
+    // 필수 아닌 것만 있을 때도 아무것도 입력 안 하면 막기
+    if (ans.every(function(a){return !a;})) { markFieldError(document.getElementById('r_q0'),'성찰 내용을 한 가지 이상 입력해 주세요'); return; }
+    var btn=document.getElementById('r_btn');
+    if (btn){btn.disabled=true;btn.textContent='저장 중...';}
+    function onDone(){
+      showSubmitPopup('기록 저장 완료!','성찰이 저장되었습니다 🌱','✅');
+      setTimeout(function(){
+        var fw=document.getElementById('r_form_wrap');
+        var rd=document.getElementById('r_done');
+        if(fw)fw.style.display='none';
+        if(rd)rd.style.display='block';
+      },2800);
+    }
+    if (SH) {
+      var p={name:name,session:ses,time:new Date().toLocaleDateString('ko-KR')};
+      QL.forEach(function(l,i){p['q'+(i+1)+'_'+l]=ans[i]||'';});
+      fetch(SH,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p)}).then(onDone).catch(onDone);
+    } else { onDone(); }
+  };
+})();
 </script><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
 // 모바일 드롭다운 클릭 토글
