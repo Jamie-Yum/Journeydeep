@@ -191,7 +191,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <a href="../index.html" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--tl);text-decoration:none;font-size:.85rem;margin-bottom:2rem">← 홈으로</a>
     <div style="margin-bottom:2.5rem">
       <div style="display:inline-block;padding:.3rem 1rem;background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);border-radius:100px;font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:1rem">REFLECTION</div>
-      <h1 style="font-family:'Noto Serif KR',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;color:var(--dk);line-height:1.4;margin-bottom:.75rem">Wanting — 나는 정말 내가 원하는 것을 원하는가</h1>
+      <h1 style="font-family:'Noto Serif KR',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;color:var(--dk);line-height:1.4;margin-bottom:.75rem">Wanting — 너 자신의 이유로 살라</h1>
       <p style="font-size:.97rem;color:var(--ts);line-height:1.8">루크 버기스의 Wanting을 읽고, 모임 전후로 짧게 기록해보세요. 내 욕망이 어디서 왔는지 들여다보는 시간입니다.</p>
     </div>
     <div id="r_form_wrap" style="background:var(--wh);padding:2.5rem;border-radius:20px;border:1px solid rgba(232,213,183,.4)">
@@ -200,8 +200,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       <div style="margin-bottom:1.75rem"><label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">회차 <span style="color:#e55">*</span></label>
       <select id="r_session" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.92rem;outline:none"><option value="">회차를 선택하세요</option><option value="S8-2">S8-2 · 03/07 · Wanting — 루크 버기스</option></select></div>
       <div style="margin-bottom:1.75rem">
-<label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">모임 전 성찰 <span style="color:#e55">*</span></label>
-<p style="font-size:.85rem;color:var(--tl);margin-bottom:.5rem">이 책을 읽으면서 어떤 생각들을 많이 떠올리고 계신가요? </p>
+<label style="display:block;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.4rem">모임 후 성찰 <span style="color:#e55">*</span></label>
+<p style="font-size:.85rem;color:var(--tl);margin-bottom:.5rem">오늘 대화 나누면서 가장 인상깊었던 순간, 느낌 점, 실천해보고 싶은 것에 대해서 나눠주세요 ~ ! </p>
 <textarea id="r_q0" rows="3" style="width:100%;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea></div>
       <button type="button" id="r_btn" onclick="rDoSubmit()" style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
     </div>
@@ -213,7 +213,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </div>
 <script>
 (function(){
-  var AM="select", PW="", QL=["모임 전 성찰"], QR=[true], SH="https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
+  var AM="select", PW="", QL=["모임 후 성찰"], QR=[true], SH="https://script.google.com/macros/s/AKfycbyvJfeyk--ty0q39GOq8RfW7kpve1JrW14ja2d2q4ENKKwGREXD8-4CzdC-MTUGLOgcxQ/exec";
   window.rDoSubmit = function() {
     var nameEl=document.getElementById('r_name'), name=(nameEl?nameEl.value.trim():'');
     if (!name) { markFieldError(nameEl,'이름을 입력/선택해 주세요'); return; }
