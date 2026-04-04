@@ -183,13 +183,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <span class="nav-link-main">Together</span>
   <span class="nav-link-sub">커뮤니티</span>
 </a>
-<div class="nav-dropdown"><a href="../community/talks.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>Talks - 조니딥 시즌8</a><div class="nav-dd-divider"></div><a href="../community/reflections/Season8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">🌱</span>Reflections - 조니딥 시즌8</a></div>
+<div class="nav-dropdown"><a href="../community/talks.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>Talks - 조니딥 시즌8</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#trace" class="nav-link-item">
   <span class="nav-link-main">Trace</span>
   <span class="nav-link-sub">아카이브</span>
 </a>
-<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>조니딥 Book List</a></div>
+<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📖</span>조니딥 Book List</a></div>
 </li></ul>
 <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 </nav>
@@ -309,12 +309,24 @@ document.getElementById('applyForm').addEventListener('submit', function(e) {
     }, 2800);
   }
 
-  if (sheetUrl) {
-    fetch(sheetUrl, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(data)})
-      .then(onSuccess).catch(onSuccess);
-  } else {
-    onSuccess();
-  }
+  // Supabase 저장 — 필드가 바뀌어도 fields JSON 통째로 저장
+  var SUPA_URL = 'https://dvlrzbckneucpvlacdll.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  var payload = {
+    season: "program/s8-guest",
+    fields: JSON.stringify(data),
+    submitted_at: new Date().toISOString()
+  };
+  fetch(SUPA_URL + '/rest/v1/JD_applications', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(payload)
+  }).then(onSuccess).catch(onSuccess);
 });
 </script><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
@@ -386,6 +398,7 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
     </div>
   </div>
 </div>
+
 
 
 
