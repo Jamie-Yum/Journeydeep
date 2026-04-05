@@ -171,7 +171,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <span class="nav-link-main">Begin</span>
   <span class="nav-link-sub">신청하기</span>
 </a>
-<div class="nav-dropdown"><a href="../apply/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
+<div class="nav-dropdown"><a href="../join/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#journeys" class="nav-link-item">
   <span class="nav-link-main">Journeys</span>
@@ -183,7 +183,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <span class="nav-link-main">Together</span>
   <span class="nav-link-sub">커뮤니티</span>
 </a>
-<div class="nav-dropdown"><a href="../community/talks-s8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>Talks - 조니딥 시즌8</a></div>
+<div class="nav-dropdown"><a href="../community/talks-s8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>Talks - 조니딥 시즌8</a><div class="nav-dd-divider"></div><a href="../community/reflections-s8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">💭</span>Reflections - 조니딥 시즌 8</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#trace" class="nav-link-item">
   <span class="nav-link-main">Trace</span>
@@ -223,10 +223,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       
             <div style="margin-bottom:1.5rem">
               <label style="display:block;font-size:.92rem;font-weight:600;color:var(--dk);margin-bottom:.35rem">
-                모임 전 성찰 <span style="color:#e55">*</span>
+                모임 전 성찰 <span style="font-size:.75rem;color:var(--tl);font-weight:400">(선택)</span>
               </label>
               <p style="font-size:.83rem;color:var(--tl);margin-bottom:.4rem">이 책을 읽으면서 어떤 생각이 드셨나요?</p>
-              <textarea id="rs_0_q0" rows="3" style="width:100%;padding:.7rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="내용을 입력해 주세요"></textarea>
+              <textarea id="rs_0_q0" rows="3" style="width:100%;padding:.7rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="선택 사항이에요"></textarea>
             </div>
             <div style="margin-bottom:1.5rem">
               <label style="display:block;font-size:.92rem;font-weight:600;color:var(--dk);margin-bottom:.35rem">
@@ -254,7 +254,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <div style="border-top:1px solid rgba(232,213,183,.3);padding-top:1.25rem">
       <div style="font-size:.78rem;font-weight:700;color:#C9A96E;letter-spacing:.08em;margin-bottom:1rem">✍️ 함께한 성찰 기록</div>
       <div id="rs_0_loading" style="text-align:center;padding:1.5rem;color:var(--tl);font-size:.85rem">불러오는 중...</div>
-      <div id="rs_0_list" style="display:flex;flex-direction:column;gap:.75rem"></div>
+      <div id="rs_0_list" style="display:grid;grid-template-columns:1fr;gap:.75rem"></div>
       <div id="rs_0_empty" style="display:none;text-align:center;padding:1.5rem;color:var(--tl);font-size:.85rem">아직 기록된 성찰이 없어요 🌱</div>
     </div>
   </div>
@@ -264,7 +264,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
   var PAGE_ID="Reflections - 조니딥 시즌 8 · 1회차";
-  var QL=["모임 전 성찰","모임 중 성찰","모임 후 성찰"],QR=[true,false,false],BOARD=true;
+  var QL=["모임 전 성찰","모임 중 성찰","모임 후 성찰"],QR=[false,false,false],BOARD=true,BPUB=true,BSTYLE="card";
   window['rsDoSubmit_rs_0']=function(){
     var nameEl=document.getElementById('rs_0_name'),name=nameEl?nameEl.value.trim():'';
     if(!name){if(nameEl){nameEl.style.borderColor='#e55';setTimeout(function(){nameEl.style.borderColor='';},1500);}return;}
@@ -291,6 +291,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     if(!BOARD)return;
     var loading=document.getElementById('rs_0_loading'),list=document.getElementById('rs_0_list'),empty=document.getElementById('rs_0_empty');
     if(!list)return;
+    // 포스트잇은 2열 그리드, 타임라인은 1열
+    if(BSTYLE==='sticky'){list.style.gridTemplateColumns='repeat(2,1fr)';}else{list.style.gridTemplateColumns='1fr';}
     fetch(SU+'/rest/v1/JD_reflections?session=eq.'+encodeURIComponent(PAGE_ID)+'&order=submitted_at.desc&limit=50',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
     .then(function(r){return r.json();})
     .then(function(rows){
@@ -303,12 +305,61 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           return '<div style="margin-bottom:.85rem"><div style="font-size:.75rem;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:.25rem">'+(r['q'+(i+1)+'_label']||label)+'</div><p style="font-size:.88rem;color:var(--ts);line-height:1.8;white-space:pre-wrap;margin:0">'+ans.replace(/</g,'&lt;')+'</p></div>';
         }).filter(Boolean).join('');
         var dName=BPUB?(r.name||'익명'):'익명 💭';
+      var ini=dName[0]||'?';
+      // 스타일별 색상 (이름 기반)
+      var sColors=['#C9A96E','#C4775A','#7A8B6F','#5B7FA6','#9B6EA8'];
+      var sColor=sColors[Math.abs(dName.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0))%sColors.length];
+      if(BSTYLE==='sticky'){
+        var stkColors=[['#FFF9C4','#F0D060','#4A3A00'],['#FCE4EC','#F48FB1','#4A0020'],['#E8F5E9','#81C784','#1A3A1A'],['#E3F2FD','#64B5F6','#0A2A5A'],['#F3E5F5','#CE93D8','#2A0A3A']];
+        var sc=stkColors[Math.abs(dName.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0))%stkColors.length];
+        var stkAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a)return '';
+          return '<div style="font-size:10px;font-weight:700;color:'+sc[2]+';opacity:.7;letter-spacing:.04em;margin-bottom:2px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:13px;color:'+sc[2]+';line-height:1.65;white-space:pre-wrap;margin:0 0 8px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="background:'+sc[0]+';border-radius:4px;padding:1rem;border-bottom:3px solid '+sc[1]+';position:relative">'
+             + '<div style="font-size:12px;font-weight:700;color:'+sc[2]+';margin-bottom:.5rem">'+dName+'</div>'
+             + stkAnswers
+             + '<div style="font-size:11px;color:'+sc[2]+';opacity:.7;margin-top:.5rem;text-align:right">'+date+'</div>'
+             + '</div>';
+      } else if(BSTYLE==='timeline'){
+        var tlAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a)return '';
+          return '<div style="font-size:11px;font-weight:700;color:'+sColor+';letter-spacing:.04em;margin-bottom:3px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:13px;color:var(--ts);line-height:1.7;white-space:pre-wrap;margin:0 0 8px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="position:relative;padding-left:1.5rem;margin-bottom:1rem">'
+             + '<div style="position:absolute;left:4px;top:4px;width:10px;height:10px;border-radius:50%;background:'+sColor+';border:2px solid var(--wh)"></div>'
+             + '<div style="background:var(--wh);border:1px solid rgba(232,213,183,.3);border-radius:10px;padding:.75rem 1rem">'
+             + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">'
+             + '<div style="width:22px;height:22px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">'+ini+'</div>'
+             + '<span style="font-size:13px;font-weight:700;color:var(--dk)">'+dName+'</span>'
+             + '<span style="font-size:11px;color:var(--tl);margin-left:auto">'+date+'</span>'
+             + '</div>'+tlAnswers+'</div></div>';
+      } else if(BSTYLE==='quote'){
+        var firstAns=QL.map(function(label,i){return r['q'+(i+1)+'_answer']||'';}).filter(Boolean)[0]||'';
+        var restAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a||i===0)return '';
+          return '<div style="font-size:11px;font-weight:700;color:'+sColor+';margin-bottom:2px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:12px;color:var(--ts);line-height:1.7;margin:0 0 6px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="border-left:3px solid '+sColor+';background:var(--surface2,rgba(255,255,255,.04));border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem">'
+             + '<p style="font-size:14px;color:var(--dk);line-height:1.8;font-style:italic;margin:0 0 .75rem">&ldquo;'+firstAns.replace(/</g,'&lt;')+'&rdquo;</p>'
+             + (restAnswers ? '<div style="margin-bottom:.5rem">'+restAnswers+'</div>' : '')
+             + '<div style="display:flex;align-items:center;gap:.5rem">'
+             + '<div style="width:20px;height:20px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">'+ini+'</div>'
+             + '<span style="font-size:12px;font-weight:700;color:var(--ts)">'+dName+'</span>'
+             + '<span style="font-size:11px;color:var(--tl);margin-left:auto">'+date+'</span>'
+             + '</div></div>';
+      } else {
+        // 기본 카드 스타일
         return '<div style="background:var(--wh);border-radius:12px;border:1px solid rgba(232,213,183,.3);padding:1rem 1.25rem">'
           +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">'
-          +'<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">'+(dName[0])+'</div>'
+          +'<div style="width:28px;height:28px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">'+ini+'</div>'
           +'<span style="font-size:.88rem;font-weight:600;color:var(--dk)">'+dName+'</span>'
           +'<span style="font-size:.72rem;color:var(--tl);margin-left:auto">'+date+'</span>'
           +'</div>'+answers+'</div>';
+      }
       }).join('');
     }).catch(function(){if(loading)loading.style.display='none';if(empty)empty.style.display='block';});
   }
@@ -366,7 +417,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <div style="border-top:1px solid rgba(232,213,183,.3);padding-top:1.25rem">
       <div style="font-size:.78rem;font-weight:700;color:#C9A96E;letter-spacing:.08em;margin-bottom:1rem">✍️ 함께한 성찰 기록</div>
       <div id="rs_1_loading" style="text-align:center;padding:1.5rem;color:var(--tl);font-size:.85rem">불러오는 중...</div>
-      <div id="rs_1_list" style="display:flex;flex-direction:column;gap:.75rem"></div>
+      <div id="rs_1_list" style="display:grid;grid-template-columns:1fr;gap:.75rem"></div>
       <div id="rs_1_empty" style="display:none;text-align:center;padding:1.5rem;color:var(--tl);font-size:.85rem">아직 기록된 성찰이 없어요 🌱</div>
     </div>
   </div>
@@ -376,7 +427,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
   var PAGE_ID="Reflections - 조니딥 시즌 8 · 2회차";
-  var QL=["모임 전 성찰","모임 중 성찰","모임 후 성찰"],QR=[true,false,false],BOARD=true;
+  var QL=["모임 전 성찰","모임 중 성찰","모임 후 성찰"],QR=[true,false,false],BOARD=true,BPUB=true,BSTYLE="sticky";
   window['rsDoSubmit_rs_1']=function(){
     var nameEl=document.getElementById('rs_1_name'),name=nameEl?nameEl.value.trim():'';
     if(!name){if(nameEl){nameEl.style.borderColor='#e55';setTimeout(function(){nameEl.style.borderColor='';},1500);}return;}
@@ -403,6 +454,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     if(!BOARD)return;
     var loading=document.getElementById('rs_1_loading'),list=document.getElementById('rs_1_list'),empty=document.getElementById('rs_1_empty');
     if(!list)return;
+    // 포스트잇은 2열 그리드, 타임라인은 1열
+    if(BSTYLE==='sticky'){list.style.gridTemplateColumns='repeat(2,1fr)';}else{list.style.gridTemplateColumns='1fr';}
     fetch(SU+'/rest/v1/JD_reflections?session=eq.'+encodeURIComponent(PAGE_ID)+'&order=submitted_at.desc&limit=50',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
     .then(function(r){return r.json();})
     .then(function(rows){
@@ -415,12 +468,61 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           return '<div style="margin-bottom:.85rem"><div style="font-size:.75rem;font-weight:700;color:var(--ac);letter-spacing:.06em;margin-bottom:.25rem">'+(r['q'+(i+1)+'_label']||label)+'</div><p style="font-size:.88rem;color:var(--ts);line-height:1.8;white-space:pre-wrap;margin:0">'+ans.replace(/</g,'&lt;')+'</p></div>';
         }).filter(Boolean).join('');
         var dName=BPUB?(r.name||'익명'):'익명 💭';
+      var ini=dName[0]||'?';
+      // 스타일별 색상 (이름 기반)
+      var sColors=['#C9A96E','#C4775A','#7A8B6F','#5B7FA6','#9B6EA8'];
+      var sColor=sColors[Math.abs(dName.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0))%sColors.length];
+      if(BSTYLE==='sticky'){
+        var stkColors=[['#FFF9C4','#F0D060','#4A3A00'],['#FCE4EC','#F48FB1','#4A0020'],['#E8F5E9','#81C784','#1A3A1A'],['#E3F2FD','#64B5F6','#0A2A5A'],['#F3E5F5','#CE93D8','#2A0A3A']];
+        var sc=stkColors[Math.abs(dName.split('').reduce(function(a,c){return a+c.charCodeAt(0);},0))%stkColors.length];
+        var stkAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a)return '';
+          return '<div style="font-size:10px;font-weight:700;color:'+sc[2]+';opacity:.7;letter-spacing:.04em;margin-bottom:2px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:13px;color:'+sc[2]+';line-height:1.65;white-space:pre-wrap;margin:0 0 8px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="background:'+sc[0]+';border-radius:4px;padding:1rem;border-bottom:3px solid '+sc[1]+';position:relative">'
+             + '<div style="font-size:12px;font-weight:700;color:'+sc[2]+';margin-bottom:.5rem">'+dName+'</div>'
+             + stkAnswers
+             + '<div style="font-size:11px;color:'+sc[2]+';opacity:.7;margin-top:.5rem;text-align:right">'+date+'</div>'
+             + '</div>';
+      } else if(BSTYLE==='timeline'){
+        var tlAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a)return '';
+          return '<div style="font-size:11px;font-weight:700;color:'+sColor+';letter-spacing:.04em;margin-bottom:3px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:13px;color:var(--ts);line-height:1.7;white-space:pre-wrap;margin:0 0 8px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="position:relative;padding-left:1.5rem;margin-bottom:1rem">'
+             + '<div style="position:absolute;left:4px;top:4px;width:10px;height:10px;border-radius:50%;background:'+sColor+';border:2px solid var(--wh)"></div>'
+             + '<div style="background:var(--wh);border:1px solid rgba(232,213,183,.3);border-radius:10px;padding:.75rem 1rem">'
+             + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">'
+             + '<div style="width:22px;height:22px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">'+ini+'</div>'
+             + '<span style="font-size:13px;font-weight:700;color:var(--dk)">'+dName+'</span>'
+             + '<span style="font-size:11px;color:var(--tl);margin-left:auto">'+date+'</span>'
+             + '</div>'+tlAnswers+'</div></div>';
+      } else if(BSTYLE==='quote'){
+        var firstAns=QL.map(function(label,i){return r['q'+(i+1)+'_answer']||'';}).filter(Boolean)[0]||'';
+        var restAnswers=QL.map(function(label,i){
+          var a=r['q'+(i+1)+'_answer']||'';if(!a||i===0)return '';
+          return '<div style="font-size:11px;font-weight:700;color:'+sColor+';margin-bottom:2px">'+(r['q'+(i+1)+'_label']||label)+'</div>'
+               + '<p style="font-size:12px;color:var(--ts);line-height:1.7;margin:0 0 6px">'+a.replace(/</g,'&lt;')+'</p>';
+        }).filter(Boolean).join('');
+        return '<div style="border-left:3px solid '+sColor+';background:var(--surface2,rgba(255,255,255,.04));border-radius:0 10px 10px 0;padding:1rem 1.25rem;margin-bottom:.75rem">'
+             + '<p style="font-size:14px;color:var(--dk);line-height:1.8;font-style:italic;margin:0 0 .75rem">&ldquo;'+firstAns.replace(/</g,'&lt;')+'&rdquo;</p>'
+             + (restAnswers ? '<div style="margin-bottom:.5rem">'+restAnswers+'</div>' : '')
+             + '<div style="display:flex;align-items:center;gap:.5rem">'
+             + '<div style="width:20px;height:20px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">'+ini+'</div>'
+             + '<span style="font-size:12px;font-weight:700;color:var(--ts)">'+dName+'</span>'
+             + '<span style="font-size:11px;color:var(--tl);margin-left:auto">'+date+'</span>'
+             + '</div></div>';
+      } else {
+        // 기본 카드 스타일
         return '<div style="background:var(--wh);border-radius:12px;border:1px solid rgba(232,213,183,.3);padding:1rem 1.25rem">'
           +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">'
-          +'<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">'+(dName[0])+'</div>'
+          +'<div style="width:28px;height:28px;border-radius:50%;background:'+sColor+';display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0">'+ini+'</div>'
           +'<span style="font-size:.88rem;font-weight:600;color:var(--dk)">'+dName+'</span>'
           +'<span style="font-size:.72rem;color:var(--tl);margin-left:auto">'+date+'</span>'
           +'</div>'+answers+'</div>';
+      }
       }).join('');
     }).catch(function(){if(loading)loading.style.display='none';if(empty)empty.style.display='block';});
   }
