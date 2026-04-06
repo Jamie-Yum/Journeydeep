@@ -1388,7 +1388,7 @@
             "rsPublic": true,
             "rsOpen": false,
             "rsHidden": true,
-            "_editorOpen": false,
+            "_editorOpen": true,
             "rsQuestions": [
               {
                 "label": "모임 전 성찰",
