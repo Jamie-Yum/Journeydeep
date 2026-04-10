@@ -1105,6 +1105,79 @@
       }
     },
     {
+      "id": "wanting_reflection",
+      "name": "💭 Wanting 성찰",
+      "slug": "community/wanting-reflection",
+      "type": "reflection",
+      "parent": null,
+      "visible": true,
+      "icon": "🌱",
+      "data": {
+        "reflectionTitle": "Wanting — 나는 정말 내가 원하는 것을 원하는가",
+        "reflectionSubtitle": "루크 버기스의 Wanting을 읽고, 모임 전후로 짧게 기록해보세요. 내 욕망이 어디서 왔는지 들여다보는 시간입니다.",
+        "reflectionAuthMode": "select",
+        "reflectionPassword": "",
+        "reflectionMembers": [
+          "김조니",
+          "박조니",
+          "이조니",
+          "최조니",
+          "정조니",
+          "윤조니",
+          "장조니",
+          "임조니",
+          "한조니",
+          "오조니"
+        ],
+        "reflectionSessions": [
+          {
+            "label": "S8-1",
+            "date": "02/28",
+            "book": "Wanting — 루크 버기스"
+          }
+        ],
+        "reflectionQuestions": [
+          {
+            "phase": "before",
+            "label": "모임 전 성찰",
+            "prompt": "이 책을 읽기 전, 나는 지금 무엇을 원하고 있나요? 그 욕망이 어디서 왔는지 생각해본 적 있나요?"
+          },
+          {
+            "phase": "after",
+            "label": "모임 후 성찰",
+            "prompt": "오늘 대화에서 가장 인상 깊었던 순간은 언제인가요? 내 씩 디자이어(Thick Desire)에 대해 새롭게 발견한 것이 있다면?"
+          }
+        ],
+        "reflectionSheetUrl": "",
+        "reflectionRecords": [
+          {
+            "member": "김조니",
+            "session": "S8-1",
+            "before": "솔직히 지금 원하는 게 너무 많아서 뭐가 진짜인지 모르겠어요. 승진, 사이드 프로젝트, 이직... 근데 이게 다 내가 진짜 원하는 건지, 아니면 주변에서 다들 그게 좋다니까 원하는 건지 구분이 잘 안 됩니다.",
+            "after": "오늘 \"모델\"에 대한 이야기가 가장 충격적이었어요. 제가 닮고 싶었던 선배가 사실은 미메틱 모델이었던 거잖아요. 그 선배가 원하는 걸 나도 원하고 싶었던 건데, 그게 꼭 나한테 맞는 건 아닐 수 있다는 게... 좀 멍해졌습니다."
+          },
+          {
+            "member": "박조니",
+            "session": "S8-1",
+            "before": "저는 이 책 읽으면서 계속 우리 팀이 생각났어요. 팀원들이 원하는 것, 제가 팀장으로서 설계하고 있는 평가 체계, 그게 어떤 욕망을 만들어내고 있는 건지 궁금해서 모임이 기대됩니다.",
+            "after": "부정적 미메틱 사이클 vs 긍정적 미메틱 사이클 이야기가 오래 남을 것 같아요. 우리 팀 안에서 지금 어떤 사이클이 돌고 있는지 생각해보게 됐고, 솔직히 좀 반성도 됐습니다. 평가 지표가 경쟁을 만들고 있었던 건 아닐까 하고요."
+          },
+          {
+            "member": "이조니",
+            "session": "S8-1",
+            "before": "씩 디자이어가 뭔지 찾아보고 싶어요. 10년 넘게 일하면서 내가 진짜 원하는 게 뭔지 한 번도 제대로 물어본 적이 없었던 것 같아서.",
+            "after": "오늘 대화 중에 누군가 \"내가 원하는 게 아니라, 내가 원해야 한다고 배운 걸 원하고 있었던 것 같다\"고 했을 때 마음이 뭉클했어요. 저도 그랬거든요. 씩 디자이어 찾는 숙제, 좀 더 진지하게 해봐야겠다 싶었습니다."
+          }
+        ],
+        "reflectionTags": [
+          "Wanting",
+          "미메틱욕망",
+          "성찰",
+          "S8"
+        ]
+      }
+    },
+    {
       "id": "s8_proposals",
       "name": "Talks - 조니딥 시즌8",
       "slug": "community/talks-s8",
@@ -1388,7 +1461,7 @@
             "rsPublic": true,
             "rsOpen": false,
             "rsHidden": true,
-            "_editorOpen": false,
+            "_editorOpen": true,
             "rsQuestions": [
               {
                 "label": "모임 전 성찰",
@@ -1418,7 +1491,7 @@
             "rsPublic": true,
             "rsOpen": true,
             "rsHidden": false,
-            "_editorOpen": true,
+            "_editorOpen": false,
             "rsQuestions": [
               {
                 "label": "모임 전 성찰",
