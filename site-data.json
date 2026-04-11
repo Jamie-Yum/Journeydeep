@@ -632,7 +632,7 @@
     },
     {
       "id": "season8",
-      "name": "조니딥 시즌 8 소개",
+      "name": "조니딥 시즌 8",
       "slug": "program/s8",
       "type": "season",
       "parent": null,
@@ -1016,7 +1016,7 @@
     },
     {
       "id": "s8_proposals",
-      "name": "발제 - 조니딥 시즌8",
+      "name": "Talks - 조니딥 시즌8",
       "slug": "community/talks-s8",
       "type": "proposal_season",
       "parent": null,
@@ -1179,7 +1179,7 @@
     },
     {
       "id": "page_1772422309747",
-      "name": "게스트 신청 (조니딥 시즌 8)",
+      "name": "조니딥 시즌 8 게스트 신청",
       "slug": "join/s8-guest",
       "type": "apply",
       "parent": null,
@@ -1270,7 +1270,7 @@
     },
     {
       "id": "page_1775284393446",
-      "name": "성찰 - 조니딥 시즌 8",
+      "name": "Reflections - 조니딥 시즌 8",
       "slug": "community/reflections-s8",
       "type": "reflection_season",
       "parent": null,
