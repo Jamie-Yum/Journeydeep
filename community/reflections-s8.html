@@ -360,39 +360,41 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 
   // ── 삭제 ──────────────────────────────────────────────────
   window.rsDeleteCard=function(rowId){
-    var pw=prompt('비밀번호를 입력하세요:');
+    var pw=prompt('비밀번호를 입력하세요:
+(비밀번호 없이 작성했다면 빈칸으로 확인)');
     if(pw===null)return;
-    // password 컬럼 확인 후 삭제
-    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId+'&password=eq.'+encodeURIComponent(pw),{
+    // 해당 id의 행 먼저 가져오기
+    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
       headers:{'apikey':SK,'Authorization':'Bearer '+SK}
     })
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(!Array.isArray(rows)||rows.length===0){
-        alert('비밀번호가 맞지 않아요.');
-        return;
-      }
-      return fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId+'&password=eq.'+encodeURIComponent(pw),{
+      if(!Array.isArray(rows)||rows.length===0){alert('데이터를 찾을 수 없어요.');return;}
+      var row=rows[0];
+      var savedPw=row.password||'';
+      if(savedPw!==pw){alert('비밀번호가 맞지 않아요.');return;}
+      return fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
         method:'DELETE',
         headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'}
       });
     })
-    .then(function(r){
-      if(r&&r.ok){loadBoard();}
-    })
+    .then(function(r){if(r&&r.ok)loadBoard();})
     .catch(function(){alert('삭제 중 오류가 발생했어요.');});
   };
 
   // ── 수정 ──────────────────────────────────────────────────
   window.rsEditCard=function(rowId,btn){
-    var pw=prompt('비밀번호를 입력하세요:');
+    var pw=prompt('비밀번호를 입력하세요:
+(비밀번호 없이 작성했다면 빈칸으로 확인)');
     if(pw===null)return;
-    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId+'&password=eq.'+encodeURIComponent(pw),{
+    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
       headers:{'apikey':SK,'Authorization':'Bearer '+SK}
     })
     .then(function(r){return r.json();})
     .then(function(rows){
-      if(!Array.isArray(rows)||rows.length===0){alert('비밀번호가 맞지 않아요.');return;}
+      if(!Array.isArray(rows)||rows.length===0){alert('데이터를 찾을 수 없어요.');return;}
+      var savedPw=rows[0].password||'';
+      if(savedPw!==pw){alert('비밀번호가 맞지 않아요.');return;}
       var row=rows[0];
       // 카드를 편집 폼으로 교체
       var card=btn.closest('div[style*="border-radius:12px"]');
@@ -421,7 +423,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       var el=document.getElementById('redit_'+rowId+'_'+i);
       if(el)updates['q'+(i+1)+'_answer']=el.value.trim();
     });
-    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId+'&password=eq.'+encodeURIComponent(pw),{
+    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
       method:'PATCH',
       headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
       body:JSON.stringify(updates)
