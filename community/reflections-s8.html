@@ -252,7 +252,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
   var PAGE_ID="성찰 - 조니딥 시즌 8 · 2회차";
-  var QL=["모임 전 성찰"],QR=[false],BOARD=true,BPUB=true,BSTYLE="sticky";
+  var QL=["모임 전 성찰"],QR=[false],BOARD=true,BPUB=true,BSTYLE="quote";
   window['rsDoSubmit_rs_1']=function(){
     var nameEl=document.getElementById('rs_1_name'),name=nameEl?nameEl.value.trim():'';
     if(!name){if(nameEl){nameEl.style.borderColor='#e55';setTimeout(function(){nameEl.style.borderColor='';},1500);}return;}
@@ -262,7 +262,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     var reqErr=false;
     QL.forEach(function(_,i){if(QR[i]&&!ans[i]){var el=document.getElementById('rs_1_q'+i);if(el){el.style.borderColor='#e55';setTimeout(function(){el.style.borderColor='';},1500);}if(!reqErr)reqErr=true;}});
     if(reqErr)return;
-    if(ans.every(function(a){return !a;}))return;
     var p={name:name,session:PAGE_ID,password:pw,submitted_at:new Date().toISOString()};
     QL.forEach(function(l,i){p['q'+(i+1)+'_label']=l;p['q'+(i+1)+'_answer']=ans[i]||'';});
     fetch(SU+'/rest/v1/JD_reflections',{
@@ -283,11 +282,30 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     if(!list)return;
     // 포스트잇은 2열 그리드, 타임라인은 1열
     if(BSTYLE==='sticky'){list.style.gridTemplateColumns='repeat(2,1fr)';}else{list.style.gridTemplateColumns='1fr';}
-    fetch(SU+'/rest/v1/JD_reflections?session=eq.'+encodeURIComponent(PAGE_ID)+'&order=submitted_at.desc&limit=50',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
-    .then(function(r){return r.json();})
-    .then(function(rows){
+    fetch(SU+'/rest/v1/JD_reflections?order=submitted_at.desc&limit=200',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    .then(function(r){
+      if(!r.ok){throw new Error('HTTP '+r.status);}
+      return r.json();
+    })
+    .then(function(allRows){
       if(loading)loading.style.display='none';
-      if(!Array.isArray(rows)||rows.length===0){if(empty)empty.style.display='block';return;}
+      if(!Array.isArray(allRows)){
+        if(list)list.innerHTML='<p style="color:#e55;font-size:.8rem;padding:.5rem">오류: '+JSON.stringify(allRows)+'</p>';
+        return;
+      }
+      var rows=allRows.filter(function(r){
+        if(!r.session)return false;
+        var s=r.session.trim();var p=PAGE_ID.trim();
+        return s===p||s.includes(p)||p.includes(s);
+      });
+      if(rows.length===0){
+        if(empty)empty.style.display='block';
+        // 디버그: 전체 session 값 보여주기
+        if(list&&allRows.length>0){
+          list.innerHTML='<p style="color:var(--tl);font-size:.75rem;padding:.5rem">불러온 데이터 '+allRows.length+'건 중 일치 없음.<br>저장된 session 예시: '+JSON.stringify(allRows.slice(0,2).map(function(r){return r.session;}))+'<br>현재 PAGE_ID: '+PAGE_ID+'</p>';
+        }
+        return;
+      }
       list.innerHTML=rows.map(function(r){
         var date=r.submitted_at?new Date(r.submitted_at).toLocaleDateString('ko-KR',{month:'long',day:'numeric'}):'';
         var answers=QL.map(function(label,i){
@@ -354,7 +372,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           +'</div>'+answers+'</div>';
       }
       }).join('');
-    }).catch(function(){if(loading)loading.style.display='none';if(empty)empty.style.display='block';});
+    }).catch(function(err){if(loading)loading.style.display='none';if(list)list.innerHTML='<p style="color:#e55;font-size:.8rem;padding:.5rem">네트워크 오류: '+(err&&err.message?err.message:String(err))+'</p>';});
   }
   loadBoard();
 
