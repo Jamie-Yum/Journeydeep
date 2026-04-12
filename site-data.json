@@ -1230,7 +1230,7 @@
             "rsPublic": true,
             "rsOpen": true,
             "rsHidden": false,
-            "_editorOpen": false,
+            "_editorOpen": true,
             "rsQuestions": [
               {
                 "label": "모임 전 성찰",
@@ -1238,7 +1238,7 @@
                 "required": false
               }
             ],
-            "rsBoardStyle": "sticky"
+            "rsBoardStyle": "quote"
           }
         ]
       }
