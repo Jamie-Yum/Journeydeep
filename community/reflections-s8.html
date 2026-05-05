@@ -231,7 +231,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
               <p style="font-size:.83rem;color:var(--tl);margin-bottom:.4rem">이 책을 읽으면서 어떤 생각이 드셨나요?</p>
               <textarea id="rs_1_q0" rows="3" style="width:100%;padding:.7rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;font-family:inherit;line-height:1.7;resize:vertical;outline:none" placeholder="선택 사항이에요"></textarea>
             </div>
-      <div style="margin-bottom:1.5rem"><label style="display:block;font-size:.92rem;font-weight:600;color:var(--dk);margin-bottom:.5rem">비밀번호 <span style="color:#e55">*</span> <span style="font-size:.72rem;font-weight:400;color:var(--tl)">나중에 수정/삭제 시 필요해요</span></label><input type="password" id="rs_1_pw" style="width:100%;padding:.7rem 1rem;background:var(--wh);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.9rem;outline:none" placeholder="비밀번호를 입력해 주세요"></div>
       <button type="button" onclick="rsDoSubmit_rs_1()" style="width:100%;padding:.9rem;background:linear-gradient(135deg,var(--ac),var(--te,var(--ac)));color:#fff;border:none;border-radius:100px;font-size:.95rem;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">기록 저장하기 →</button>
     </div>
     <div id="rs_1_done" style="display:none;text-align:center;padding:2rem;background:var(--wh);border-radius:16px;border:1px solid rgba(201,169,110,.3);margin-top:1rem">
@@ -258,13 +257,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   window['rsDoSubmit_rs_1']=function(){
     var nameEl=document.getElementById('rs_1_name'),name=nameEl?nameEl.value.trim():'';
     if(!name){if(nameEl){nameEl.style.borderColor='#e55';setTimeout(function(){nameEl.style.borderColor='';},1500);}return;}
-    var pwEl=document.getElementById('rs_1_pw'),pw=pwEl?pwEl.value.trim():'';
-    if(!pw){if(pwEl){pwEl.style.borderColor='#e55';setTimeout(function(){pwEl.style.borderColor='';},1500);}return;}
     var ans=QL.map(function(_,i){var e=document.getElementById('rs_1_q'+i);return e?e.value.trim():'';});
     var reqErr=false;
     QL.forEach(function(_,i){if(QR[i]&&!ans[i]){var el=document.getElementById('rs_1_q'+i);if(el){el.style.borderColor='#e55';setTimeout(function(){el.style.borderColor='';},1500);}if(!reqErr)reqErr=true;}});
     if(reqErr)return;
-    var p={name:name,session:PAGE_ID,password:pw,submitted_at:new Date().toISOString()};
+    var p={name:name,session:PAGE_ID,submitted_at:new Date().toISOString()};
     QL.forEach(function(l,i){p['q'+(i+1)+'_label']=l;p['q'+(i+1)+'_answer']=ans[i]||'';});
     fetch(SU+'/rest/v1/JD_reflections',{
       method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
@@ -284,7 +281,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     if(!list)return;
     // 포스트잇은 2열 그리드, 타임라인은 1열
     if(BSTYLE==='sticky'){list.style.gridTemplateColumns='repeat(2,1fr)';}else{list.style.gridTemplateColumns='1fr';}
-    fetch(SU+'/rest/v1/JD_reflections?order=submitted_at.desc&limit=200',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    if(loading)loading.style.display='block';
+    fetch(SU+'/rest/v1/JD_reflections?select=id,name,session,submitted_at,q1_label,q1_answer,q2_label,q2_answer,q3_label,q3_answer,q4_label,q4_answer,q5_label,q5_answer&order=submitted_at.desc&limit=200',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
     .then(function(r){
       if(!r.ok){throw new Error('HTTP '+r.status);}
       return r.json();
@@ -380,41 +378,23 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 
   // ── 삭제 ──────────────────────────────────────────────────
   window.rsDeleteCard=function(rowId){
-    var pw=prompt('비밀번호를 입력하세요:
-(비밀번호 없이 작성했다면 빈칸으로 확인)');
-    if(pw===null)return;
-    // 해당 id의 행 먼저 가져오기
+    if(!confirm('이 기록을 삭제할까요?'))return;
     fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
-      headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+      method:'DELETE',
+      headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'}
     })
-    .then(function(r){return r.json();})
-    .then(function(rows){
-      if(!Array.isArray(rows)||rows.length===0){alert('데이터를 찾을 수 없어요.');return;}
-      var row=rows[0];
-      var savedPw=row.password||'';
-      if(savedPw!==pw){alert('비밀번호가 맞지 않아요.');return;}
-      return fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
-        method:'DELETE',
-        headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'}
-      });
-    })
-    .then(function(r){if(r&&r.ok)loadBoard();})
+    .then(function(r){if(r&&r.ok)loadBoard();else alert('삭제 중 오류가 발생했어요.');})
     .catch(function(){alert('삭제 중 오류가 발생했어요.');});
   };
 
   // ── 수정 ──────────────────────────────────────────────────
   window.rsEditCard=function(rowId,btn){
-    var pw=prompt('비밀번호를 입력하세요:
-(비밀번호 없이 작성했다면 빈칸으로 확인)');
-    if(pw===null)return;
-    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId,{
+    fetch(SU+'/rest/v1/JD_reflections?id=eq.'+rowId+'&select=id,name,q1_label,q1_answer,q2_label,q2_answer,q3_label,q3_answer,q4_label,q4_answer,q5_label,q5_answer',{
       headers:{'apikey':SK,'Authorization':'Bearer '+SK}
     })
     .then(function(r){return r.json();})
     .then(function(rows){
       if(!Array.isArray(rows)||rows.length===0){alert('데이터를 찾을 수 없어요.');return;}
-      var savedPw=rows[0].password||'';
-      if(savedPw!==pw){alert('비밀번호가 맞지 않아요.');return;}
       var row=rows[0];
       // 카드를 편집 폼으로 교체
       var card=btn.closest('div[style*="border-radius:12px"]');
@@ -429,15 +409,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       card.innerHTML='<div style="padding:.5rem 0">'
         +editFields
         +'<div style="display:flex;gap:.5rem;margin-top:.5rem">'
-        +'<button onclick="rsSaveEdit(''+rowId+'',''+encodeURIComponent(pw)+'')" style="flex:1;padding:.6rem;background:var(--ac);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">저장</button>'
+        +'<button onclick="rsSaveEdit(''+rowId+'')" style="flex:1;padding:.6rem;background:var(--ac);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">저장</button>'
         +'<button onclick="loadBoard()" style="padding:.6rem 1rem;background:transparent;border:1px solid var(--bd);border-radius:8px;cursor:pointer;font-size:.85rem">취소</button>'
         +'</div></div>';
     })
     .catch(function(){alert('오류가 발생했어요.');});
   };
 
-  window.rsSaveEdit=function(rowId,pwEncoded){
-    var pw=decodeURIComponent(pwEncoded);
+  window.rsSaveEdit=function(rowId){
     var updates={};
     QL.forEach(function(label,i){
       var el=document.getElementById('redit_'+rowId+'_'+i);
