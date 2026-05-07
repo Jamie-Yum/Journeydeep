@@ -1,4 +1,13 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>발제문 - 조니딥</title><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet"><style>:root{--bg:#FDF6EC;--wh:#FFFDF9;--be:#F5EBD8;--sa:#E8D5B7;--ac:#C9A96E;--te:#C4775A;--dk:#3D2B1F;--ol:#7A8B6F;--tp:#2C1810;--ts:#5C4A3A;--tl:#8B7355;--dm:#8B7355;--sw:rgba(60,43,31,.08);--sd:rgba(60,43,31,.15)}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>발제문 — 조니딥 JourneyDeep</title>
+<link rel="icon" href="../favicon.png" type="image/png">
+<meta name="description" content="모임에서 나눈 발제와 질문들을 기록합니다.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>:root{--bg:#FDF6EC;--wh:#FFFDF9;--be:#F5EBD8;--sa:#E8D5B7;--ac:#C9A96E;--te:#C4775A;--dk:#3D2B1F;--ol:#7A8B6F;--tp:#2C1810;--ts:#5C4A3A;--tl:#8B7355;--dm:#8B7355;--sw:rgba(60,43,31,.08);--sd:rgba(60,43,31,.15)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);overflow-x:hidden;line-height:1.8}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 3.5rem;height:76px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;background:transparent;}
@@ -17,7 +26,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-dd-item{display:block;padding:.55rem 1rem;font-size:.85rem;color:var(--ts);text-decoration:none;border-radius:8px;transition:all .15s;white-space:nowrap;font-weight:500}
 .nav-dd-item:hover{background:rgba(201,169,110,.08);color:var(--ac)}
 .nav-dd-divider{height:1px;background:rgba(0,0,0,.08);margin:.4rem .6rem}
-.mobile-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}.mobile-toggle span{width:24px;height:2px;background:var(--dk);border-radius:2px}
+.mobile-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;z-index:10000;position:relative}.mobile-toggle span{width:24px;height:2px;background:var(--dk);border-radius:2px;transition:transform .3s,opacity .3s,background .3s}
 .section{padding:7rem 2rem}.section-container{max-width:1100px;margin:0 auto}
 .section-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.9rem;font-style:italic;color:var(--ac);letter-spacing:.1em;margin-bottom:.75rem}
 .section-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;color:var(--dk);letter-spacing:-.02em;line-height:1.4;margin-bottom:1.5rem}
@@ -144,13 +153,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .prog-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
 .prog-card:hover{transform:translateY(-3px);box-shadow:0 16px 50px var(--sw)}
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
-@media(max-width:900px){.nav{padding:0 1.5rem}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}}
-@media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style></head><body><nav class="nav" id="nav">
+@media(max-width:900px){.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
+@media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<nav class="nav" id="nav">
 <a href="../index.html" class="nav-logo">
   <div class="nav-logo-icon">JD</div>
   <span class="nav-logo-text">조니딥</span>
 </a>
-<ul class="nav-links" id="navLinks"><li class="nav-li">
+<ul class="nav-links" id="navLinks">
+  <li class="nav-li">
 <a href="../index.html#about" class="nav-link-item">
   <span class="nav-link-main">About</span>
   
@@ -161,26 +174,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <span class="nav-link-main">Begin</span>
   <span class="nav-link-sub">신청하기</span>
 </a>
-<div class="nav-dropdown"><a href="../program/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
+<div class="nav-dropdown"><a href="../join/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#journeys" class="nav-link-item">
   <span class="nav-link-main">Journeys</span>
   <span class="nav-link-sub">프로그램</span>
 </a>
-<div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">조니딥 시즌 8</a></div>
+<div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">조니딥 시즌 8 소개</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#together" class="nav-link-item">
   <span class="nav-link-main">Together</span>
   <span class="nav-link-sub">커뮤니티</span>
 </a>
-<div class="nav-dropdown"><a href="../community/wanting-proposal.html" class="nav-dd-item">발제문_시즌 8 2회차</a><div class="nav-dd-divider"></div><a href="../community/wanting-reflection.html" class="nav-dd-item">성찰_시즌8 2회차</a></div>
+<div class="nav-dropdown"><a href="../community/talks-s8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📚</span>발제 - 조니딥 시즌8</a><div class="nav-dd-divider"></div><a href="../community/reflections-s8.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">💭</span>성찰 - 조니딥 시즌 8</a></div>
 </li><li class="nav-li has-dropdown">
 <a href="../index.html#trace" class="nav-link-item">
   <span class="nav-link-main">Trace</span>
   <span class="nav-link-sub">아카이브</span>
 </a>
-<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">조니딥 Book List</a></div>
-</li></ul>
+<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item"><span style="margin-right:.35rem;font-size:.9em">📖</span>조니딥 Book List</a></div>
+</li>
+</ul>
 <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 </nav>
 <div style="max-width:780px;margin:0 auto;padding:7rem 1.5rem 5rem">
@@ -188,85 +202,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <div style="font-size:.72rem;font-weight:700;color:#C9A96E;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.75rem">JourneyDeep · Proposal</div>
   <h1 style="font-family:'Noto Serif KR',serif;font-size:2.2rem;font-weight:600;color:var(--dk);line-height:1.3;margin-bottom:.75rem">발제문</h1>
   <p style="font-size:.97rem;color:var(--tl);line-height:1.8;margin-bottom:3rem">모임에서 나눈 발제와 질문들을 기록합니다.</p>
-  
-<a href="../community/wanting-proposal.html" style="display:block;text-decoration:none;padding:1.75rem 2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(232,213,183,.3);transition:all .3s;color:inherit;margin-bottom:1rem" onmouseover="this.style.borderColor='#C9A96E';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(232,213,183,.3)';this.style.transform=''">
-  <div style="font-size:.72rem;font-weight:700;color:#C9A96E;letter-spacing:.1em;margin-bottom:.5rem">발제 · S8 2026.03.07</div>
-  <h3 style="font-family:'Noto Serif KR',serif;font-size:1.1rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.5rem">너 자신의 이유로 살라</h3>
-  <p style="font-size:.88rem;color:var(--tl);line-height:1.7;margin-bottom:.6rem">📚 Wanting — 루크 버기스 · 전체 / 모방 욕망의 구조</p>
-  <div style="font-size:.8rem;color:var(--dm)">제이미 · 2026.03.07</div>
-</a>
-</div><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
-document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
-// 모바일 드롭다운 클릭 토글
-document.addEventListener('click',function(e){
-  if(window.innerWidth>900)return;
-  var li=e.target.closest('.nav-li.has-dropdown');
-  if(!li)return;
-  e.preventDefault();
-  li.classList.toggle('open');
-  // 다른 열린 드롭다운 닫기
-  document.querySelectorAll('.nav-li.open').forEach(function(other){if(other!==li)other.classList.remove('open');});
-});const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}
-// ── 완료 팝업 + 유효성 검사 헬퍼 ─────────────────────────
-function showSubmitPopup(title,msg,icon){var pop=document.getElementById('submitPopup');if(!pop){pop=document.createElement('div');pop.id='submitPopup';pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';pop.innerHTML='<div id="submitPopupBox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="submitPopupIcon" style="font-size:3rem;margin-bottom:.75rem"></div><div id="submitPopupTitle" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="submitPopupMsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';document.body.appendChild(pop);}
-document.getElementById('submitPopupIcon').textContent=icon||'✅';document.getElementById('submitPopupTitle').textContent=title||'완료!';document.getElementById('submitPopupMsg').textContent=msg||'';
-pop.style.pointerEvents='auto';pop.style.opacity='1';pop.querySelector('#submitPopupBox').style.transform='scale(1)';
-setTimeout(function(){pop.style.opacity='0';pop.style.pointerEvents='none';pop.querySelector('#submitPopupBox').style.transform='scale(.85)';},2800);}
-function markFieldError(el,msg){if(!el)return;el.style.borderColor='#e55';el.style.boxShadow='0 0 0 2px rgba(229,85,85,.18)';el.style.animation='shake .35s ease';var prev=el.nextElementSibling;if(prev&&prev.classList&&prev.classList.contains('field-error-msg'))prev.remove();var em=document.createElement('span');em.className='field-error-msg';em.style.cssText='font-size:.78rem;color:#e55;margin-top:.3rem;display:block';em.textContent=msg||'필수 항목이에요';el.parentNode.insertBefore(em,el.nextSibling);el.scrollIntoView({behavior:'smooth',block:'center'});if(el.focus)el.focus();el.addEventListener('input',function clr(){el.style.borderColor='';el.style.boxShadow='';el.style.animation='';var e=el.nextElementSibling;if(e&&e.classList&&e.classList.contains('field-error-msg'))e.remove();el.removeEventListener('input',clr);},{once:true});}
-if(!document.getElementById('shakeStyle')){var ss=document.createElement('style');ss.id='shakeStyle';ss.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}';document.head.appendChild(ss);}</script>
-<!-- GitHub Deploy Modal -->
-<div id="ghModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:2rem;width:min(520px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
-      <div>
-        <div style="font-size:1.1rem;font-weight:700;color:var(--dk)">&#128640; 깃허브 Pages 배포</div>
-        <div style="font-size:.8rem;color:var(--tl);margin-top:.2rem">ZIP 없이 에디터에서 바로 배포</div>
-      </div>
-      <button onclick="closeGhModal()" style="background:none;border:none;font-size:1.3rem;color:var(--tl);cursor:pointer">&#x2715;</button>
-    </div>
-    <div id="ghSetupArea">
-      <div style="padding:.75rem 1rem;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);border-radius:10px;margin-bottom:1.25rem;font-size:.82rem;color:var(--ts);line-height:1.7">
-        &#128161; 처음 한 번만 토큰과 리포지토리를 입력하면 돼요. 브라우저에 저장되어 다음엔 바로 배포돼요.
-      </div>
-      <div style="margin-bottom:1rem">
-        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">깃허브 Personal Access Token</label>
-        <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
-        <p style="font-size:.75rem;color:var(--tl);margin-top:.3rem">토큰 발급 방법은 아래 안내를 참고하세요</p>
-      </div>
-      <div style="margin-bottom:1rem">
-        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">깃허브 사용자명</label>
-        <input id="ghOwner" placeholder="예: johndoe" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
-      </div>
-      <div style="margin-bottom:1rem">
-        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">리포지토리 이름</label>
-        <input id="ghRepo" placeholder="예: journey-deep" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
-        <p style="font-size:.75rem;color:var(--tl);margin-top:.3rem">깃허브 Pages가 활성화된 리포지토리 이름</p>
-      </div>
-      <div style="margin-bottom:1.5rem">
-        <label style="display:block;font-size:.82rem;font-weight:600;color:var(--tl);margin-bottom:.4rem">배포 브랜치</label>
-        <input id="ghBranch" value="main" placeholder="main" style="width:100%;padding:.7rem 1rem;background:var(--bg);border:1px solid var(--bd);border-radius:10px;color:var(--tp);font-size:.88rem;box-sizing:border-box;outline:none">
-      </div>
-      <button onclick="startGithubDeploy()" style="width:100%;padding:.9rem;background:linear-gradient(135deg,#24292e,#404448);color:#fff;border:none;border-radius:100px;font-size:.97rem;font-weight:600;cursor:pointer">&#128640; 지금 배포하기</button>
-    </div>
-    <div id="ghProgress" style="display:none;margin-top:1rem">
-      <div id="ghProgressLog" style="font-size:.83rem;color:var(--ts);line-height:2;min-height:120px"></div>
-    </div>
-    <div style="margin-top:1.5rem;border-top:1px solid var(--bd);padding-top:1.25rem">
-      <button onclick="toggleGhGuide()" style="background:none;border:none;color:var(--ac);font-size:.82rem;font-weight:600;cursor:pointer;padding:0">&#128216; 토큰 발급 방법 보기 &#9660;</button>
-      <div id="ghGuide" style="display:none;margin-top:.75rem;font-size:.8rem;color:var(--ts);line-height:2">
-        <b style="color:var(--dk)">1.</b> <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--ac)">github.com/settings/tokens/new</a> 접속<br>
-        <b style="color:var(--dk)">2.</b> Note: 아무 이름 입력 (예: journey-deep)<br>
-        <b style="color:var(--dk)">3.</b> Expiration: No expiration 선택<br>
-        <b style="color:var(--dk)">4.</b> Select scopes에서 <b style="color:var(--dk)">repo</b> 체크박스 선택<br>
-        <b style="color:var(--dk)">5.</b> Generate token 클릭<br>
-        <b style="color:var(--dk)">6.</b> 생성된 ghp_xxx 토큰 복사해서 위에 붙여넣기<br>
-        <div style="margin-top:.5rem;padding:.5rem .75rem;background:rgba(255,100,100,.08);border-radius:8px;color:#e55;font-size:.76rem">&#9888;&#65039; 토큰은 한 번만 보여요. 꼭 복사해두세요!</div>
-      </div>
-    </div>
-  </div>
+
+  <a href="talks-s8.html"
+     style="display:block;text-decoration:none;padding:1.75rem 2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(232,213,183,.3);transition:all .3s;color:inherit;margin-bottom:1rem"
+     onmouseover="this.style.borderColor='#C9A96E';this.style.transform='translateY(-2px)'"
+     onmouseout="this.style.borderColor='rgba(232,213,183,.3)';this.style.transform=''">
+    <div style="font-size:.72rem;font-weight:700;color:#C9A96E;letter-spacing:.1em;margin-bottom:.5rem">발제문(시즌별)</div>
+    <h3 style="font-family:'Noto Serif KR',serif;font-size:1.1rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.5rem">Season 8 발제문 아카이브</h3>
+    <p style="font-size:.88rem;color:var(--tl);line-height:1.7;margin-bottom:.6rem">Season 8 · 2026 상반기 · 4회차</p>
+  </a>
 </div>
 
-
-
-
-</body></html>
+<script>document.querySelectorAll('script[data-uid]').forEach(function(t){window.jdrsInit(t);});</script>
+</body>
+</html>
