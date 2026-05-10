@@ -342,20 +342,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           if(!body){if(bodyEl){bodyEl.style.borderColor='#e55';setTimeout(function(){bodyEl.style.borderColor='';},1500);}return;}
           if(!name)name='익명';
           var time=new Date().toLocaleDateString('ko-KR');
-          var payload={pageId:PAGE_ID,name:name,body:body,time:time};
+          var payload={page_id:PAGE_ID,name:name,body:body,submitted_at:new Date().toISOString()};
           fetch(SU+'/rest/v1/JD_comments',{
             method:'POST',
             headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
             body:JSON.stringify(payload)
-          }).then(function(){
+          }).then(function(res){
+            if(!res.ok){return res.text().then(function(t){alert('댓글 저장 실패: '+res.status+' '+t);});} 
             _cmts.unshift({name:name,body:body,time:time});
             renderCmts_psr_0();
             if(bodyEl)bodyEl.value='';
             if(typeof showSubmitPopup==='function')showSubmitPopup('댓글 등록!','댓글이 저장되었습니다 ✍️','💬');
-          }).catch(function(){
-            _cmts.unshift({name:name,body:body,time:time});
-            renderCmts_psr_0();
-            if(bodyEl)bodyEl.value='';
+          }).catch(function(err){
+            alert('네트워크 오류: '+(err&&err.message?err.message:String(err)));
           });
         };
         renderCmts_psr_0();
@@ -493,20 +492,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           if(!body){if(bodyEl){bodyEl.style.borderColor='#e55';setTimeout(function(){bodyEl.style.borderColor='';},1500);}return;}
           if(!name)name='익명';
           var time=new Date().toLocaleDateString('ko-KR');
-          var payload={pageId:PAGE_ID,name:name,body:body,time:time};
+          var payload={page_id:PAGE_ID,name:name,body:body,submitted_at:new Date().toISOString()};
           fetch(SU+'/rest/v1/JD_comments',{
             method:'POST',
             headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
             body:JSON.stringify(payload)
-          }).then(function(){
+          }).then(function(res){
+            if(!res.ok){return res.text().then(function(t){alert('댓글 저장 실패: '+res.status+' '+t);});} 
             _cmts.unshift({name:name,body:body,time:time});
             renderCmts_psr_1();
             if(bodyEl)bodyEl.value='';
             if(typeof showSubmitPopup==='function')showSubmitPopup('댓글 등록!','댓글이 저장되었습니다 ✍️','💬');
-          }).catch(function(){
-            _cmts.unshift({name:name,body:body,time:time});
-            renderCmts_psr_1();
-            if(bodyEl)bodyEl.value='';
+          }).catch(function(err){
+            alert('네트워크 오류: '+(err&&err.message?err.message:String(err)));
           });
         };
         renderCmts_psr_1();
@@ -641,20 +639,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           if(!body){if(bodyEl){bodyEl.style.borderColor='#e55';setTimeout(function(){bodyEl.style.borderColor='';},1500);}return;}
           if(!name)name='익명';
           var time=new Date().toLocaleDateString('ko-KR');
-          var payload={pageId:PAGE_ID,name:name,body:body,time:time};
+          var payload={page_id:PAGE_ID,name:name,body:body,submitted_at:new Date().toISOString()};
           fetch(SU+'/rest/v1/JD_comments',{
             method:'POST',
             headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
             body:JSON.stringify(payload)
-          }).then(function(){
+          }).then(function(res){
+            if(!res.ok){return res.text().then(function(t){alert('댓글 저장 실패: '+res.status+' '+t);});} 
             _cmts.unshift({name:name,body:body,time:time});
             renderCmts_psr_2();
             if(bodyEl)bodyEl.value='';
             if(typeof showSubmitPopup==='function')showSubmitPopup('댓글 등록!','댓글이 저장되었습니다 ✍️','💬');
-          }).catch(function(){
-            _cmts.unshift({name:name,body:body,time:time});
-            renderCmts_psr_2();
-            if(bodyEl)bodyEl.value='';
+          }).catch(function(err){
+            alert('네트워크 오류: '+(err&&err.message?err.message:String(err)));
           });
         };
         renderCmts_psr_2();
@@ -789,20 +786,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           if(!body){if(bodyEl){bodyEl.style.borderColor='#e55';setTimeout(function(){bodyEl.style.borderColor='';},1500);}return;}
           if(!name)name='익명';
           var time=new Date().toLocaleDateString('ko-KR');
-          var payload={pageId:PAGE_ID,name:name,body:body,time:time};
+          var payload={page_id:PAGE_ID,name:name,body:body,submitted_at:new Date().toISOString()};
           fetch(SU+'/rest/v1/JD_comments',{
             method:'POST',
             headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK,'Prefer':'return=minimal'},
             body:JSON.stringify(payload)
-          }).then(function(){
+          }).then(function(res){
+            if(!res.ok){return res.text().then(function(t){alert('댓글 저장 실패: '+res.status+' '+t);});} 
             _cmts.unshift({name:name,body:body,time:time});
             renderCmts_psr_3();
             if(bodyEl)bodyEl.value='';
             if(typeof showSubmitPopup==='function')showSubmitPopup('댓글 등록!','댓글이 저장되었습니다 ✍️','💬');
-          }).catch(function(){
-            _cmts.unshift({name:name,body:body,time:time});
-            renderCmts_psr_3();
-            if(bodyEl)bodyEl.value='';
+          }).catch(function(err){
+            alert('네트워크 오류: '+(err&&err.message?err.message:String(err)));
           });
         };
         renderCmts_psr_3();
