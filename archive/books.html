@@ -311,7 +311,7 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
   function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
-  fetch(SU+'/rest/v1/JD_books?select=title,author,category,emoji,cover_url,date&order=sort_order.asc,id.asc',{
+  fetch(SU+'/rest/v1/JD_books?select=title,author,category,emoji,date&order=sort_order.asc,id.asc',{
     headers:{'apikey':SK,'Authorization':'Bearer '+SK}
   })
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
