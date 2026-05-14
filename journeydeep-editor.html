@@ -7328,10 +7328,18 @@ async function initEditor() {
     try {
         const data = await loadFromGitHub();
         if (data) {
-            if (data.settings) Object.assign(SITE.settings, data.settings);
-            if (data.pages && data.pages.length > 0) SITE.pages = data.pages;
-            if (data.navItems) SITE.navItems = data.navItems;
-            if (data.letters)  SITE.letters  = data.letters;
+            // settings, navItems만 GitHub에서 동기화 — pages는 덮어쓰지 않음
+            if (data.settings)  Object.assign(SITE.settings, data.settings);
+            if (data.navItems)  SITE.navItems = data.navItems;
+            if (data.letters && data.letters.length > 0) SITE.letters = data.letters;
+            // pages는 localStorage 내용 우선 적용 후 GitHub pages로 보완
+            loadAutoSave();
+            if (data.pages && data.pages.length > 0) {
+                data.pages.forEach(function(ghPage) {
+                    var exists = SITE.pages.find(function(p){ return p.id === ghPage.id; });
+                    if (!exists) SITE.pages.push(ghPage); // 새 페이지만 추가
+                });
+            }
             autoSave();
             renderPageTree();
             renderEditor();
@@ -7641,9 +7649,16 @@ async function syncFromGitHub() {
         if (btn) { btn.textContent = '☁️ GitHub에서 불러오기'; btn.disabled = false; }
         return;
     }
-    if (data.settings) Object.assign(SITE.settings, data.settings);
-    if (data.pages)    SITE.pages = data.pages;
-    if (data.navItems) SITE.navItems = data.navItems;
+    // settings, navItems만 덮어쓰기 — pages 내용은 유지하고 새 페이지만 추가
+    if (data.settings)  Object.assign(SITE.settings, data.settings);
+    if (data.navItems)  SITE.navItems = data.navItems;
+    if (data.letters && data.letters.length > 0) SITE.letters = data.letters;
+    if (data.pages && data.pages.length > 0) {
+        data.pages.forEach(function(ghPage) {
+            var exists = SITE.pages.find(function(p){ return p.id === ghPage.id; });
+            if (!exists) SITE.pages.push(ghPage);
+        });
+    }
     renderPageTree();
     selectPage(SITE.pages[0]?.id);
     applyPreview();
