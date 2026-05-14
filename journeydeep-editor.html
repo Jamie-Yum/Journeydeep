@@ -7324,26 +7324,24 @@ function loadAutoSave() {
 
 // ── 시작 시 GitHub → localStorage 순서로 자동 로드 (팝업 없음) ──
 async function initEditor() {
-    const ghConfig = JSON.parse(localStorage.getItem('gh_deploy_config') || '{}');
-    if (ghConfig.owner && ghConfig.repo) {
-        try {
-            const data = await loadFromGitHub();
-            if (data) {
-                if (data.settings) Object.assign(SITE.settings, data.settings);
-                if (data.pages)    SITE.pages    = data.pages;
-                if (data.navItems) SITE.navItems = data.navItems;
-                if (data.letters)  SITE.letters  = data.letters;
-                autoSave();
-                renderPageTree();
-                renderEditor();
-                setTimeout(applyPreview, 500);
-                setTimeout(_pushHistory, 600);
-                showToast('☁️ GitHub 최신 데이터 불러옴 (' + ghConfig.owner + '/' + ghConfig.repo + ')');
-                return;
-            }
-        } catch(e) { /* GitHub 실패 시 localStorage로 폴백 */ }
-    }
-    // GitHub 설정 없거나 실패 → localStorage에서 조용히 로드
+    // GitHub 설정 여부와 상관없이 항상 시도 (loadFromGitHub에 기본값 내장)
+    try {
+        const data = await loadFromGitHub();
+        if (data) {
+            if (data.settings) Object.assign(SITE.settings, data.settings);
+            if (data.pages && data.pages.length > 0) SITE.pages = data.pages;
+            if (data.navItems) SITE.navItems = data.navItems;
+            if (data.letters)  SITE.letters  = data.letters;
+            autoSave();
+            renderPageTree();
+            renderEditor();
+            setTimeout(applyPreview, 500);
+            setTimeout(_pushHistory, 600);
+            showToast('☁️ GitHub 최신 데이터 불러옴');
+            return;
+        }
+    } catch(e) { /* GitHub 실패 시 localStorage로 폴백 */ }
+    // GitHub 실패 → localStorage에서 조용히 로드
     loadAutoSave();
     renderPageTree();
     renderEditor();
