@@ -307,32 +307,51 @@ document.addEventListener('click',function(e){
 });const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));
 // 로고 2초 길게 누르기 → 관리자 페이지
 (function(){
+  // 진행 링 오버레이 생성
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:99998;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45)';
+  overlay.innerHTML='<div style="text-align:center"><svg width="80" height="80" style="transform:rotate(-90deg)"><circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="6"/><circle id="lpRing" cx="40" cy="40" r="34" fill="none" stroke="#C9A96E" stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" style="transition:stroke-dashoffset .05s linear"/></svg><div style="color:#fff;font-size:.85rem;margin-top:.75rem;font-family:Pretendard,sans-serif">잠깐 기다려주세요…</div></div>';
+  document.body.appendChild(overlay);
+
   const logo=document.getElementById('navLogo');
-  const icon=document.getElementById('logoIcon');
-  let timer=null,progress=null;
+  let holdTimer=null, intervalId=null, holding=false;
+
   function startPress(e){
-    if(e.type==='touchstart')e.preventDefault();
-    progress=0;
-    icon.style.transition='transform .1s';
-    timer=setInterval(()=>{
-      progress+=50;
-      const pct=Math.min(progress/2000,1);
-      icon.style.background=`conic-gradient(#fff ${pct*360}deg, rgba(201,169,110,.4) 0deg)`;
-      icon.style.color= pct>.5 ? 'var(--ac)' : '#fff';
-      if(pct>=1){ clearInterval(timer); icon.style.background=''; icon.style.color=''; window.location.href='admin/index.html'; }
+    e.preventDefault();
+    if(holding) return;
+    holding=true;
+    overlay.style.display='flex';
+    let elapsed=0;
+    const ring=document.getElementById('lpRing');
+    const DURATION=2000, CIRCUMFERENCE=213.6;
+    intervalId=setInterval(()=>{
+      elapsed+=50;
+      const pct=Math.min(elapsed/DURATION,1);
+      ring.style.strokeDashoffset=CIRCUMFERENCE*(1-pct);
+      if(pct>=1){
+        clearInterval(intervalId);
+        overlay.style.display='none';
+        window.location.href='admin/index.html';
+      }
     },50);
   }
+
   function endPress(){
-    clearInterval(timer); timer=null;
-    icon.style.background=''; icon.style.color='';
+    if(!holding) return;
+    holding=false;
+    clearInterval(intervalId);
+    overlay.style.display='none';
+    const ring=document.getElementById('lpRing');
+    if(ring) ring.style.strokeDashoffset='213.6';
   }
+
   logo.addEventListener('mousedown',startPress);
   logo.addEventListener('touchstart',startPress,{passive:false});
   logo.addEventListener('mouseup',endPress);
   logo.addEventListener('mouseleave',endPress);
   logo.addEventListener('touchend',endPress);
   logo.addEventListener('touchcancel',endPress);
-  logo.addEventListener('click',e=>{ if(progress>=2000) e.preventDefault(); });
+  logo.addEventListener('contextmenu',e=>e.preventDefault());
 })();function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}
 // ── 완료 팝업 + 유효성 검사 헬퍼 ─────────────────────────
 function showSubmitPopup(title,msg,icon){var pop=document.getElementById('submitPopup');if(!pop){pop=document.createElement('div');pop.id='submitPopup';pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';pop.innerHTML='<div id="submitPopupBox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="submitPopupIcon" style="font-size:3rem;margin-bottom:.75rem"></div><div id="submitPopupTitle" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="submitPopupMsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';document.body.appendChild(pop);}
