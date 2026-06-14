@@ -1,0 +1,589 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>관리자 — 조니딥</title>
+<link rel="icon" href="/favicon.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#FDF6EC;--wh:#FFFDF9;--be:#F5EBD8;--sa:#E8D5B7;--ac:#C9A96E;--te:#C4775A;--dk:#3D2B1F;--ol:#7A8B6F;--tp:#2C1810;--ts:#5C4A3A;--tl:#8B7355;--sw:rgba(60,43,31,.08);--sd:rgba(60,43,31,.15)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);min-height:100vh}
+
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#2A1F0E,#3D2B1A);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:var(--wh);border-radius:24px;padding:3rem 2.5rem;width:min(380px,92vw);text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.35)}
+.login-logo{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.4rem;color:#fff;margin:0 auto 1.25rem}
+.login-title{font-family:'Noto Serif KR',serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:.4rem}
+.login-sub{font-size:.82rem;color:var(--tl);margin-bottom:2rem}
+.login-input{width:100%;padding:.85rem 1.1rem;border:1.5px solid var(--sa);border-radius:12px;font-size:.95rem;font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);outline:none;transition:border .2s;margin-bottom:1rem}
+.login-input:focus{border-color:var(--ac)}
+.login-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--dk),#5C3D2E);color:#FDF6EC;border:none;border-radius:100px;font-size:.97rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-err{font-size:.8rem;color:#e55;margin-top:.75rem;min-height:1.2em}
+
+#app{display:none}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--dk);padding:2rem 1.25rem;display:flex;flex-direction:column;gap:.35rem;z-index:100}
+.sidebar-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;text-decoration:none}
+.sidebar-logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;color:#fff}
+.sidebar-logo-text{font-family:'Noto Serif KR',serif;font-size:1rem;font-weight:600;color:#FDF6EC}
+.sidebar-logo-badge{font-size:.65rem;background:rgba(201,169,110,.2);color:var(--ac);border:1px solid rgba(201,169,110,.3);border-radius:100px;padding:.15rem .5rem;margin-left:.25rem}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;border-radius:12px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.55);font-size:.88rem;font-weight:500;border:none;background:none;width:100%;text-align:left;font-family:'Pretendard',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(201,169,110,.15);color:var(--ac);font-weight:600}
+.nav-item .nav-icon{font-size:1.05rem;width:22px;text-align:center}
+.sidebar-bottom{margin-top:auto}
+.sidebar-back{display:flex;align-items:center;gap:.6rem;color:rgba(255,255,255,.35);font-size:.78rem;text-decoration:none;padding:.5rem .75rem;border-radius:8px;transition:color .2s}
+.sidebar-back:hover{color:rgba(255,255,255,.65)}
+
+.main{margin-left:240px;min-height:100vh;padding:2.5rem 2.5rem}
+.page-title{font-family:'Noto Serif KR',serif;font-size:1.6rem;font-weight:700;color:var(--dk);margin-bottom:.35rem}
+.page-sub{font-size:.88rem;color:var(--tl);margin-bottom:2rem}
+.tab-content{display:none}.tab-content.active{display:block}
+
+.card{background:var(--wh);border-radius:18px;border:1px solid rgba(232,213,183,.5);padding:1.75rem;margin-bottom:1.5rem}
+.card-title{font-family:'Noto Serif KR',serif;font-size:1.05rem;font-weight:600;color:var(--dk);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.card-title .badge{font-size:.7rem;padding:.2rem .6rem;background:rgba(201,169,110,.15);color:var(--ac);border-radius:100px;font-family:'Pretendard',sans-serif;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:100px;font-size:.83rem;font-weight:600;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--ac),var(--te));color:#fff}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid rgba(201,169,110,.5);color:var(--ac)}
+.btn-outline:hover{background:rgba(201,169,110,.08)}
+.btn-danger{background:transparent;border:1.5px solid rgba(229,85,85,.4);color:#c55}
+.btn-danger:hover{background:rgba(229,85,85,.06)}
+.btn-sm{padding:.35rem .75rem;font-size:.75rem}
+.btn-icon{width:30px;height:30px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+
+.form-row{display:grid;gap:1rem;margin-bottom:1rem}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+label.form-label{font-size:.78rem;font-weight:600;color:var(--tl)}
+input.form-input,select.form-input,textarea.form-input{padding:.65rem .9rem;border:1.5px solid var(--sa);border-radius:10px;font-size:.88rem;font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);outline:none;transition:border .2s;resize:vertical}
+input.form-input:focus,select.form-input:focus,textarea.form-input:focus{border-color:var(--ac)}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:.75rem;font-weight:700;color:var(--tl);text-align:left;padding:.65rem 1rem;border-bottom:2px solid var(--sa)}
+td{font-size:.85rem;color:var(--ts);padding:.75rem 1rem;border-bottom:1px solid rgba(232,213,183,.35);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(232,213,183,.12)}
+
+.tag{display:inline-block;padding:.2rem .65rem;border-radius:100px;font-size:.72rem;font-weight:600}
+.tag-green{background:rgba(100,180,100,.12);color:#3a7a3a}
+.tag-red{background:rgba(229,85,85,.1);color:#c44}
+.tag-yellow{background:rgba(201,169,110,.15);color:#8a6430}
+.tag-blue{background:rgba(80,140,200,.1);color:#3a6090}
+.tag-gray{background:rgba(0,0,0,.06);color:var(--tl)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;margin-bottom:2rem}
+.stat-card{background:var(--wh);border-radius:16px;border:1px solid rgba(232,213,183,.5);padding:1.5rem;text-align:center}
+.stat-num{font-family:'Noto Serif KR',serif;font-size:2rem;font-weight:700;color:var(--dk);margin-bottom:.2rem}
+.stat-label{font-size:.78rem;color:var(--tl)}
+
+.survey-resp-item{padding:1rem 1.25rem;background:var(--bg);border-radius:12px;border:1px solid rgba(232,213,183,.35);font-size:.85rem;line-height:1.7;margin-bottom:.75rem}
+.survey-resp-meta{font-size:.72rem;color:var(--tl);margin-bottom:.3rem}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-backdrop.open{opacity:1;pointer-events:auto}
+.modal-box{background:var(--wh);border-radius:22px;padding:2.25rem;width:min(500px,94vw);max-height:90vh;overflow-y:auto;transform:scale(.92);transition:transform .2s;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+.modal-backdrop.open .modal-box{transform:scale(1)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-title{font-family:'Noto Serif KR',serif;font-size:1.1rem;font-weight:600;color:var(--dk)}
+.modal-close{background:none;border:none;font-size:1.2rem;color:var(--tl);cursor:pointer;padding:.25rem;line-height:1}
+
+.toast{position:fixed;bottom:2rem;right:2rem;padding:.75rem 1.25rem;border-radius:12px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-success{background:#2d7a3a;color:#fff}
+.toast-error{background:#c44;color:#fff}
+
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--sa);border-radius:3px}
+@media(max-width:768px){.sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;padding:1rem;gap:.35rem}.sidebar-logo{display:none}.main{margin-left:0;padding:1.25rem}.form-row.cols-2,.form-row.cols-3{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+</style></head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">JD</div>
+    <div class="login-title">관리자 로그인</div>
+    <div class="login-sub">조니딥 운영진 전용 페이지입니다</div>
+    <input id="pwInput" class="login-input" type="password" placeholder="비밀번호를 입력하세요" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div id="loginErr" class="login-err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <nav class="sidebar">
+    <a href="../index.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">JD</div>
+      <span class="sidebar-logo-text">조니딥</span>
+      <span class="sidebar-logo-badge">관리자</span>
+    </a>
+    <button class="nav-item active" onclick="showTab('survey',this)"><span class="nav-icon">📋</span> 설문조사</button>
+    <button class="nav-item" onclick="showTab('members',this)"><span class="nav-icon">👥</span> 멤버 관리</button>
+    <button class="nav-item" onclick="showTab('fines',this)"><span class="nav-icon">💰</span> 벌금 관리</button>
+    <div class="sidebar-bottom">
+      <a href="../index.html" class="sidebar-back">← 사이트로 돌아가기</a>
+      <button class="nav-item" onclick="doLogout()" style="color:rgba(255,100,100,.5);margin-top:.5rem"><span class="nav-icon">🚪</span> 로그아웃</button>
+    </div>
+  </nav>
+  <main class="main">
+
+    <!-- 설문조사 -->
+    <div id="tab-survey" class="tab-content active">
+      <div class="page-title">📋 설문조사</div>
+      <div class="page-sub">멤버 대상 설문을 생성하고 응답을 관리합니다</div>
+      <div class="stat-grid" id="surveyStats"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <strong style="font-size:.92rem;color:var(--dk)">설문 목록</strong>
+        <button class="btn btn-primary" onclick="openSurveyModal()">+ 새 설문 만들기</button>
+      </div>
+      <div id="surveyList"><div style="text-align:center;padding:3rem;color:var(--tl)">불러오는 중…</div></div>
+    </div>
+
+    <!-- 멤버 관리 -->
+    <div id="tab-members" class="tab-content">
+      <div class="page-title">👥 멤버 관리</div>
+      <div class="page-sub">조니딥 시즌별 멤버를 등록하고 관리합니다</div>
+      <div class="stat-grid" id="memberStats"></div>
+      <div class="card">
+        <div class="card-title">새 멤버 추가</div>
+        <div class="form-row cols-3">
+          <div class="form-group"><label class="form-label">이름</label><input id="mName" class="form-input" placeholder="홍길동"></div>
+          <div class="form-group"><label class="form-label">소속 / 직책</label><input id="mRole" class="form-input" placeholder="HRD 매니저"></div>
+          <div class="form-group"><label class="form-label">시즌</label>
+            <select id="mSeason" class="form-input"><option>시즌 8</option><option>시즌 7</option><option>시즌 6</option><option>시즌 5</option><option>시즌 4</option><option>시즌 3</option><option>시즌 2</option><option>시즌 1</option></select>
+          </div>
+        </div>
+        <div class="form-row cols-3">
+          <div class="form-group"><label class="form-label">연락처</label><input id="mContact" class="form-input" placeholder="010-0000-0000"></div>
+          <div class="form-group"><label class="form-label">역할</label>
+            <select id="mType" class="form-input"><option value="member">멤버</option><option value="admin">운영진</option><option value="guest">게스트</option><option value="alumni">졸업 멤버</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">회비 납부 여부</label>
+            <select id="mFee" class="form-input"><option value="paid">납부 완료</option><option value="pending">미납</option></select>
+          </div>
+        </div>
+        <div class="form-row"><div class="form-group"><label class="form-label">메모</label><input id="mNote" class="form-input" placeholder="선택 입력"></div></div>
+        <button id="addMemberBtn" class="btn btn-primary" onclick="addMember()">멤버 추가하기</button>
+      </div>
+      <div class="card">
+        <div class="card-title">멤버 목록 <span class="badge" id="memberCount">0명</span></div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="filterMembers('all')">전체</button>
+          <button class="btn btn-outline btn-sm" onclick="filterMembers('member')">멤버</button>
+          <button class="btn btn-outline btn-sm" onclick="filterMembers('admin')">운영진</button>
+          <button class="btn btn-outline btn-sm" onclick="filterMembers('guest')">게스트</button>
+          <button class="btn btn-outline btn-sm" onclick="filterMembers('alumni')">졸업</button>
+        </div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>이름</th><th>소속/직책</th><th>시즌</th><th>연락처</th><th>역할</th><th>회비</th><th>메모</th><th></th></tr></thead>
+          <tbody id="memberTable"><tr><td colspan="8" style="text-align:center;color:var(--tl);padding:2rem">불러오는 중…</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 벌금 관리 -->
+    <div id="tab-fines" class="tab-content">
+      <div class="page-title">💰 벌금 관리</div>
+      <div class="page-sub">멤버별 벌금 내역을 기록하고 납부 상태를 관리합니다</div>
+      <div class="stat-grid" id="fineStats"></div>
+      <div class="card">
+        <div class="card-title">벌금 추가</div>
+        <div class="form-row cols-3">
+          <div class="form-group"><label class="form-label">멤버 이름</label><input id="fName" class="form-input" list="memberNameList" placeholder="멤버 선택"><datalist id="memberNameList"></datalist></div>
+          <div class="form-group"><label class="form-label">사유</label><input id="fReason" class="form-input" placeholder="예: 지각, 불참, 과제 미제출"></div>
+          <div class="form-group"><label class="form-label">금액 (원)</label><input id="fAmount" class="form-input" type="number" placeholder="5000" min="0"></div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group"><label class="form-label">발생일</label><input id="fDate" class="form-input" type="date"></div>
+          <div class="form-group"><label class="form-label">시즌</label>
+            <select id="fSeason" class="form-input"><option>시즌 8</option><option>시즌 7</option><option>시즌 6</option></select>
+          </div>
+        </div>
+        <button id="addFineBtn" class="btn btn-primary" onclick="addFine()">벌금 추가하기</button>
+      </div>
+      <div class="card">
+        <div class="card-title">벌금 현황</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>멤버</th><th>사유</th><th>금액</th><th>발생일</th><th>시즌</th><th>상태</th><th></th></tr></thead>
+          <tbody id="fineTable"><tr><td colspan="7" style="text-align:center;color:var(--tl);padding:2rem">불러오는 중…</td></tr></tbody></table>
+        </div>
+        <div id="fineSummary" style="margin-top:1.25rem;padding:1rem 1.25rem;background:var(--bg);border-radius:12px;font-size:.85rem;color:var(--ts)"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 설문 생성 모달 -->
+<div id="surveyModal" class="modal-backdrop" onclick="if(event.target===this)closeSurveyModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">새 설문 만들기</div>
+      <button class="modal-close" onclick="closeSurveyModal()">✕</button>
+    </div>
+    <div class="form-group" style="margin-bottom:1rem"><label class="form-label">설문 제목</label><input id="sTitle" class="form-input" placeholder="예: 시즌 8 3회차 피드백"></div>
+    <div class="form-group" style="margin-bottom:1rem"><label class="form-label">설명 (선택)</label><textarea id="sDesc" class="form-input" rows="2" placeholder="설문 안내 문구"></textarea></div>
+    <div id="questionList" style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem"></div>
+    <button class="btn btn-outline" style="width:100%;margin-bottom:1.25rem" onclick="addQuestion()">+ 질문 추가</button>
+    <button id="saveSurveyBtn" class="btn btn-primary" style="width:100%" onclick="saveSurvey()">설문 저장하기</button>
+  </div>
+</div>
+
+<!-- 응답 보기 모달 -->
+<div id="respModal" class="modal-backdrop" onclick="if(event.target===this)closeRespModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="respModalTitle">응답 목록</div>
+      <button class="modal-close" onclick="closeRespModal()">✕</button>
+    </div>
+    <div id="respContent"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://dvlrzbckneucpvlacdll.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── 토스트 ────────────────────────────────────────────────
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast toast-${type} show`;
+  setTimeout(()=>el.classList.remove('show'), 2800);
+}
+
+// ── 로그인 ────────────────────────────────────────────────
+const PASS = 'journeydeep2026';
+function doLogin(){
+  if(document.getElementById('pwInput').value === PASS){
+    sessionStorage.setItem('jd_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initAll();
+  } else {
+    document.getElementById('loginErr').textContent='비밀번호가 틀렸습니다.';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+  }
+}
+function doLogout(){ sessionStorage.removeItem('jd_auth'); location.reload(); }
+
+window.addEventListener('load',()=>{
+  if(sessionStorage.getItem('jd_auth')){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initAll();
+  }
+  document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+});
+
+// ── 탭 전환 ───────────────────────────────────────────────
+function showTab(name, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='survey') loadSurveys();
+  if(name==='members') loadMembers();
+  if(name==='fines') loadFines();
+}
+
+function initAll(){ loadSurveys(); loadMembers(); loadFines(); }
+
+// ══════════════════════════════════════════════════════════
+// 설문조사
+// ══════════════════════════════════════════════════════════
+async function loadSurveys(){
+  const { data, error } = await sb.from('surveys').select('*, survey_responses(count)').order('created_at',{ascending:false});
+  if(error){ toast('설문 불러오기 실패: '+error.message,'error'); return; }
+  renderSurveys(data||[]);
+}
+
+function renderSurveys(surveys){
+  const total = surveys.length;
+  const open = surveys.filter(s=>s.open).length;
+  const totalResp = surveys.reduce((a,s)=>a+(s.survey_responses?.[0]?.count||0),0);
+  document.getElementById('surveyStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">전체 설문</div></div>
+    <div class="stat-card"><div class="stat-num">${open}</div><div class="stat-label">진행 중</div></div>
+    <div class="stat-card"><div class="stat-num">${totalResp}</div><div class="stat-label">전체 응답</div></div>`;
+
+  const list = document.getElementById('surveyList');
+  if(!surveys.length){ list.innerHTML='<div class="card" style="text-align:center;color:var(--tl);padding:3rem">설문이 없습니다. 새 설문을 만들어보세요!</div>'; return; }
+  list.innerHTML = surveys.map(s=>`
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            <span class="tag ${s.open?'tag-green':'tag-gray'}">${s.open?'진행 중':'종료'}</span>
+            <strong style="font-size:.97rem;color:var(--dk)">${s.title}</strong>
+          </div>
+          ${s.description?`<div style="font-size:.82rem;color:var(--tl);margin-bottom:.4rem">${s.description}</div>`:''}
+          <div style="font-size:.78rem;color:var(--tl)">질문 ${(s.questions||[]).length}개 · 응답 ${s.survey_responses?.[0]?.count||0}개 · ${new Date(s.created_at).toLocaleDateString('ko-KR')}</div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="viewResponses('${s.id}','${s.title.replace(/'/g,"\\'")}')">응답 보기</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleSurvey('${s.id}',${s.open})">${s.open?'종료':'재개'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSurvey('${s.id}')">삭제</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openSurveyModal(){
+  document.getElementById('sTitle').value='';
+  document.getElementById('sDesc').value='';
+  document.getElementById('questionList').innerHTML='';
+  addQuestion();
+  document.getElementById('surveyModal').classList.add('open');
+}
+function closeSurveyModal(){ document.getElementById('surveyModal').classList.remove('open'); }
+
+function addQuestion(text='',type='text'){
+  const qId='q_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  const div=document.createElement('div');
+  div.dataset.qid=qId;
+  div.style.cssText='display:flex;gap:.5rem;align-items:flex-start;background:var(--bg);padding:.85rem;border-radius:12px;border:1px solid rgba(232,213,183,.4)';
+  div.innerHTML=`
+    <div style="flex:1;display:flex;flex-direction:column;gap:.4rem">
+      <input class="form-input" placeholder="질문 내용" value="${text}" style="font-size:.85rem">
+      <select class="form-input" style="font-size:.8rem">
+        <option value="text" ${type==='text'?'selected':''}>📝 단답형</option>
+        <option value="long" ${type==='long'?'selected':''}>📄 장문형</option>
+        <option value="choice" ${type==='choice'?'selected':''}>🔘 객관식</option>
+        <option value="scale" ${type==='scale'?'selected':''}>📊 1~5 척도</option>
+      </select>
+    </div>
+    <button onclick="this.closest('[data-qid]').remove()" class="btn btn-danger btn-icon btn-sm">✕</button>`;
+  document.getElementById('questionList').appendChild(div);
+}
+
+async function saveSurvey(){
+  const title = document.getElementById('sTitle').value.trim();
+  if(!title){ toast('설문 제목을 입력하세요','error'); return; }
+  const qs=[];
+  document.querySelectorAll('#questionList [data-qid]').forEach(div=>{
+    const inp=div.querySelector('input'), sel=div.querySelector('select');
+    if(inp.value.trim()) qs.push({id:div.dataset.qid,text:inp.value.trim(),type:sel.value});
+  });
+  if(!qs.length){ toast('질문을 하나 이상 추가하세요','error'); return; }
+  const btn=document.getElementById('saveSurveyBtn');
+  btn.disabled=true; btn.textContent='저장 중…';
+  const {error} = await sb.from('surveys').insert({title, description:document.getElementById('sDesc').value, questions:qs, open:true});
+  btn.disabled=false; btn.textContent='설문 저장하기';
+  if(error){ toast('저장 실패: '+error.message,'error'); return; }
+  toast('설문이 저장됐어요!');
+  closeSurveyModal(); loadSurveys();
+}
+
+async function deleteSurvey(id){
+  if(!confirm('이 설문을 삭제하시겠습니까?')) return;
+  await sb.from('survey_responses').delete().eq('survey_id',id);
+  const {error} = await sb.from('surveys').delete().eq('id',id);
+  if(error){ toast('삭제 실패','error'); return; }
+  toast('삭제됐어요'); loadSurveys();
+}
+
+async function toggleSurvey(id, currentOpen){
+  const {error} = await sb.from('surveys').update({open:!currentOpen}).eq('id',id);
+  if(error){ toast('업데이트 실패','error'); return; }
+  loadSurveys();
+}
+
+async function viewResponses(surveyId, surveyTitle){
+  document.getElementById('respModalTitle').textContent = surveyTitle + ' — 응답 목록';
+  document.getElementById('respContent').innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--tl)">불러오는 중…</div>';
+  document.getElementById('respModal').classList.add('open');
+
+  const {data:survey} = await sb.from('surveys').select('questions').eq('id',surveyId).single();
+  const {data:responses} = await sb.from('survey_responses').select('*').eq('survey_id',surveyId).order('submitted_at',{ascending:false});
+
+  const qs = survey?.questions||[];
+  const cont = document.getElementById('respContent');
+  let html = '';
+  if(!responses||!responses.length){
+    html='<p style="color:var(--tl);font-size:.88rem;text-align:center;padding:1.5rem 0">아직 응답이 없습니다</p>';
+  } else {
+    html = responses.map((r,i)=>`
+      <div class="survey-resp-item">
+        <div class="survey-resp-meta">#${i+1} · ${new Date(r.submitted_at).toLocaleDateString('ko-KR')}</div>
+        ${qs.map(q=>`<div><strong style="color:var(--dk)">${q.text}</strong><div style="margin-top:.2rem">${r.answers?.[q.id]||'(미응답)'}</div></div>`).join('<hr style="border:none;border-top:1px dashed rgba(232,213,183,.5);margin:.6rem 0">')}
+      </div>`).join('');
+  }
+  // 직접 응답 추가 폼
+  html += `<div style="margin-top:1.25rem;border-top:1px solid var(--sa);padding-top:1.25rem">
+    <div style="font-size:.82rem;font-weight:600;color:var(--dk);margin-bottom:.75rem">응답 직접 추가</div>
+    ${qs.map(q=>`<div class="form-group" style="margin-bottom:.65rem">
+      <label class="form-label">${q.text}</label>
+      ${q.type==='long'?`<textarea class="form-input" id="ra_${q.id}" rows="2"></textarea>`
+        :q.type==='scale'?`<select class="form-input" id="ra_${q.id}"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>`
+        :`<input class="form-input" id="ra_${q.id}" placeholder="응답 입력">`}
+    </div>`).join('')}
+    <button class="btn btn-primary" onclick="submitManualResponse('${surveyId}')">응답 저장</button>
+  </div>`;
+  cont.innerHTML = html;
+}
+function closeRespModal(){ document.getElementById('respModal').classList.remove('open'); }
+
+async function submitManualResponse(surveyId){
+  const {data:survey} = await sb.from('surveys').select('questions').eq('id',surveyId).single();
+  const answers={};
+  (survey?.questions||[]).forEach(q=>{ const el=document.getElementById('ra_'+q.id); if(el) answers[q.id]=el.value; });
+  const {error} = await sb.from('survey_responses').insert({survey_id:surveyId,answers});
+  if(error){ toast('저장 실패: '+error.message,'error'); return; }
+  toast('응답이 저장됐어요!');
+  closeRespModal(); loadSurveys();
+}
+
+// ══════════════════════════════════════════════════════════
+// 멤버 관리
+// ══════════════════════════════════════════════════════════
+let memberFilter='all';
+const typeLabel={member:'멤버',admin:'운영진',guest:'게스트',alumni:'졸업'};
+const typeTag={member:'tag-blue',admin:'tag-yellow',guest:'tag-green',alumni:'tag-gray'};
+
+async function loadMembers(){
+  const {data,error} = await sb.from('members').select('*').order('created_at',{ascending:false});
+  if(error){ toast('멤버 불러오기 실패','error'); return; }
+  renderMembers(data||[]);
+  updateMemberDatalist(data||[]);
+}
+
+function renderMembers(members){
+  const filtered = memberFilter==='all' ? members : members.filter(m=>m.type===memberFilter);
+  const paid=members.filter(m=>m.fee==='paid').length;
+  document.getElementById('memberStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${members.length}</div><div class="stat-label">전체 멤버</div></div>
+    <div class="stat-card"><div class="stat-num">${paid}</div><div class="stat-label">회비 납부</div></div>
+    <div class="stat-card"><div class="stat-num">${members.length-paid}</div><div class="stat-label">회비 미납</div></div>
+    <div class="stat-card"><div class="stat-num">${members.filter(m=>m.type==='admin').length}</div><div class="stat-label">운영진</div></div>`;
+  document.getElementById('memberCount').textContent=filtered.length+'명';
+  const tbody=document.getElementById('memberTable');
+  if(!filtered.length){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--tl);padding:2rem">멤버가 없습니다</td></tr>'; return; }
+  tbody.innerHTML=filtered.map(m=>`<tr>
+    <td><strong style="color:var(--dk)">${m.name}</strong></td>
+    <td>${m.role||'-'}</td>
+    <td><span class="tag tag-gray">${m.season||'-'}</span></td>
+    <td style="font-size:.8rem">${m.contact||'-'}</td>
+    <td><span class="tag ${typeTag[m.type]||'tag-gray'}">${typeLabel[m.type]||m.type}</span></td>
+    <td><button class="tag ${m.fee==='paid'?'tag-green':'tag-red'}" onclick="toggleFee('${m.id}','${m.fee}')" style="border:none;cursor:pointer">${m.fee==='paid'?'납부 ✓':'미납'}</button></td>
+    <td style="font-size:.78rem;color:var(--tl)">${m.note||'-'}</td>
+    <td><button class="btn btn-danger btn-icon btn-sm" onclick="deleteMember('${m.id}')">✕</button></td>
+  </tr>`).join('');
+}
+
+function filterMembers(type){ memberFilter=type; loadMembers(); }
+
+async function addMember(){
+  const name=document.getElementById('mName').value.trim();
+  if(!name){ toast('이름을 입력하세요','error'); return; }
+  const btn=document.getElementById('addMemberBtn');
+  btn.disabled=true; btn.textContent='추가 중…';
+  const {error} = await sb.from('members').insert({
+    name, role:document.getElementById('mRole').value,
+    season:document.getElementById('mSeason').value,
+    contact:document.getElementById('mContact').value,
+    type:document.getElementById('mType').value,
+    fee:document.getElementById('mFee').value,
+    note:document.getElementById('mNote').value
+  });
+  btn.disabled=false; btn.textContent='멤버 추가하기';
+  if(error){ toast('추가 실패: '+error.message,'error'); return; }
+  toast('멤버가 추가됐어요!');
+  ['mName','mRole','mContact','mNote'].forEach(id=>document.getElementById(id).value='');
+  loadMembers();
+}
+
+async function deleteMember(id){
+  if(!confirm('멤버를 삭제하시겠습니까?')) return;
+  const {error} = await sb.from('members').delete().eq('id',id);
+  if(error){ toast('삭제 실패','error'); return; }
+  toast('삭제됐어요'); loadMembers();
+}
+
+async function toggleFee(id, current){
+  const {error} = await sb.from('members').update({fee:current==='paid'?'pending':'paid'}).eq('id',id);
+  if(error){ toast('업데이트 실패','error'); return; }
+  loadMembers();
+}
+
+function updateMemberDatalist(members){
+  document.getElementById('memberNameList').innerHTML=members.map(m=>`<option value="${m.name}">`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// 벌금 관리
+// ══════════════════════════════════════════════════════════
+async function loadFines(){
+  const {data,error} = await sb.from('fines').select('*').order('fine_date',{ascending:false});
+  if(error){ toast('벌금 불러오기 실패','error'); return; }
+  renderFines(data||[]);
+}
+
+function renderFines(fines){
+  const totalAmt=fines.reduce((a,f)=>a+f.amount,0);
+  const paidAmt=fines.filter(f=>f.paid).reduce((a,f)=>a+f.amount,0);
+  document.getElementById('fineStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${fines.length}</div><div class="stat-label">전체 건수</div></div>
+    <div class="stat-card"><div class="stat-num">${totalAmt.toLocaleString()}원</div><div class="stat-label">전체 금액</div></div>
+    <div class="stat-card"><div class="stat-num">${paidAmt.toLocaleString()}원</div><div class="stat-label">납부 완료</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#c44">${(totalAmt-paidAmt).toLocaleString()}원</div><div class="stat-label">미납 금액</div></div>`;
+  const tbody=document.getElementById('fineTable');
+  if(!fines.length){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--tl);padding:2rem">벌금 내역이 없습니다</td></tr>'; return; }
+  tbody.innerHTML=fines.map(f=>`<tr>
+    <td><strong style="color:var(--dk)">${f.member_name}</strong></td>
+    <td>${f.reason}</td>
+    <td style="font-weight:600;color:var(--dk)">${f.amount.toLocaleString()}원</td>
+    <td style="font-size:.82rem">${f.fine_date||''}</td>
+    <td><span class="tag tag-gray">${f.season}</span></td>
+    <td><button class="tag ${f.paid?'tag-green':'tag-red'}" onclick="toggleFinePaid('${f.id}',${f.paid})" style="border:none;cursor:pointer">${f.paid?'납부 ✓':'미납'}</button></td>
+    <td><button class="btn btn-danger btn-icon btn-sm" onclick="deleteFine('${f.id}')">✕</button></td>
+  </tr>`).join('');
+  const byMember={};
+  fines.filter(f=>!f.paid).forEach(f=>{ byMember[f.member_name]=(byMember[f.member_name]||0)+f.amount; });
+  const summary=document.getElementById('fineSummary');
+  if(!Object.keys(byMember).length){ summary.innerHTML='<span style="color:var(--ol)">✓ 미납 벌금이 없습니다</span>'; return; }
+  summary.innerHTML='<strong style="color:var(--dk)">미납자 요약</strong><div style="margin-top:.5rem;display:flex;flex-wrap:wrap;gap:.5rem">'
+    +Object.entries(byMember).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<span class="tag tag-red">${n}: ${a.toLocaleString()}원</span>`).join('')+'</div>';
+}
+
+async function addFine(){
+  const name=document.getElementById('fName').value.trim();
+  const reason=document.getElementById('fReason').value.trim();
+  const amount=parseInt(document.getElementById('fAmount').value)||0;
+  if(!name||!reason){ toast('멤버 이름과 사유를 입력하세요','error'); return; }
+  const btn=document.getElementById('addFineBtn');
+  btn.disabled=true; btn.textContent='추가 중…';
+  const {error} = await sb.from('fines').insert({
+    member_name:name, reason, amount,
+    fine_date:document.getElementById('fDate').value,
+    season:document.getElementById('fSeason').value,
+    paid:false
+  });
+  btn.disabled=false; btn.textContent='벌금 추가하기';
+  if(error){ toast('추가 실패: '+error.message,'error'); return; }
+  toast('벌금이 추가됐어요!');
+  document.getElementById('fName').value='';
+  document.getElementById('fReason').value='';
+  document.getElementById('fAmount').value='';
+  loadFines();
+}
+
+async function deleteFine(id){
+  if(!confirm('벌금 내역을 삭제하시겠습니까?')) return;
+  const {error} = await sb.from('fines').delete().eq('id',id);
+  if(error){ toast('삭제 실패','error'); return; }
+  toast('삭제됐어요'); loadFines();
+}
+
+async function toggleFinePaid(id,current){
+  const {error} = await sb.from('fines').update({paid:!current}).eq('id',id);
+  if(error){ toast('업데이트 실패','error'); return; }
+  loadFines();
+}
+</script>
+</body></html>

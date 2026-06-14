@@ -158,8 +158,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
 @media(max-width:900px){.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
 @media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style></head><body><nav class="nav" id="nav">
-<a href="index.html" class="nav-logo">
-  <div class="nav-logo-icon">JD</div>
+<a href="index.html" class="nav-logo" id="navLogo">
+  <div class="nav-logo-icon" id="logoIcon">JD</div>
   <span class="nav-logo-text">조니딥</span>
 </a>
 <ul class="nav-links" id="navLinks">
@@ -304,7 +304,36 @@ document.addEventListener('click',function(e){
   var isOpen=li.classList.contains('open');
   document.querySelectorAll('.nav-li.open').forEach(function(other){other.classList.remove('open');});
   if(!isOpen)li.classList.add('open');
-});const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}
+});const obs=new IntersectionObserver(e=>{e.forEach(en=>{en.isIntersecting&&en.target.classList.add('visible')})},{threshold:0.05,rootMargin:'0px 0px 0px 0px'});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{t.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'))},400)}})});document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',function(){this.parentElement.classList.toggle('open')}));
+// 로고 2초 길게 누르기 → 관리자 페이지
+(function(){
+  const logo=document.getElementById('navLogo');
+  const icon=document.getElementById('logoIcon');
+  let timer=null,progress=null;
+  function startPress(e){
+    if(e.type==='touchstart')e.preventDefault();
+    progress=0;
+    icon.style.transition='transform .1s';
+    timer=setInterval(()=>{
+      progress+=50;
+      const pct=Math.min(progress/2000,1);
+      icon.style.background=`conic-gradient(#fff ${pct*360}deg, rgba(201,169,110,.4) 0deg)`;
+      icon.style.color= pct>.5 ? 'var(--ac)' : '#fff';
+      if(pct>=1){ clearInterval(timer); icon.style.background=''; icon.style.color=''; window.location.href='admin/index.html'; }
+    },50);
+  }
+  function endPress(){
+    clearInterval(timer); timer=null;
+    icon.style.background=''; icon.style.color='';
+  }
+  logo.addEventListener('mousedown',startPress);
+  logo.addEventListener('touchstart',startPress,{passive:false});
+  logo.addEventListener('mouseup',endPress);
+  logo.addEventListener('mouseleave',endPress);
+  logo.addEventListener('touchend',endPress);
+  logo.addEventListener('touchcancel',endPress);
+  logo.addEventListener('click',e=>{ if(progress>=2000) e.preventDefault(); });
+})();function bookFilter(btn,season){document.querySelectorAll('.book-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.book-card-full').forEach(c=>{if(season==='전체'||c.dataset.season===season){c.classList.remove('hidden')}else{c.classList.add('hidden')}});}
 // ── 완료 팝업 + 유효성 검사 헬퍼 ─────────────────────────
 function showSubmitPopup(title,msg,icon){var pop=document.getElementById('submitPopup');if(!pop){pop=document.createElement('div');pop.id='submitPopup';pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;pointer-events:none';pop.innerHTML='<div id="submitPopupBox" style="background:#fff;border-radius:24px;padding:2.5rem 3rem;text-align:center;transform:scale(.85);transition:transform .25s;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:360px;width:90vw"><div id="submitPopupIcon" style="font-size:3rem;margin-bottom:.75rem"></div><div id="submitPopupTitle" style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem"></div><div id="submitPopupMsg" style="font-size:.92rem;color:#555;line-height:1.75"></div></div>';document.body.appendChild(pop);}
 document.getElementById('submitPopupIcon').textContent=icon||'✅';document.getElementById('submitPopupTitle').textContent=title||'완료!';document.getElementById('submitPopupMsg').textContent=msg||'';
