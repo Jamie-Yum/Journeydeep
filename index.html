@@ -42,22 +42,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .hero-top{position:relative;z-index:2;padding:5rem 3rem 0;display:flex;flex-direction:column;gap:2.5rem;max-width:520px}
 .hero-copy{font-family:'DM Sans',sans-serif;font-size:clamp(1.1rem,2.2vw,1.4rem);font-weight:400;color:#fff;line-height:1.55;max-width:380px;animation:fU .9s ease .2s both}
 .hero-small-cta{display:inline-flex;align-items:center;gap:.6rem;color:rgba(255,255,255,.75);font-size:.82rem;font-weight:500;text-decoration:none;letter-spacing:.04em;font-family:'DM Sans',sans-serif;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:.2rem;transition:all .3s;animation:fU .9s ease .4s both}.hero-small-cta:hover{color:#fff;border-color:#fff}
-.hero-bottom{position:relative;z-index:2;padding:0 2rem 0}
+.hero-bottom{position:relative;z-index:2;padding:0 2rem 0;margin-bottom:-0.18em}
 .hero-badge{display:inline-flex;align-items:center;gap:.75rem;padding:.5rem 1rem .5rem .5rem;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:100px;margin-bottom:1rem;animation:fU .9s ease .5s both}
 .hero-badge-dot{width:28px;height:28px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hero-badge span{font-size:.72rem;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Sans',sans-serif}
 .hero-wordmark{font-family:'DM Sans',sans-serif;font-size:clamp(5rem,16vw,14rem);font-weight:900;color:var(--ac);line-height:.85;letter-spacing:-.04em;animation:fU .9s ease .1s both;text-transform:none}
 @keyframes fU{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.about{background:var(--wh)}
+.about{background:var(--ac)}
 .about-editorial{display:grid;grid-template-columns:1fr 1.6fr;gap:6rem;align-items:start;margin-top:0}
 .about-left{position:sticky;top:6rem}
-.about-big-title{font-family:'DM Sans',sans-serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--dk);letter-spacing:-.04em;line-height:1.15;margin-bottom:2rem}
-.about-big-title span{display:block;color:var(--ac)}
+.about-big-title{font-family:'DM Sans',sans-serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1.15;margin-bottom:2rem}
+.about-big-title span{display:block;color:rgba(255,255,255,.5)}
 .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:4rem}
-.value-card{padding:2.5rem 2rem;border-radius:4px;background:transparent;border:none;border-top:1.5px solid rgba(100,116,139,.2);transition:all .4s;position:relative}
-.value-card:hover{background:var(--bg)}
-.value-icon{width:44px;height:44px;border-radius:10px;background:rgba(37,99,235,.08);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
-.value-card h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);margin-bottom:.6rem;letter-spacing:-.01em}.value-card p{font-size:.9rem;color:var(--ts);line-height:1.85}
+.value-card{padding:2.5rem 2rem;border-radius:4px;background:transparent;border:none;border-top:1.5px solid rgba(255,255,255,.2);transition:all .4s;position:relative}
+.value-card:hover{background:rgba(255,255,255,.08)}
+.value-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
+.value-card h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:.6rem;letter-spacing:-.01em}.value-card p{font-size:.9rem;color:rgba(255,255,255,.65);line-height:1.85}
 .season-banner{background:linear-gradient(135deg,#0F172A,#1E3A8A,#1D4ED8);position:relative;overflow:hidden;text-align:center}
 .season-badge{display:inline-block;padding:.35rem 1rem;background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);border-radius:100px;font-size:.8rem;font-weight:600;color:var(--ac);letter-spacing:.12em;margin-bottom:1.5rem}
 .season-banner .section-title{color:#FFFFFF}.season-banner .section-desc{color:rgba(255,255,255,.65);margin:0 auto 2.5rem;text-align:center}
@@ -219,12 +219,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </section><section class="section about" id="about"><div class="section-container">
 <div class="about-editorial">
   <div class="about-left reveal">
-    <div class="section-eyebrow">What is JourneyDeep?</div>
+    <div class="section-eyebrow" style="color:rgba(255,255,255,.5)">What is JourneyDeep?</div>
     <h2 class="about-big-title">조직문화로의<span>깊은 여정</span></h2>
-    <p style="font-size:.95rem;color:var(--ol);line-height:1.9">2022년 시즌 1부터<br>현재 시즌 8까지</p>
+    <p style="font-size:.95rem;color:rgba(255,255,255,.5);line-height:1.9">2022년 시즌 1부터<br>현재 시즌 8까지</p>
   </div>
   <div class="about-right reveal">
-    <p style="font-size:1.15rem;color:var(--ts);line-height:2;margin-bottom:2.5rem">HRD 담당자, 대표, 리더, 컨설턴트 등 성장을 원하고 대화를 좋아하는 다양한 분야의 사람들이 함께 읽고, 토론하고, 인사이트를 나누는 커뮤니티입니다.<br><br>HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 1을 시작으로 현재 시즌 8까지 이어오고 있습니다.</p>
+    <p style="font-size:1.15rem;color:rgba(255,255,255,.8);line-height:2;margin-bottom:2.5rem">HRD 담당자, 대표, 리더, 컨설턴트 등 성장을 원하고 대화를 좋아하는 다양한 분야의 사람들이 함께 읽고, 토론하고, 인사이트를 나누는 커뮤니티입니다.<br><br>HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 1을 시작으로 현재 시즌 8까지 이어오고 있습니다.</p>
     <div class="values-grid">
       <div class="value-card reveal reveal-delay-1">
         <div class="value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
