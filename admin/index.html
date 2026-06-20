@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>관리자 — 조니딥</title>
 <link rel="icon" href="/favicon.png" type="image/png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#FDF6EC;--wh:#FFFDF9;--be:#F5EBD8;--sa:#E8D5B7;--ac:#C9A96E;--te:#C4775A;--dk:#3D2B1F;--ol:#7A8B6F;--tp:#2C1810;--ts:#5C4A3A;--tl:#8B7355;--sw:rgba(60,43,31,.08);--sd:rgba(60,43,31,.15)}
@@ -9,8 +9,8 @@
 
 #loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#2A1F0E,#3D2B1A);display:flex;align-items:center;justify-content:center;z-index:9999}
 .login-box{background:var(--wh);border-radius:24px;padding:3rem 2.5rem;width:min(380px,92vw);text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.35)}
-.login-logo{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.4rem;color:#fff;margin:0 auto 1.25rem}
-.login-title{font-family:'Noto Serif KR',serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:.4rem}
+.login-logo{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.4rem;color:#fff;margin:0 auto 1.25rem}
+.login-title{font-family:'DM Sans',sans-serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:.4rem}
 .login-sub{font-size:.82rem;color:var(--tl);margin-bottom:2rem}
 .login-input{width:100%;padding:.85rem 1.1rem;border:1.5px solid var(--sa);border-radius:12px;font-size:.95rem;font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);outline:none;transition:border .2s;margin-bottom:1rem}
 .login-input:focus{border-color:var(--ac)}
@@ -21,8 +21,8 @@
 #app{display:none}
 .sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--dk);padding:2rem 1.25rem;display:flex;flex-direction:column;gap:.35rem;z-index:100}
 .sidebar-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;text-decoration:none}
-.sidebar-logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;color:#fff}
-.sidebar-logo-text{font-family:'Noto Serif KR',serif;font-size:1rem;font-weight:600;color:#FDF6EC}
+.sidebar-logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.05rem;color:#fff}
+.sidebar-logo-text{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:#FDF6EC}
 .sidebar-logo-badge{font-size:.65rem;background:rgba(201,169,110,.2);color:var(--ac);border:1px solid rgba(201,169,110,.3);border-radius:100px;padding:.15rem .5rem;margin-left:.25rem}
 .nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;border-radius:12px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.55);font-size:.88rem;font-weight:500;border:none;background:none;width:100%;text-align:left;font-family:'Pretendard',sans-serif}
 .nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
@@ -33,12 +33,12 @@
 .sidebar-back:hover{color:rgba(255,255,255,.65)}
 
 .main{margin-left:240px;min-height:100vh;padding:2.5rem 2.5rem}
-.page-title{font-family:'Noto Serif KR',serif;font-size:1.6rem;font-weight:700;color:var(--dk);margin-bottom:.35rem}
+.page-title{font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:700;color:var(--dk);margin-bottom:.35rem}
 .page-sub{font-size:.88rem;color:var(--tl);margin-bottom:2rem}
 .tab-content{display:none}.tab-content.active{display:block}
 
 .card{background:var(--wh);border-radius:18px;border:1px solid rgba(232,213,183,.5);padding:1.75rem;margin-bottom:1.5rem}
-.card-title{font-family:'Noto Serif KR',serif;font-size:1.05rem;font-weight:600;color:var(--dk);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.card-title{font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dk);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
 .card-title .badge{font-size:.7rem;padding:.2rem .6rem;background:rgba(201,169,110,.15);color:var(--ac);border-radius:100px;font-family:'Pretendard',sans-serif;font-weight:600}
 
 .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:100px;font-size:.83rem;font-weight:600;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:all .2s}
@@ -76,7 +76,7 @@ tr:hover td{background:rgba(232,213,183,.12)}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;margin-bottom:2rem}
 .stat-card{background:var(--wh);border-radius:16px;border:1px solid rgba(232,213,183,.5);padding:1.5rem;text-align:center}
-.stat-num{font-family:'Noto Serif KR',serif;font-size:2rem;font-weight:700;color:var(--dk);margin-bottom:.2rem}
+.stat-num{font-family:'DM Sans',sans-serif;font-size:2rem;font-weight:700;color:var(--dk);margin-bottom:.2rem}
 .stat-label{font-size:.78rem;color:var(--tl)}
 
 .survey-resp-item{padding:1rem 1.25rem;background:var(--bg);border-radius:12px;border:1px solid rgba(232,213,183,.35);font-size:.85rem;line-height:1.7;margin-bottom:.75rem}
@@ -87,7 +87,7 @@ tr:hover td{background:rgba(232,213,183,.12)}
 .modal-box{background:var(--wh);border-radius:22px;padding:2.25rem;width:min(500px,94vw);max-height:90vh;overflow-y:auto;transform:scale(.92);transition:transform .2s;box-shadow:0 24px 64px rgba(0,0,0,.25)}
 .modal-backdrop.open .modal-box{transform:scale(1)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
-.modal-title{font-family:'Noto Serif KR',serif;font-size:1.1rem;font-weight:600;color:var(--dk)}
+.modal-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:var(--dk)}
 .modal-close{background:none;border:none;font-size:1.2rem;color:var(--tl);cursor:pointer;padding:.25rem;line-height:1}
 
 .toast{position:fixed;bottom:2rem;right:2rem;padding:.75rem 1.25rem;border-radius:12px;font-size:.85rem;font-weight:600;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none}
