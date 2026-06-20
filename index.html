@@ -14,7 +14,7 @@
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);overflow-x:hidden;line-height:1.8}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 3.5rem;height:76px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;background:transparent;}
-.nav.scrolled{background:rgba(253,246,236,.96);backdrop-filter:blur(24px);box-shadow:0 1px 40px rgba(0,0,0,.12)}
+.nav.scrolled{background:rgba(244,246,250,.96);backdrop-filter:blur(24px);box-shadow:0 1px 40px rgba(0,0,0,.12)}
 .nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:var(--dk)}.nav-logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.1rem;color:#fff}.nav-logo-text{font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.05rem}
 .nav-links{display:flex;align-items:center;gap:0;list-style:none}
 .nav-li{position:relative}
@@ -24,16 +24,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .nav-li:hover .nav-link-main,.nav-li:hover .nav-link-sub{color:var(--ac)}
 .nav-li::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:0;height:1.5px;background:var(--ac);transition:width .3s}
 .nav-li:hover::after{width:60%}
-.nav-dropdown{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);background:rgba(253,248,240,.98);backdrop-filter:blur(24px);border:1px solid rgba(201,169,110,.12);border-radius:14px;padding:.6rem;min-width:180px;box-shadow:0 20px 60px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-8px);transition:all .22s cubic-bezier(.4,0,.2,1);z-index:100}
+.nav-dropdown{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);background:rgba(244,246,250,.98);backdrop-filter:blur(24px);border:1px solid rgba(37,99,235,.12);border-radius:14px;padding:.6rem;min-width:180px;box-shadow:0 20px 60px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-8px);transition:all .22s cubic-bezier(.4,0,.2,1);z-index:100}
 .nav-li:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 .nav-dd-item{display:block;padding:.55rem 1rem;font-size:.85rem;color:var(--ts);text-decoration:none;border-radius:8px;transition:all .15s;white-space:nowrap;font-weight:500}
-.nav-dd-item:hover{background:rgba(201,169,110,.08);color:var(--ac)}
+.nav-dd-item:hover{background:rgba(37,99,235,.08);color:var(--ac)}
 .nav-dd-divider{height:1px;background:rgba(0,0,0,.08);margin:.4rem .6rem}
 .mobile-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;z-index:10000;position:relative}.mobile-toggle span{width:24px;height:2px;background:var(--dk);border-radius:2px;transition:transform .3s,opacity .3s,background .3s}
-.section{padding:7rem 2rem}.section-container{max-width:1100px;margin:0 auto}
-.section-eyebrow{font-family:'DM Sans',sans-serif;font-size:.9rem;font-style:italic;color:var(--ac);letter-spacing:.1em;margin-bottom:.75rem}
-.section-title{font-family:'DM Sans',sans-serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:600;color:var(--dk);letter-spacing:-.02em;line-height:1.4;margin-bottom:1.5rem}
-.section-desc{font-size:1rem;color:var(--ts);line-height:1.9;max-width:600px}
+.section{padding:8rem 2rem}.section-container{max-width:1200px;margin:0 auto}
+.section-eyebrow{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:var(--ol);letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.25rem}
+.section-title{font-family:'DM Sans',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--dk);letter-spacing:-.03em;line-height:1.25;margin-bottom:1.75rem}
+.section-desc{font-size:1.05rem;color:var(--ts);line-height:1.9;max-width:600px}
 .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:6rem 2rem 4rem}
 .hero-bg{position:absolute;inset:0}.hero-bg-circle{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4}
 .hero-bg-circle:nth-child(1){width:600px;height:600px;background:var(--sa);top:-15%;right:-10%;animation:f1 20s ease-in-out infinite}
@@ -41,7 +41,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .hero-bg-circle:nth-child(3){width:300px;height:300px;background:var(--ol);top:40%;left:30%;opacity:.15}
 @keyframes f1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(1.05)}}@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px) scale(1.08)}}
 .hero-content{position:relative;z-index:1;text-align:center;max-width:800px}
-.hero-label{display:inline-block;padding:.4rem 1.2rem;background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);border-radius:100px;font-size:.8rem;font-weight:500;color:var(--ac);letter-spacing:.1em;margin-bottom:2rem;animation:fU .8s ease both}
+.hero-label{display:inline-block;padding:.4rem 1.2rem;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.3);border-radius:100px;font-size:.8rem;font-weight:500;color:var(--ac);letter-spacing:.1em;margin-bottom:2rem;animation:fU .8s ease both}
 .hero-title{font-family:'DM Sans',sans-serif;font-size:clamp(2.8rem,6vw,4.5rem);font-weight:700;line-height:1.3;color:var(--dk);margin-bottom:.5rem;animation:fU .8s ease .15s both}
 .hero-title .accent{background:linear-gradient(135deg,var(--ac),var(--te));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-subtitle{font-family:'DM Sans',sans-serif;font-size:clamp(1.1rem,2.5vw,1.5rem);font-style:italic;color:var(--tl);margin-bottom:2rem;animation:fU .8s ease .3s both}
@@ -50,16 +50,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--sd)}.hero-cta svg{width:18px;height:18px;transition:transform .3s}.hero-cta:hover svg{transform:translateX(3px)}
 @keyframes fU{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .about{background:var(--wh)}
-.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5rem;margin-top:4rem}
-.value-card{padding:2.5rem 2rem;border-radius:20px;background:var(--bg);border:1px solid rgba(232,213,183,.5);transition:all .5s;position:relative;overflow:hidden}
-.value-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--ac),var(--te));transform:scaleX(0);transform-origin:left;transition:transform .5s}.value-card:hover::before{transform:scaleX(1)}.value-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px var(--sw)}
-.value-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(196,119,90,.1));display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.5rem}
-.value-card h3{font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:600;color:var(--dk);margin-bottom:.75rem}.value-card p{font-size:.92rem;color:var(--ts);line-height:1.8}
+.about-editorial{display:grid;grid-template-columns:1fr 1.6fr;gap:6rem;align-items:start;margin-top:0}
+.about-left{position:sticky;top:6rem}
+.about-big-title{font-family:'DM Sans',sans-serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--dk);letter-spacing:-.04em;line-height:1.15;margin-bottom:2rem}
+.about-big-title span{display:block;color:var(--ac)}
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:4rem}
+.value-card{padding:2.5rem 2rem;border-radius:4px;background:transparent;border:none;border-top:1.5px solid rgba(100,116,139,.2);transition:all .4s;position:relative}
+.value-card:hover{background:var(--bg)}
+.value-icon{width:44px;height:44px;border-radius:10px;background:rgba(37,99,235,.08);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
+.value-card h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);margin-bottom:.6rem;letter-spacing:-.01em}.value-card p{font-size:.9rem;color:var(--ts);line-height:1.85}
 .season-banner{background:linear-gradient(135deg,#0F172A,#1E3A8A,#1D4ED8);position:relative;overflow:hidden;text-align:center}
-.season-badge{display:inline-block;padding:.35rem 1rem;background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);border-radius:100px;font-size:.8rem;font-weight:600;color:var(--ac);letter-spacing:.12em;margin-bottom:1.5rem}
+.season-badge{display:inline-block;padding:.35rem 1rem;background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);border-radius:100px;font-size:.8rem;font-weight:600;color:var(--ac);letter-spacing:.12em;margin-bottom:1.5rem}
 .season-banner .section-title{color:#FFFFFF}.season-banner .section-desc{color:rgba(255,255,255,.65);margin:0 auto 2.5rem;text-align:center}
-.season-cta{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.5rem;background:var(--ac);color:#fff;text-decoration:none;border-radius:100px;font-weight:600;transition:all .4s;box-shadow:0 4px 20px rgba(201,169,110,.3)}.season-cta:hover{transform:translateY(-2px)}
-.cta-outline{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.5rem;background:transparent;border:2px solid var(--ac);color:var(--ac);text-decoration:none;border-radius:100px;font-weight:600;transition:all .4s}.cta-outline:hover{background:rgba(201,169,110,.1);transform:translateY(-2px)}
+.season-cta{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.5rem;background:var(--ac);color:#fff;text-decoration:none;border-radius:100px;font-weight:600;transition:all .4s;box-shadow:0 4px 20px rgba(37,99,235,.3)}.season-cta:hover{transform:translateY(-2px)}
+.cta-outline{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.5rem;background:transparent;border:2px solid var(--ac);color:var(--ac);text-decoration:none;border-radius:100px;font-weight:600;transition:all .4s}.cta-outline:hover{background:rgba(37,99,235,.1);transform:translateY(-2px)}
 .cta-group{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:.5rem}
 .hero-cta-outline{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.5rem;background:transparent;border:2px solid rgba(255,255,255,.3);color:var(--dk);text-decoration:none;border-radius:100px;font-size:.95rem;font-weight:500;transition:all .4s;animation:fU .8s ease .7s both}.hero-cta-outline:hover{border-color:var(--ac);color:var(--ac);transform:translateY(-2px)}
 .program{background:var(--bg)}.program-layout{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem}
@@ -67,13 +71,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .program-img{flex:1;aspect-ratio:1;border-radius:50%;overflow:hidden;box-shadow:0 16px 40px var(--sd);transition:transform .4s}
 .program-img:hover{transform:translateY(-6px)}
 .program-img:nth-child(1){background:linear-gradient(135deg,#64748B,#475569)}
-.program-img:nth-child(2){background:linear-gradient(135deg,#A0604A,#8B5040);transform:translateY(-16px)}
+.program-img:nth-child(2){background:linear-gradient(135deg,#334155,#1E40AF);transform:translateY(-16px)}
 .program-img:nth-child(2):hover{transform:translateY(-22px)}
 .program-img:nth-child(3){background:linear-gradient(135deg,#5A6B4F,#4A5B40)}
 .program-img img{width:100%;height:100%;object-fit:cover}.program-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;font-weight:500;font-style:normal;text-shadow:0 1px 4px rgba(0,0,0,.3);letter-spacing:.02em}
 .program-details h3{font-family:'DM Sans',sans-serif;font-size:1.3rem;font-weight:600;color:var(--dk);margin-bottom:1.5rem}
 .program-list{list-style:none;display:flex;flex-direction:column;gap:1.25rem}.program-list li{display:flex;align-items:flex-start;gap:1rem;font-size:.95rem;color:var(--ts);line-height:1.7}
-.program-list-icon{width:28px;height:28px;border-radius:8px;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem}
+.program-list-icon{width:28px;height:28px;border-radius:8px;background:rgba(37,99,235,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem}
 .gallery{background:var(--wh);overflow:hidden}
 .gallery-track{display:flex;gap:1.5rem;margin-top:3rem;animation:gS 30s linear infinite;width:max-content}.gallery-track:hover{animation-play-state:paused}
 .gallery-insta-wrap{margin-top:2.5rem;width:100%;overflow:hidden}
@@ -83,11 +87,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 @keyframes gS{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .booklist{background:var(--bg)}
 .book-filter-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:2.5rem;margin-bottom:2rem}
-.book-tab{padding:.4rem 1rem;border-radius:20px;border:1px solid rgba(201,169,110,.4);background:transparent;color:var(--tl);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
+.book-tab{padding:.4rem 1rem;border-radius:20px;border:1px solid rgba(37,99,235,.4);background:transparent;color:var(--tl);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
 .book-tab:hover{border-color:var(--ac);color:var(--ac)}
 .book-tab.active{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
 .book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem}
-.book-card{display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;background:var(--wh);border-radius:16px;border:1px solid rgba(232,213,183,.4);transition:all .4s}
+.book-card{display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;background:var(--wh);border-radius:16px;border:1px solid rgba(100,116,139,.4);transition:all .4s}
 .book-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px var(--sw)}
 .book-card.hidden{display:none}
 .book-cover{width:48px;height:64px;border-radius:6px;background:linear-gradient(135deg,var(--sa),var(--ac));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
@@ -95,7 +99,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-grid-v{display:grid;grid-template-columns:repeat(5,1fr);gap:1.25rem;margin-top:2.5rem}
 @media(max-width:900px){.book-grid-v{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.book-grid-v{grid-template-columns:repeat(2,1fr)}}
-.book-card-v{background:var(--wh);border-radius:12px;border:1px solid rgba(232,213,183,.35);overflow:hidden;transition:all .4s}
+.book-card-v{background:var(--wh);border-radius:12px;border:1px solid rgba(100,116,139,.35);overflow:hidden;transition:all .4s}
 .book-card-v:hover{transform:translateY(-3px);box-shadow:0 12px 32px var(--sw)}
 .book-cover-v{width:100%;aspect-ratio:2/3;overflow:hidden;background:var(--be)}
 .book-info-v{padding:.85rem .9rem}
@@ -104,38 +108,38 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-author-v{font-size:.72rem;color:var(--tl)}
 .history{background:var(--wh)}.timeline{margin-top:3.5rem;position:relative;padding-left:3rem}
 .timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--ac),var(--sa),transparent)}
-.timeline-item{position:relative;margin-bottom:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid rgba(232,213,183,.3)}.timeline-item:last-child{border-bottom:none}
+.timeline-item{position:relative;margin-bottom:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid rgba(100,116,139,.3)}.timeline-item:last-child{border-bottom:none}
 .timeline-dot{position:absolute;left:-3rem;top:4px;width:14px;height:14px;border-radius:50%;background:var(--ac);border:3px solid var(--wh);box-shadow:0 0 0 2px var(--ac)}
-.timeline-item:first-child .timeline-dot{background:var(--te);box-shadow:0 0 0 2px var(--te),0 0 12px rgba(196,119,90,.3)}
+.timeline-item:first-child .timeline-dot{background:var(--te);box-shadow:0 0 0 2px var(--te),0 0 12px rgba(30,58,138,.3)}
 .timeline-season{font-family:'DM Sans',sans-serif;font-size:.85rem;font-style:italic;color:var(--ac);margin-bottom:.25rem}
 .timeline-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:var(--dk);margin-bottom:.5rem}.timeline-desc{font-size:.9rem;color:var(--ts);line-height:1.7}
 .timeline-link{display:inline-block;margin-top:.5rem;font-size:.85rem;color:var(--ac);text-decoration:none;transition:color .3s}.timeline-link:hover{color:var(--te)}
 .faq-section{background:var(--bg)}.faq-list{margin-top:3rem;max-width:700px}
-.faq-item{border-bottom:1px solid rgba(232,213,183,.4);padding:1.5rem 0}
+.faq-item{border-bottom:1px solid rgba(100,116,139,.4);padding:1.5rem 0}
 .faq-q{font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dk);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem}.faq-q::after{content:'+';font-size:1.2rem;color:var(--ac);transition:transform .3s}.faq-item.open .faq-q::after{transform:rotate(45deg)}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .4s,padding .4s;font-size:.95rem;color:var(--ts);line-height:1.8}.faq-item.open .faq-a{max-height:300px;padding-top:1rem}
 .testimonials{background:var(--wh)}.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2rem;margin-top:3rem}
-.testi-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.4);position:relative}
+.testi-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(100,116,139,.4);position:relative}
 .testi-card::before{content:'"';position:absolute;top:1rem;left:1.5rem;font-family:'DM Sans',sans-serif;font-size:4rem;color:var(--ac);opacity:.3;line-height:1}
 .testi-text{font-size:.95rem;color:var(--ts);line-height:1.8;margin-bottom:1.25rem;padding-top:1.5rem}.testi-author{font-size:.85rem;font-weight:600;color:var(--dk)}.testi-season{font-size:.78rem;color:var(--tl)}
 .schedule{background:var(--bg)}.schedule-table{margin-top:3rem;width:100%;max-width:700px}
-.schedule-row{display:grid;grid-template-columns:160px 1fr auto;gap:1.5rem;padding:1.5rem 1.25rem;border-bottom:1px solid rgba(180,140,100,.35);align-items:center;border-radius:8px;transition:background .2s}.schedule-row:hover{background:rgba(232,213,183,.2)}
+.schedule-row{display:grid;grid-template-columns:160px 1fr auto;gap:1.5rem;padding:1.5rem 1.25rem;border-bottom:1px solid rgba(100,116,139,.35);align-items:center;border-radius:8px;transition:background .2s}.schedule-row:hover{background:rgba(100,116,139,.2)}
 .schedule-date{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--ac)}.schedule-event{font-size:1rem;color:var(--dk);font-weight:600;letter-spacing:-.01em}
-.schedule-note{font-size:.8rem;color:#1E3A8A;padding:.3rem .9rem;background:rgba(201,169,110,.2);border-radius:100px;font-weight:500;border:1px solid rgba(201,169,110,.4);white-space:nowrap}
+.schedule-note{font-size:.8rem;color:#1E3A8A;padding:.3rem .9rem;background:rgba(37,99,235,.2);border-radius:100px;font-weight:500;border:1px solid rgba(37,99,235,.4);white-space:nowrap}
 .people{background:var(--wh)}.people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2rem;margin-top:3rem}
-.person-card{text-align:center;padding:2rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s}.person-card:hover{transform:translateY(-4px);box-shadow:0 16px 50px var(--sw)}
+.person-card{text-align:center;padding:2rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(100,116,139,.4);transition:all .4s}.person-card:hover{transform:translateY(-4px);box-shadow:0 16px 50px var(--sw)}
 .person-avatar{width:80px;height:80px;border-radius:50%;margin:0 auto 1rem;background:linear-gradient(135deg,var(--sa),var(--ac));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;overflow:hidden}.person-avatar img{width:100%;height:100%;object-fit:cover}
 .person-card h4{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--dk);margin-bottom:.25rem}.person-card p{font-size:.8rem;color:var(--tl)}
 .contact{background:#0F172A;color:#FFFFFF;text-align:center;padding:5rem 2rem}
-.contact .section-eyebrow{color:rgba(201,169,110,.8)}.contact .section-title{color:#FFFFFF}.contact .section-desc{color:rgba(255,255,255,.55);margin:0 auto 2.5rem}
+.contact .section-eyebrow{color:rgba(37,99,235,.8)}.contact .section-title{color:#FFFFFF}.contact .section-desc{color:rgba(255,255,255,.55);margin:0 auto 2.5rem}
 .contact-links{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
-.contact-link{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.75rem;border:1px solid rgba(201,169,110,.3);border-radius:100px;color:var(--ac);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .3s}.contact-link:hover{background:rgba(201,169,110,.1);border-color:var(--ac)}
-.footer{background:#2A1A10;padding:2rem;text-align:center}.footer p{font-size:.8rem;color:rgba(255,255,255,.3)}
-.apply-section{background:linear-gradient(135deg,#FDF0E0,#F5E4C8);text-align:center;padding:6rem 2rem;position:relative;overflow:hidden}
-.apply-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(201,169,110,.12) 0%,transparent 70%)}
+.contact-link{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.75rem;border:1px solid rgba(37,99,235,.3);border-radius:100px;color:var(--ac);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .3s}.contact-link:hover{background:rgba(37,99,235,.1);border-color:var(--ac)}
+.footer{background:#0F172A;padding:2rem;text-align:center}.footer p{font-size:.8rem;color:rgba(255,255,255,.3)}
+.apply-section{background:linear-gradient(135deg,#EEF2FF,#DBEAFE);text-align:center;padding:6rem 2rem;position:relative;overflow:hidden}
+.apply-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(37,99,235,.12) 0%,transparent 70%)}
 .apply-section .section-title{color:var(--dk);margin-bottom:1rem}
 .apply-section .section-desc{color:var(--ts);margin:0 auto 2.5rem;text-align:center;max-width:500px}
-.apply-cta-btn{display:inline-flex;align-items:center;gap:.75rem;padding:1.1rem 3rem;background:linear-gradient(135deg,var(--ac),var(--te));color:#fff;text-decoration:none;border-radius:100px;font-size:1.05rem;font-weight:600;transition:all .4s;box-shadow:0 8px 30px rgba(201,169,110,.35)}.apply-cta-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(201,169,110,.45)}
+.apply-cta-btn{display:inline-flex;align-items:center;gap:.75rem;padding:1.1rem 3rem;background:linear-gradient(135deg,var(--ac),var(--te));color:#fff;text-decoration:none;border-radius:100px;font-size:1.05rem;font-weight:600;transition:all .4s;box-shadow:0 8px 30px rgba(37,99,235,.35)}.apply-cta-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(37,99,235,.45)}
 .reveal,.reveal.visible{opacity:1;transform:none}
 .reveal-delay-1{transition-delay:.1s}.reveal-delay-2{transition-delay:.2s}.reveal-delay-3{transition-delay:.3s}
 .page-header{padding:8rem 2rem 4rem;text-align:center;background:var(--wh);position:relative}
@@ -146,17 +150,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .media-figure{margin:1.5rem 0;text-align:center}.media-figure img{max-width:100%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.1)}.media-figure figcaption{font-size:.82rem;color:var(--tl);margin-top:.5rem;font-style:italic}
 .page-body h2{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:600;color:var(--dk);margin:2.5rem 0 1rem}
 .page-body h3{font-family:'DM Sans',sans-serif;font-size:1.2rem;font-weight:600;color:var(--dk);margin:2rem 0 .75rem}
-.page-body p{margin-bottom:1.25rem}.page-body blockquote{border-left:3px solid var(--ac);padding:.75rem 1.5rem;margin:1.5rem 0;background:rgba(232,213,183,.15);border-radius:0 8px 8px 0;font-style:italic;color:var(--ts)}
+.page-body p{margin-bottom:1.25rem}.page-body blockquote{border-left:3px solid var(--ac);padding:.75rem 1.5rem;margin:1.5rem 0;background:rgba(100,116,139,.15);border-radius:0 8px 8px 0;font-style:italic;color:var(--ts)}
 .page-body ul,.page-body ol{padding-left:1.5rem;margin-bottom:1.25rem}.page-body li{margin-bottom:.5rem}
 .letter-list{display:flex;flex-direction:column;gap:1.5rem;margin-top:3rem}
-.letter-item{padding:2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
+.letter-item{padding:2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(100,116,139,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
 .letter-item:hover{transform:translateY(-2px);box-shadow:0 12px 40px var(--sw)}
 .letter-item h3{font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:600;color:var(--dk);margin-bottom:.5rem}
 .letter-item .letter-meta{font-size:.82rem;color:var(--tl);margin-bottom:.75rem}.letter-item p{font-size:.95rem;color:var(--ts);line-height:1.7}
-.prog-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
+.prog-card{padding:2rem;background:var(--bg);border-radius:20px;border:1px solid rgba(100,116,139,.4);transition:all .4s;text-decoration:none;color:inherit;display:block}
 .prog-card:hover{transform:translateY(-3px);box-shadow:0 16px 50px var(--sw)}
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
-@media(max-width:900px){.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(253,246,236,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
+@media(max-width:900px){.about-editorial{grid-template-columns:1fr;gap:2rem}.about-left{position:static}.values-grid{grid-template-columns:1fr}#begin .section-container,#contact .section-container{grid-template-columns:1fr!important;gap:3rem!important}.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(244,246,250,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.1);border-radius:10px;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
 @media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style></head><body><nav class="nav" id="nav">
 <a href="index.html" class="nav-logo" id="navLogo">
   <div class="nav-logo-icon" id="logoIcon">JD</div>
@@ -196,9 +200,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </li>
 </ul>
 <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-</nav><section class="hero" id="home"><div class="hero-bg" style="inset:0;position:absolute"><img src="/images/index/1.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.65) 100%)"></div></div><div class="hero-content"><div class="hero-label">SEASON 8 완료, SEASON 9 준비 중</div><h1 class="hero-title" style="color:#FFFFFF"><span style="display:block;font-size:clamp(2rem,5vw,43.5rem)">조니딥</span><span style="display:block;font-size:clamp(1.8rem,4.5vw,2rem)">조직문화 니즈를 <span class="accent">딥하게</span></span></h1><p class="hero-subtitle" style="color:rgba(255,255,255,.65)">Journey into the depth of organizational culture</p><p class="hero-desc" style="color:rgba(255,255,255,.6)">조직문화 니즈를 딥하게.<br>조직, 교육, 커리어에 관한 대화를 나누고<br>조직문화 도서를 함께 읽으며 인사이트를 기록하는<br>조직문화 독서 토론 커뮤니티입니다.</p><div class="cta-group"><a href="join/s8-guest.html" target="_blank" class="hero-cta">시즌 8 게스트 신청하기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div></section><section class="section about" id="about"><div class="section-container"><div class="section-eyebrow reveal">What is JourneyDeep?</div><h2 class="section-title reveal">조직문화로의 깊은 여정, 조니딥</h2><p class="section-desc reveal" style="max-width:720px;white-space:pre-line">HRD 담당자, 대표, 리더, 컨설턴트 등 성장을 원하고 대화를 좋아하는 다양한 분야의 사람들이 함께 읽고, 토론하고, 인사이트를 나누는 커뮤니티입니다.
-
-HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 1을 시작으로 현재 시즌 8까지 이어오고 있습니다.</p><div class="values-grid" style="grid-template-columns:repeat(3,1fr)"><div class="value-card reveal reveal-delay-1"><div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem"><div class="value-icon" style="margin:0;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3 style="margin:0">Talk — 함께 대화해요</h3></div><p>조직, 교육, 커리어에 관한 다양한 이야기를 나눕니다. HRD 담당자, 대표, 리더, 컨설턴트 등 다양한 분야의 사람들과 서로의 사례를 공유하며 생각을 확장합니다.</p></div><div class="value-card reveal reveal-delay-2"><div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem"><div class="value-icon" style="margin:0;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><h3 style="margin:0">Read — 함께 읽어요</h3></div><p>조직문화에 관한 도서(교육, 학습, 리더십, 경영, 심리 등)를 함께 읽습니다. 다년간의 독서 모임 운영 노하우로 한 달간 읽고 토론하기 좋은 책을 선정합니다.</p></div><div class="value-card reveal reveal-delay-3"><div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem"><div class="value-icon" style="margin:0;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 6a6 6 0 0 1 6 6c0 2.5-1.5 4.5-3 5.5V19a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.5C7.5 16.5 6 14.5 6 12a6 6 0 0 1 6-6z"/><line x1="9" y1="21" x2="15" y2="21"/></svg></div><h3 style="margin:0">Share — 생각을 나눠요</h3></div><p>의견을 교환하며 생각을 확장합니다. 퍼실리테이션 전문가인 모임장이 참여부터 마무리까지 전 과정을 관리해 누구나 편하게 참여할 수 있습니다.</p></div></div></div></section><section class="section gallery" id="gallery"><div class="section-container"><div class="section-eyebrow reveal">Moments</div><h2 class="section-title reveal">함께한 순간들</h2></div><div class="gallery-insta-wrap"><script src="https://w.behold.so/widget.js" type="module"></script><behold-widget feed-id="dMAKQZ9YDk7jz1iFizyQ" style="width:100%;display:block"></behold-widget></div></section><section class="section booklist" id="booklist"><div class="section-container">
+</nav><section class="hero" id="home"><div class="hero-bg" style="inset:0;position:absolute"><img src="/images/index/1.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.65) 100%)"></div></div><div class="hero-content"><div class="hero-label">SEASON 8 완료, SEASON 9 준비 중</div><h1 class="hero-title" style="color:#FFFFFF"><span style="display:block;font-size:clamp(2rem,5vw,43.5rem)">조니딥</span><span style="display:block;font-size:clamp(1.8rem,4.5vw,2rem)">조직문화 니즈를 <span class="accent">딥하게</span></span></h1><p class="hero-subtitle" style="color:rgba(255,255,255,.65)">Journey into the depth of organizational culture</p><p class="hero-desc" style="color:rgba(255,255,255,.6)">조직문화 니즈를 딥하게.<br>조직, 교육, 커리어에 관한 대화를 나누고<br>조직문화 도서를 함께 읽으며 인사이트를 기록하는<br>조직문화 독서 토론 커뮤니티입니다.</p><div class="cta-group"><a href="join/s8-guest.html" target="_blank" class="hero-cta">시즌 8 게스트 신청하기 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div></section><section class="section about" id="about"><div class="section-container">
+<div class="about-editorial">
+  <div class="about-left reveal">
+    <div class="section-eyebrow">What is JourneyDeep?</div>
+    <h2 class="about-big-title">조직문화로의<span>깊은 여정</span></h2>
+    <p style="font-size:.95rem;color:var(--ol);line-height:1.9">2022년 시즌 1부터<br>현재 시즌 8까지</p>
+  </div>
+  <div class="about-right reveal">
+    <p style="font-size:1.15rem;color:var(--ts);line-height:2;margin-bottom:2.5rem">HRD 담당자, 대표, 리더, 컨설턴트 등 성장을 원하고 대화를 좋아하는 다양한 분야의 사람들이 함께 읽고, 토론하고, 인사이트를 나누는 커뮤니티입니다.<br><br>HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 1을 시작으로 현재 시즌 8까지 이어오고 있습니다.</p>
+    <div class="values-grid">
+      <div class="value-card reveal reveal-delay-1">
+        <div class="value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>Talk</h3>
+        <p>조직, 교육, 커리어에 관한 다양한 이야기를 나눕니다.</p>
+      </div>
+      <div class="value-card reveal reveal-delay-2">
+        <div class="value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h3>Read</h3>
+        <p>조직문화 도서를 함께 읽고 한 달간 깊이 탐구합니다.</p>
+      </div>
+      <div class="value-card reveal reveal-delay-3">
+        <div class="value-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><path d="M12 6a6 6 0 0 1 6 6c0 2.5-1.5 4.5-3 5.5V19a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1.5C7.5 16.5 6 14.5 6 12a6 6 0 0 1 6-6z"/><line x1="9" y1="21" x2="15" y2="21"/></svg></div>
+        <h3>Share</h3>
+        <p>의견을 교환하며 생각을 확장하고 인사이트를 나눕니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div></section><section class="section gallery" id="gallery"><div class="section-container"><div class="section-eyebrow reveal">Moments</div><h2 class="section-title reveal">함께한 순간들</h2></div><div class="gallery-insta-wrap"><script src="https://w.behold.so/widget.js" type="module"></script><behold-widget feed-id="dMAKQZ9YDk7jz1iFizyQ" style="width:100%;display:block"></behold-widget></div></section><section class="section booklist" id="booklist"><div class="section-container">
 <div class="section-eyebrow reveal">Book List</div>
 <h2 class="section-title reveal">함께 읽은 책들</h2>
 <p class="section-desc reveal" style="max-width:540px">시즌마다 한 권의 책을 함께 읽고 토론합니다. 지금까지 33권을 함께 읽었어요.</p>
@@ -246,15 +276,15 @@ HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 
 <p class="section-desc reveal" style="max-width:640px">HRD 담당자, 대표, 리더, 컨설턴트 등 성장을 원하고 대화를 좋아하는 다양한 분야의 사람들이 함께 읽고, 토론하고, 인사이트를 나누는 커뮤니티입니다.
 
 HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 1을 시작으로 현재 시즌 8까지 이어오고 있습니다.</p>
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-top:3rem"><a href="program/s8.html" class="journey-card reveal" style="text-decoration:none;display:flex;flex-direction:column;padding:2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(232,213,183,.4);transition:all .4s;color:inherit;cursor:pointer" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(232,213,183,.4)';this.style.transform='none'">
-<div style="display:inline-block;padding:.25rem .75rem;background:rgba(201,169,110,.15);border:1px solid rgba(201,169,110,.3);border-radius:100px;font-size:.7rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:1rem;align-self:flex-start"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:.3rem"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>프로그램 (시즌)</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-top:3rem"><a href="program/s8.html" class="journey-card reveal" style="text-decoration:none;display:flex;flex-direction:column;padding:2rem;background:var(--wh);border-radius:20px;border:1px solid rgba(100,116,139,.4);transition:all .4s;color:inherit;cursor:pointer" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(100,116,139,.4)';this.style.transform='none'">
+<div style="display:inline-block;padding:.25rem .75rem;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.3);border-radius:100px;font-size:.7rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:1rem;align-self:flex-start"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:.3rem"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>프로그램 (시즌)</div>
 <div style="margin-bottom:.5rem"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
 <h3 style="font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:var(--dk);margin-bottom:.5rem;line-height:1.4">조니딥 시즌 8 소개</h3>
 <p style="font-size:.88rem;color:var(--ts);line-height:1.7;flex:1">조직문화에 관심 있는 분이라면 누구나 환영합니다.
 함께 읽고, 토론하고, 성장하는 여정에 합류해 주세요.</p>
 <span style="color:var(--ac);font-size:.85rem;font-weight:600;margin-top:1rem">자세히 보기 →</span>
 </a></div>
-<div style="text-align:center;margin-top:2.5rem"><a href="community/journeys.html" style="color:var(--ac);font-size:.88rem;font-weight:600;text-decoration:none;border:1px solid rgba(201,169,110,.35);padding:.55rem 1.5rem;border-radius:100px;transition:all .2s" onmouseover="this.style.background='rgba(201,169,110,.08)'" onmouseout="this.style.background=''">전체 보기 →</a></div>
+<div style="text-align:center;margin-top:2.5rem"><a href="community/journeys.html" style="color:var(--ac);font-size:.88rem;font-weight:600;text-decoration:none;border:1px solid rgba(37,99,235,.35);padding:.55rem 1.5rem;border-radius:100px;transition:all .2s" onmouseover="this.style.background='rgba(37,99,235,.08)'" onmouseout="this.style.background=''">전체 보기 →</a></div>
 </div></section><section class="section" id="together" style="background:var(--wh)">
 <div class="section-container">
 <div class="section-eyebrow reveal">Together · Community</div>
@@ -264,7 +294,7 @@ HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 
 <div style="font-size:.75rem;font-weight:700;color:var(--dm);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between">
   발제문 <a href="community/proposals.html" style="color:var(--ac);font-size:.75rem;font-weight:500;text-decoration:none;letter-spacing:0">전체 보기 →</a>
 </div>
-<div style="display:flex;flex-direction:column;gap:.6rem"><a href="community/talks-s8.html" class="reveal" style="text-decoration:none;display:block;padding:1.25rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.35);transition:all .3s;color:inherit" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(232,213,183,.35)';this.style.transform=''">
+<div style="display:flex;flex-direction:column;gap:.6rem"><a href="community/talks-s8.html" class="reveal" style="text-decoration:none;display:block;padding:1.25rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(100,116,139,.35);transition:all .3s;color:inherit" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(100,116,139,.35)';this.style.transform=''">
 <div style="font-size:.68rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:.4rem">발제문(시즌별)</div>
 <div style="font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.35rem">조니딥 Season 8 발제문</div>
 <div style="font-size:.77rem;color:var(--tl)">Season 8 · 2026 상반기 · 4회차</div>
@@ -273,21 +303,25 @@ HR insight에 소개된 조직문화 독서 토론 모임으로, 2022년 시즌 
 <div style="font-size:.75rem;font-weight:700;color:var(--dm);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between">
   성찰 <a href="community/reflections.html" style="color:var(--ac);font-size:.75rem;font-weight:500;text-decoration:none;letter-spacing:0">전체 보기 →</a>
 </div>
-<div style="display:flex;flex-direction:column;gap:.6rem"><a href="community/reflections-s8.html" class="reveal" style="text-decoration:none;display:block;padding:1.25rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(232,213,183,.35);transition:all .3s;color:inherit" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(232,213,183,.35)';this.style.transform=''">
+<div style="display:flex;flex-direction:column;gap:.6rem"><a href="community/reflections-s8.html" class="reveal" style="text-decoration:none;display:block;padding:1.25rem 1.5rem;background:var(--bg);border-radius:20px;border:1px solid rgba(100,116,139,.35);transition:all .3s;color:inherit" onmouseover="this.style.borderColor='var(--ac)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(100,116,139,.35)';this.style.transform=''">
 <div style="font-size:.68rem;font-weight:700;color:var(--ac);letter-spacing:.1em;margin-bottom:.4rem">성찰(시즌)</div>
 <div style="font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.35rem">조니딥 시즌 8 성찰 활동</div>
 <div style="font-size:.77rem;color:var(--tl)">3개 세션</div>
 </a></div>
 </div></div>
 <div style="text-align:center;margin-top:2.5rem"><a href="community/together.html" style="color:var(--ac);font-size:.85rem;text-decoration:none;font-weight:500;opacity:.85">Together 전체 보기 (2개) →</a></div>
-</div></section><section class="section" id="begin" style="background:linear-gradient(135deg,#2A1F0E,#3D2B1A);position:relative;overflow:hidden;text-align:center">
-<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(201,169,110,.1),transparent 65%)"></div>
-<div class="section-container" style="position:relative;z-index:1">
-<div class="section-eyebrow reveal" style="color:rgba(201,169,110,.7)">Begin</div>
-<h2 class="section-title reveal" style="color:#FFFFFF">지금 바로 합류하세요</h2>
-<p class="section-desc reveal" style="color:rgba(255,255,255,.55);max-width:620px;margin-left:auto;margin-right:auto">조니딥 시즌 8의 게스트를 모집 중입니다.<br>조직문화에 관심 있는 분이라면 누구나 환영합니다.</p>
-<div class="cta-group reveal"><a href="join/s8-guest.html" class="season-cta reveal">조니딥 시즌 8 게스트 신청 →</a></div>
-</div></section><section class="section history" id="history"><div class="section-container"><div class="section-eyebrow reveal">History</div><h2 class="section-title reveal">조니딥의 여정</h2><div class="timeline"><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">NOW · Season 8</div><div class="timeline-title">시즌 8 진행 중</div><div class="timeline-desc">새로운 시즌이 진행중입니다.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2025 하반기 · Season 7</div><div class="timeline-title">Season 7</div><div class="timeline-desc">더 깊은 토론과 인사이트를 나누며 함께 성장한 시즌.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2025 상반기 · Season 6</div><div class="timeline-title">Season 6</div><div class="timeline-desc">사례와 이론을 연결하는 시도.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2024 하반기 · Season 5</div><div class="timeline-title">Season 5</div><div class="timeline-desc">다양한 관점에서 탐구.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2024 상반기 · Season 4</div><div class="timeline-title">Season 4</div><div class="timeline-desc">커뮤니티가 성숙해진 시즌.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2023 하반기 · Season 3</div><div class="timeline-title">Season 3</div><div class="timeline-desc">깊은 관심의 멤버들.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2023 상반기 · Season 2</div><div class="timeline-title">Season 2</div><div class="timeline-desc">체계적 운영 시작.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2022 상반기 · Season 1</div><div class="timeline-title">Season 1</div><div class="timeline-desc">조니딥의 첫 시작.</div></div></div></div></section><section class="section people" id="people"><div class="section-container"><div class="section-eyebrow reveal">People</div><h2 class="section-title reveal">함께하는 사람들</h2><div class="people-grid"><div class="person-card reveal"><div class="person-avatar">J</div><h4>운영진</h4><p>Journey Guide</p></div><div class="person-card reveal"><div class="person-avatar">D</div><h4>시즌 멤버</h4><p>Deep Explorer</p></div><div class="person-card reveal"><div class="person-avatar">✦</div><h4>졸업 멤버</h4><p>Alumni</p></div><div class="person-card reveal"><div class="person-avatar">+</div><h4>당신의 자리</h4><p>Join us!</p></div></div></div></section><section class="contact" id="contact"><div class="section-container"><div class="section-eyebrow reveal">Contact</div><h2 class="section-title reveal">함께 하고 싶으신가요?</h2><p class="section-desc reveal">협업이나 참관 문의는 아래로 연락해 주세요.</p><div class="contact-links reveal"><a href="mailto:yumspresso@daum.net" class="contact-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg> yumspresso@daum.net</a><a href="http://instagram.com/journeydeep_official" target="_blank" class="contact-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg> Instagram</a><a href="join/s8-guest.html" target="_blank" class="contact-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 시즌 신청</a></div></div></section><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
+</div></section><section id="begin" style="background:var(--dk);padding:8rem 2rem;position:relative;overflow:hidden">
+<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(37,99,235,.5),transparent)"></div>
+<div class="section-container" style="display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center">
+  <div class="reveal">
+    <div style="font-size:.78rem;font-weight:600;color:rgba(100,116,139,.9);letter-spacing:.18em;text-transform:uppercase;margin-bottom:1.5rem">Begin</div>
+    <h2 style="font-family:'DM Sans',sans-serif;font-size:clamp(2.2rem,4.5vw,3.5rem);font-weight:700;color:#FFFFFF;letter-spacing:-.04em;line-height:1.15;margin:0">지금 바로<br>합류하세요</h2>
+  </div>
+  <div class="reveal" style="display:flex;flex-direction:column;gap:2rem">
+    <p style="font-size:1.05rem;color:rgba(255,255,255,.5);line-height:1.9">조니딥의 다음 시즌 멤버를 모집합니다.<br>조직문화에 관심 있는 분이라면 누구나 환영합니다.</p>
+    <div><a href="join/s8-guest.html" style="display:inline-flex;align-items:center;gap:.75rem;padding:1rem 2.25rem;background:#FFFFFF;color:var(--dk);text-decoration:none;border-radius:4px;font-size:.95rem;font-weight:700;transition:all .3s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='var(--ac)';this.style.color='#fff'" onmouseout="this.style.background='#FFFFFF';this.style.color='var(--dk)'">시즌 신청하기 →</a></div>
+  </div>
+</div></section><section class="section history" id="history"><div class="section-container"><div class="section-eyebrow reveal">History</div><h2 class="section-title reveal">조니딥의 여정</h2><div class="timeline"><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">NOW · Season 8</div><div class="timeline-title">시즌 8 진행 중</div><div class="timeline-desc">새로운 시즌이 진행중입니다.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2025 하반기 · Season 7</div><div class="timeline-title">Season 7</div><div class="timeline-desc">더 깊은 토론과 인사이트를 나누며 함께 성장한 시즌.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2025 상반기 · Season 6</div><div class="timeline-title">Season 6</div><div class="timeline-desc">사례와 이론을 연결하는 시도.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2024 하반기 · Season 5</div><div class="timeline-title">Season 5</div><div class="timeline-desc">다양한 관점에서 탐구.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2024 상반기 · Season 4</div><div class="timeline-title">Season 4</div><div class="timeline-desc">커뮤니티가 성숙해진 시즌.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2023 하반기 · Season 3</div><div class="timeline-title">Season 3</div><div class="timeline-desc">깊은 관심의 멤버들.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2023 상반기 · Season 2</div><div class="timeline-title">Season 2</div><div class="timeline-desc">체계적 운영 시작.</div></div><div class="timeline-item reveal"><div class="timeline-dot"></div><div class="timeline-season">2022 상반기 · Season 1</div><div class="timeline-title">Season 1</div><div class="timeline-desc">조니딥의 첫 시작.</div></div></div></div></section><section class="section people" id="people"><div class="section-container"><div class="section-eyebrow reveal">People</div><h2 class="section-title reveal">함께하는 사람들</h2><div class="people-grid"><div class="person-card reveal"><div class="person-avatar">J</div><h4>운영진</h4><p>Journey Guide</p></div><div class="person-card reveal"><div class="person-avatar">D</div><h4>시즌 멤버</h4><p>Deep Explorer</p></div><div class="person-card reveal"><div class="person-avatar">✦</div><h4>졸업 멤버</h4><p>Alumni</p></div><div class="person-card reveal"><div class="person-avatar">+</div><h4>당신의 자리</h4><p>Join us!</p></div></div></div></section><section class="contact" id="contact" style="background:var(--dk);padding:7rem 2rem;border-top:1px solid rgba(255,255,255,.06)"><div class="section-container" style="display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start"><div class="reveal"><div class="section-eyebrow" style="color:rgba(100,116,139,.8)">Contact</div><h2 style="font-family:'DM Sans',sans-serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:700;color:#FFFFFF;letter-spacing:-.03em;line-height:1.2;margin-bottom:1.25rem">함께 하고<br>싶으신가요?</h2><p style="font-size:.95rem;color:rgba(255,255,255,.4);line-height:1.9">협업이나 참관 문의는<br>아래로 연락해 주세요.</p></div><div class="reveal" style="display:flex;flex-direction:column;gap:1rem;padding-top:1rem"><a href="mailto:yumspresso@daum.net" class="contact-link" style="border-radius:4px;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.8)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg> yumspresso@daum.net</a><a href="http://instagram.com/journeydeep_official" target="_blank" class="contact-link" style="border-radius:4px;border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.8)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg> @journeydeep_official</a><a href="join/s8-guest.html" target="_blank" class="contact-link" style="border-radius:4px;background:var(--ac);border-color:var(--ac);color:#fff"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 시즌 신청하기</a></div></div></section><footer style="background:var(--dk);padding:2rem;text-align:center;border-top:1px solid rgba(255,255,255,.05)"><p style="font-size:.78rem;color:rgba(255,255,255,.2);letter-spacing:.04em">© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
 document.addEventListener('click',function(e){
   if(window.innerWidth>900)return;
@@ -371,7 +405,7 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
       <button onclick="closeGhModal()" style="background:none;border:none;font-size:1.3rem;color:var(--tl);cursor:pointer">&#x2715;</button>
     </div>
     <div id="ghSetupArea">
-      <div style="padding:.75rem 1rem;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.25);border-radius:10px;margin-bottom:1.25rem;font-size:.82rem;color:var(--ts);line-height:1.7">
+      <div style="padding:.75rem 1rem;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:10px;margin-bottom:1.25rem;font-size:.82rem;color:var(--ts);line-height:1.7">
         &#128161; 처음 한 번만 토큰과 리포지토리를 입력하면 돼요. 브라우저에 저장되어 다음엔 바로 배포돼요.
       </div>
       <div style="margin-bottom:1rem">
