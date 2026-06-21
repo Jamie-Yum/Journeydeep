@@ -199,10 +199,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="form-grid">
         <div class="field"><label>제목 *</label><input id="col_title" placeholder="칼럼 제목"></div>
         <div class="field"><label>작성자</label><input id="col_author" placeholder="이름"></div>
-        <div class="field"><label>시즌</label><input id="col_season" placeholder="예: 시즌 9"></div>
-        <div class="field"><label>태그</label><input id="col_tag" placeholder="예: 조직문화, 리더십"></div>
-        <div class="field field-full"><label>요약 (목록에 표시)</label><input id="col_summary" placeholder="한 줄 요약"></div>
-        <div class="field field-full"><label>본문</label>
+        <div class="field"><label>카테고리</label><input id="col_category" placeholder="예: 조직문화, 리더십"></div>
+        <div class="field"><label>이모지</label><input id="col_emoji" placeholder="예: 💡" style="font-size:1.2rem"></div>
+        <div class="field field-full"><label>요약 (목록에 표시)</label><input id="col_excerpt" placeholder="한 줄 요약"></div>
+        <div class="field field-full"><label>외부 링크 <span style="font-weight:400;color:var(--tl)">(노션, 브런치 등 원글 링크)</span></label><input id="col_url" placeholder="https://..."></div>
+        <div class="field field-full"><label>본문 <span style="font-weight:400;color:var(--tl)">(외부 링크가 없을 때 직접 작성)</span></label>
           <div class="rich-toolbar">
             <button class="rich-btn" onclick="fmt('bold')"><b>B</b></button>
             <button class="rich-btn" onclick="fmt('italic')"><i>I</i></button>
@@ -436,14 +437,16 @@ async function saveColumn() {
   const ok = await sbPost('JD_columns', {
     title,
     author: document.getElementById('col_author').value,
-    season: document.getElementById('col_season').value,
-    tag: document.getElementById('col_tag').value,
-    summary: document.getElementById('col_summary').value,
+    category: document.getElementById('col_category').value,
+    emoji: document.getElementById('col_emoji').value,
+    excerpt: document.getElementById('col_excerpt').value,
+    url: document.getElementById('col_url').value,
     content: document.getElementById('col_body').innerHTML,
-    image_url: document.getElementById('col_image').value,
+    cover_url: document.getElementById('col_image').value,
+    date: new Date().toISOString().slice(0,10),
     visible: true
   });
-  if (ok) { toast('칼럼이 저장됐어요!'); ['col_title','col_author','col_season','col_tag','col_summary','col_image'].forEach(id => document.getElementById(id).value=''); document.getElementById('col_body').innerHTML=''; loadColumns(); }
+  if (ok) { toast('칼럼이 저장됐어요!'); ['col_title','col_author','col_category','col_emoji','col_excerpt','col_url','col_image'].forEach(id => document.getElementById(id).value=''); document.getElementById('col_body').innerHTML=''; loadColumns(); }
   else toast('저장 중 오류가 발생했어요.', true);
 }
 

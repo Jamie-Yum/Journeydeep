@@ -194,17 +194,109 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <h1 style="font-family:'DM Sans',sans-serif;font-size:2.2rem;font-weight:600;color:var(--dk);line-height:1.3;margin-bottom:.75rem">발제문</h1>
   <p style="font-size:.97rem;color:var(--tl);line-height:1.8;margin-bottom:3rem">모임에서 나눈 발제와 질문들을 기록합니다.</p>
 
-  <a href="talks-s8.html"
-     style="display:block;text-decoration:none;padding:1.75rem 2rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.3);transition:all .3s;color:inherit;margin-bottom:1rem"
-     onmouseover="this.style.borderColor='#2563EB';this.style.transform='translateY(-2px)'"
-     onmouseout="this.style.borderColor='rgba(100,116,139,.3)';this.style.transform=''">
-    <div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.1em;margin-bottom:.5rem">발제문(시즌별)</div>
-    <h3 style="font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.5rem">Season 8 발제문 아카이브</h3>
-    <p style="font-size:.88rem;color:var(--tl);line-height:1.7;margin-bottom:.6rem">Season 8 · 2026 상반기 · 4회차</p>
-  </a>
+  <!-- 시즌 필터 -->
+  <div id="season-filter" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem"></div>
+
+  <!-- 동적 발제문 목록 -->
+  <div id="proposals-list"></div>
+
+  <!-- 시즌 8 아카이브 (고정) -->
+  <div style="margin-top:2.5rem;padding-top:2.5rem;border-top:1px solid rgba(100,116,139,.2)">
+    <div style="font-size:.75rem;font-weight:700;color:var(--tl);letter-spacing:.08em;margin-bottom:1rem">아카이브</div>
+    <a href="talks-s8.html"
+       style="display:block;text-decoration:none;padding:1.75rem 2rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.3);transition:all .3s;color:inherit"
+       onmouseover="this.style.borderColor='#2563EB';this.style.transform='translateY(-2px)'"
+       onmouseout="this.style.borderColor='rgba(100,116,139,.3)';this.style.transform=''">
+      <div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.1em;margin-bottom:.5rem">시즌 8</div>
+      <h3 style="font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.5rem">Season 8 발제문 아카이브</h3>
+      <p style="font-size:.88rem;color:var(--tl);line-height:1.7">Season 8 · 2026 상반기 · 4회차</p>
+    </a>
+  </div>
 </div>
 
-<script>document.querySelectorAll('script[data-uid]').forEach(function(t){window.jdrsInit(t);});</script>
+<script>
+var SU='https://dvlrzbckneucpvlacdll.supabase.co';
+var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+var allProposals=[], activeSeason='전체';
+
+function loadProposals(){
+  fetch(SU+'/rest/v1/JD_proposals?select=*&order=created_at.desc',{
+    headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+  }).then(function(r){return r.json();}).then(function(data){
+    if(!Array.isArray(data)){renderProposals([]);return;}
+    allProposals=data.filter(function(p){return p.visible!==false;});
+    buildSeasonFilter(allProposals);
+    renderProposals(allProposals);
+  }).catch(function(){renderProposals([]);});
+}
+
+function buildSeasonFilter(data){
+  var seasons=[];
+  data.forEach(function(p){if(p.season&&seasons.indexOf(p.season)<0)seasons.push(p.season);});
+  if(seasons.length<2)return;
+  var wrap=document.getElementById('season-filter');
+  var allBtn=document.createElement('button');
+  allBtn.textContent='전체';
+  allBtn.className='sf-btn active';
+  allBtn.style.cssText='padding:.35rem .9rem;border:1px solid rgba(37,99,235,.4);background:rgba(37,99,235,.1);color:#2563EB;font-size:.8rem;font-weight:700;cursor:pointer;letter-spacing:.04em;';
+  allBtn.onclick=function(){filterSeason(this,'전체');};
+  wrap.appendChild(allBtn);
+  seasons.forEach(function(s){
+    var btn=document.createElement('button');
+    btn.textContent=s;
+    btn.className='sf-btn';
+    btn.style.cssText='padding:.35rem .9rem;border:1px solid rgba(100,116,139,.3);background:transparent;color:var(--tl);font-size:.8rem;font-weight:600;cursor:pointer;letter-spacing:.04em;';
+    btn.onclick=function(){filterSeason(this,s);};
+    wrap.appendChild(btn);
+  });
+}
+
+function filterSeason(btn,season){
+  document.querySelectorAll('.sf-btn').forEach(function(b){
+    b.style.background='transparent';b.style.color='var(--tl)';b.style.borderColor='rgba(100,116,139,.3)';
+  });
+  btn.style.background='rgba(37,99,235,.1)';btn.style.color='#2563EB';btn.style.borderColor='rgba(37,99,235,.4)';
+  activeSeason=season;
+  var filtered=season==='전체'?allProposals:allProposals.filter(function(p){return p.season===season;});
+  renderProposals(filtered);
+}
+
+function renderProposals(data){
+  var list=document.getElementById('proposals-list');
+  if(!data.length){
+    list.innerHTML='<p style="color:var(--tl);font-size:.9rem;padding:1rem 0">아직 등록된 발제문이 없어요.</p>';
+    return;
+  }
+  list.innerHTML=data.map(function(p){
+    return '<div style="padding:1.5rem 2rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);margin-bottom:1rem;cursor:pointer;transition:all .3s" onclick="toggleProposal(this,\''+p.id+'\')" onmouseover="this.style.borderColor=\'#2563EB\'" onmouseout="if(!this.classList.contains(\'open\'))this.style.borderColor=\'rgba(100,116,139,.3)\'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">'
+      +'<div>'
+      +'<div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.1em;margin-bottom:.4rem">'+(p.season||'')+(p.session_number?' · '+p.session_number:'')+'</div>'
+      +'<h3 style="font-family:\'DM Sans\',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.25rem">'+p.book_title+'</h3>'
+      +'<p style="font-size:.82rem;color:var(--tl)">발제자: '+(p.author_name||'—')+'</p>'
+      +'</div>'
+      +'<span class="pr-arrow" style="font-size:1.2rem;color:var(--tl);transition:transform .3s;flex-shrink:0">+</span>'
+      +'</div>'
+      +'<div class="pr-body" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(100,116,139,.15);font-size:.92rem;color:var(--ts);line-height:1.9;white-space:pre-wrap">'+escHtml(p.content||'')+'</div>'
+      +(p.file_url?'<a href="'+p.file_url+'" target="_blank" style="display:inline-block;margin-top:1rem;font-size:.82rem;color:#2563EB;text-decoration:none">첨부파일 보기 →</a>':'')
+      +'</div>';
+  }).join('');
+}
+
+function toggleProposal(el,id){
+  var body=el.querySelector('.pr-body');
+  var arrow=el.querySelector('.pr-arrow');
+  var isOpen=el.classList.contains('open');
+  el.classList.toggle('open');
+  body.style.display=isOpen?'none':'block';
+  arrow.textContent=isOpen?'+':'×';
+  el.style.borderColor=isOpen?'rgba(100,116,139,.3)':'#2563EB';
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+loadProposals();
+</script>
 
 </body>
 </html>
