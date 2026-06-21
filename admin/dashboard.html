@@ -1,0 +1,582 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>조니딥 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FA;--wh:#FFFFFF;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ts:#334155;--tl:#64748B;--be:#E8ECF4;--sw:rgba(15,23,42,.06);--red:#EF4444;--green:#10B981}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;background:var(--dk);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0}
+.sidebar-logo{padding:1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo-main{font-family:'DM Sans',sans-serif;font-weight:800;font-size:.95rem;color:#fff}
+.sidebar-logo-sub{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.15rem}
+.sidebar-nav{flex:1;padding:.75rem 0}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;color:rgba(255,255,255,.55);font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(37,99,235,.2);border-left-color:var(--ac)}
+.nav-icon{font-size:1rem;flex-shrink:0}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08)}
+.back-btn{display:flex;align-items:center;gap:.5rem;color:rgba(255,255,255,.4);font-size:.8rem;text-decoration:none;transition:color .2s}.back-btn:hover{color:#fff}
+
+/* Main */
+.main{margin-left:220px;flex:1;padding:2rem;max-width:100%}
+.page-header{margin-bottom:2rem}
+.page-title{font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:var(--dk)}
+.page-sub{font-size:.88rem;color:var(--tl);margin-top:.25rem}
+
+/* Cards */
+.card{background:var(--wh);border:1px solid rgba(100,116,139,.2);border-radius:0;padding:1.5rem;margin-bottom:1.5rem}
+.card-title{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+
+/* Form elements */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.field{margin-bottom:1rem}
+.field-full{grid-column:1/-1}
+label{display:block;font-size:.82rem;font-weight:600;color:var(--ts);margin-bottom:.4rem;letter-spacing:.02em}
+input,textarea,select{width:100%;padding:.65rem .9rem;background:var(--bg);border:1px solid rgba(100,116,139,.3);border-radius:0;color:var(--dk);font-size:.9rem;font-family:'Pretendard',sans-serif;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--ac)}
+textarea{resize:vertical;min-height:120px;line-height:1.7}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.25rem;border:none;border-radius:0;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
+.btn-primary{background:var(--ac);color:#fff}.btn-primary:hover{background:#1D4ED8}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#DC2626}
+.btn-ghost{background:transparent;border:1px solid rgba(100,116,139,.3);color:var(--ts)}.btn-ghost:hover{border-color:var(--ac);color:var(--ac)}
+.btn-sm{padding:.4rem .9rem;font-size:.78rem}
+
+/* List */
+.item-list{display:flex;flex-direction:column;gap:.75rem;margin-top:1.25rem}
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;background:var(--bg);border:1px solid rgba(100,116,139,.2);transition:all .2s}
+.item-row:hover{border-color:var(--ac)}
+.item-info h4{font-size:.92rem;font-weight:600;color:var(--dk);margin-bottom:.15rem}
+.item-info p{font-size:.78rem;color:var(--tl)}
+.item-actions{display:flex;gap:.5rem;flex-shrink:0}
+
+/* Tabs */
+.panel{display:none}.panel.active{display:block}
+
+/* Image upload */
+.img-upload-area{border:2px dashed rgba(37,99,235,.3);padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;background:rgba(37,99,235,.02)}
+.img-upload-area:hover{border-color:var(--ac);background:rgba(37,99,235,.05)}
+.img-upload-area input{display:none}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-top:1.25rem}
+.img-card{position:relative;aspect-ratio:1;background:var(--be);overflow:hidden;border:1px solid rgba(100,116,139,.2)}
+.img-card img{width:100%;height:100%;object-fit:cover}
+.img-card-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;opacity:0;transition:opacity .2s}
+.img-card:hover .img-card-overlay{opacity:1}
+.img-url-btn{font-size:.72rem;background:#fff;border:none;padding:.3rem .7rem;cursor:pointer;font-weight:600;color:var(--ac)}
+
+/* Toast */
+.toast{position:fixed;bottom:2rem;right:2rem;padding:.85rem 1.5rem;background:var(--dk);color:#fff;font-size:.88rem;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;border-left:3px solid var(--ac)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{border-left-color:var(--red)}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--dk)}
+.login-box{background:var(--wh);padding:3rem;width:360px}
+.login-title{font-family:'DM Sans',sans-serif;font-size:1.4rem;font-weight:700;color:var(--dk);margin-bottom:.4rem}
+.login-sub{font-size:.85rem;color:var(--tl);margin-bottom:2rem}
+.login-error{font-size:.82rem;color:var(--red);margin-top:.5rem;display:none}
+
+/* Badge */
+.badge{display:inline-block;padding:.2rem .65rem;font-size:.72rem;font-weight:700;letter-spacing:.06em}
+.badge-blue{background:rgba(37,99,235,.12);color:var(--ac)}
+.badge-green{background:rgba(16,185,129,.12);color:var(--green)}
+
+/* Applications table */
+.table-wrap{overflow-x:auto;margin-top:1rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--bg);padding:.75rem 1rem;text-align:left;font-weight:600;color:var(--tl);border-bottom:2px solid rgba(100,116,139,.2);white-space:nowrap}
+td{padding:.75rem 1rem;border-bottom:1px solid rgba(100,116,139,.1);color:var(--ts);vertical-align:top}
+tr:hover td{background:rgba(37,99,235,.03)}
+
+/* Rich text minimal */
+.rich-toolbar{display:flex;gap:.25rem;padding:.5rem;background:var(--bg);border:1px solid rgba(100,116,139,.3);border-bottom:none}
+.rich-btn{padding:.3rem .6rem;background:none;border:none;cursor:pointer;font-size:.85rem;border-radius:0;color:var(--ts)}.rich-btn:hover{background:var(--be)}
+.rich-editor{width:100%;min-height:200px;padding:.75rem;border:1px solid rgba(100,116,139,.3);outline:none;font-family:'Pretendard',sans-serif;font-size:.9rem;line-height:1.8;color:var(--dk)}
+
+@media(max-width:768px){.sidebar{width:60px}.sidebar-logo-main,.sidebar-logo-sub,.nav-label,.sidebar-footer{display:none}.main{margin-left:60px}.form-grid,.form-grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="loginScreen" style="position:fixed;inset:0;z-index:9999;background:var(--dk);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:3rem;width:360px">
+    <div style="font-family:'DM Sans',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:.3rem">조니딥 관리자</div>
+    <div style="font-size:.85rem;color:var(--tl);margin-bottom:2rem">비밀번호를 입력해 주세요</div>
+    <input type="password" id="pwInput" placeholder="비밀번호" style="width:100%;padding:.75rem 1rem;border:1px solid rgba(100,116,139,.3);border-radius:0;font-size:.95rem;outline:none;margin-bottom:.75rem" onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()" style="width:100%;padding:.8rem;background:var(--ac);color:#fff;border:none;font-size:.95rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif">입장하기</button>
+    <div id="pwError" style="font-size:.82rem;color:#EF4444;margin-top:.5rem;display:none">비밀번호가 틀렸어요.</div>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none;width:100%">
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-main">조니딥</div>
+    <div class="sidebar-logo-sub">관리자 대시보드</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPanel('programs')"><span class="nav-icon">📋</span><span class="nav-label">프로그램</span></div>
+    <div class="nav-item" onclick="showPanel('proposals')"><span class="nav-icon">📝</span><span class="nav-label">발제문</span></div>
+    <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
+    <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
+    <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="../index.html" class="back-btn">← 사이트로</a>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- 프로그램 -->
+  <div id="panel-programs" class="panel active">
+    <div class="page-header">
+      <div class="page-title">프로그램 관리</div>
+      <div class="page-sub">새로운 프로그램 소개 페이지를 만들고 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">새 프로그램 추가</div>
+      <div class="form-grid">
+        <div class="field"><label>프로그램 제목 *</label><input id="pg_title" placeholder="예: 조직문화 워크숍"></div>
+        <div class="field"><label>배지 텍스트</label><input id="pg_badge" placeholder="예: WORKSHOP · 2026"></div>
+        <div class="field field-full"><label>부제목</label><input id="pg_subtitle" placeholder="예: 조직문화 설계와 실행"></div>
+        <div class="field field-full"><label>소개 내용</label><textarea id="pg_desc" placeholder="프로그램을 소개해 주세요."></textarea></div>
+        <div class="field"><label>시작일</label><input id="pg_start" placeholder="예: 2026.08.08"></div>
+        <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
+        <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
+        <div class="field"><label>참가비</label><input id="pg_fee" placeholder="예: 150,000원"></div>
+        <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
+        <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
+        <div class="field field-full"><label>대표 이미지 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pg_image" placeholder="https://..."></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveProgram()">저장하기</button>
+    </div>
+    <div class="card">
+      <div class="card-title">등록된 프로그램 <button class="btn btn-ghost btn-sm" onclick="loadPrograms()">새로고침</button></div>
+      <div id="pg_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+    </div>
+  </div>
+
+  <!-- 발제문 -->
+  <div id="panel-proposals" class="panel">
+    <div class="page-header">
+      <div class="page-title">발제문 관리</div>
+      <div class="page-sub">시즌별 발제문을 업로드하고 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">새 발제문 추가</div>
+      <div class="form-grid">
+        <div class="field"><label>시즌</label><input id="pr_season" placeholder="예: 시즌 9"></div>
+        <div class="field"><label>회차</label><input id="pr_session" placeholder="예: 3회차"></div>
+        <div class="field"><label>도서 제목</label><input id="pr_book" placeholder="예: 익숙한 것과의 결별"></div>
+        <div class="field"><label>발제자</label><input id="pr_author" placeholder="이름"></div>
+        <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
+        <div class="field field-full"><label>첨부 파일 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pr_file" placeholder="https://..."></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveProposal()">저장하기</button>
+    </div>
+    <div class="card">
+      <div class="card-title">등록된 발제문 <button class="btn btn-ghost btn-sm" onclick="loadProposals()">새로고침</button></div>
+      <div id="pr_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+    </div>
+  </div>
+
+  <!-- 칼럼 -->
+  <div id="panel-columns" class="panel">
+    <div class="page-header">
+      <div class="page-title">칼럼 관리</div>
+      <div class="page-sub">멤버 칼럼을 업로드하고 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">새 칼럼 추가</div>
+      <div class="form-grid">
+        <div class="field"><label>제목 *</label><input id="col_title" placeholder="칼럼 제목"></div>
+        <div class="field"><label>작성자</label><input id="col_author" placeholder="이름"></div>
+        <div class="field"><label>시즌</label><input id="col_season" placeholder="예: 시즌 9"></div>
+        <div class="field"><label>태그</label><input id="col_tag" placeholder="예: 조직문화, 리더십"></div>
+        <div class="field field-full"><label>요약 (목록에 표시)</label><input id="col_summary" placeholder="한 줄 요약"></div>
+        <div class="field field-full"><label>본문</label>
+          <div class="rich-toolbar">
+            <button class="rich-btn" onclick="fmt('bold')"><b>B</b></button>
+            <button class="rich-btn" onclick="fmt('italic')"><i>I</i></button>
+            <button class="rich-btn" onclick="fmt('underline')"><u>U</u></button>
+            <button class="rich-btn" onclick="insertHr()">―</button>
+            <button class="rich-btn" onclick="fmt('insertUnorderedList')">• 목록</button>
+          </div>
+          <div class="rich-editor" id="col_body" contenteditable="true"></div>
+        </div>
+        <div class="field field-full"><label>대표 이미지 URL</label><input id="col_image" placeholder="https://..."></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveColumn()">저장하기</button>
+    </div>
+    <div class="card">
+      <div class="card-title">등록된 칼럼 <button class="btn btn-ghost btn-sm" onclick="loadColumns()">새로고침</button></div>
+      <div id="col_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+    </div>
+  </div>
+
+  <!-- 신청 현황 -->
+  <div id="panel-applications" class="panel">
+    <div class="page-header">
+      <div class="page-title">신청 현황</div>
+      <div class="page-sub">접수된 신청을 확인해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <span>신청 목록</span>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <select id="app_filter" onchange="loadApplications()" style="width:auto;padding:.4rem .75rem;font-size:.82rem">
+            <option value="">전체</option>
+            <option value="join/s9-member">시즌 9 정규</option>
+            <option value="join/s9-guest">시즌 9 게스트</option>
+            <option value="join/s8-guest">시즌 8 게스트</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadApplications()">새로고침</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>시즌</th><th>성함</th><th>전화번호</th><th>신청일</th><th>상세</th></tr></thead>
+          <tbody id="app_tbody"><tr><td colspan="5" style="text-align:center;color:var(--tl)">불러오는 중...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 이미지 -->
+  <div id="panel-images" class="panel">
+    <div class="page-header">
+      <div class="page-title">이미지 관리</div>
+      <div class="page-sub">이미지를 업로드하고 URL을 복사해서 사용해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">이미지 업로드</div>
+      <div class="img-upload-area" onclick="document.getElementById('imgInput').click()" id="dropZone">
+        <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)">
+        <div style="font-size:2rem;margin-bottom:.75rem">📁</div>
+        <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 이미지를 드래그해서 업로드</div>
+        <div style="font-size:.82rem;color:var(--tl)">JPG, PNG, GIF, WEBP 지원</div>
+      </div>
+      <div id="upload_progress" style="display:none;margin-top:1rem">
+        <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
+      <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Detail Modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center;padding:2rem">
+  <div style="background:#fff;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:2rem;position:relative">
+    <button onclick="closeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--tl)">✕</button>
+    <div id="modal_content"></div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://dvlrzbckneucpvlacdll.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+const ADMIN_PW = 'journeydeep2026';
+
+// Auth
+function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  if (val === ADMIN_PW) {
+    sessionStorage.setItem('jd_admin', '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'flex';
+    initAll();
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+  }
+}
+
+if (sessionStorage.getItem('jd_admin') === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'flex';
+  setTimeout(initAll, 100);
+}
+
+function initAll() {
+  loadPrograms(); loadProposals(); loadColumns(); loadApplications(); loadImages();
+}
+
+// Nav
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// Supabase helpers
+async function sbGet(table, filter='') {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?order=created_at.desc${filter}`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  return res.json();
+}
+async function sbPost(table, data) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  return res.ok;
+}
+async function sbDelete(table, id) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  return res.ok;
+}
+
+// Toast
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── PROGRAMS ──
+async function saveProgram() {
+  const title = document.getElementById('pg_title').value.trim();
+  if (!title) { toast('제목을 입력해 주세요.', true); return; }
+  const ok = await sbPost('JD_programs', {
+    title, badge: document.getElementById('pg_badge').value,
+    subtitle: document.getElementById('pg_subtitle').value,
+    description: document.getElementById('pg_desc').value,
+    date_start: document.getElementById('pg_start').value,
+    date_end: document.getElementById('pg_end').value,
+    venue: document.getElementById('pg_venue').value,
+    fee: document.getElementById('pg_fee').value,
+    capacity: document.getElementById('pg_capacity').value,
+    apply_link: document.getElementById('pg_apply').value,
+    image_url: document.getElementById('pg_image').value,
+    visible: true
+  });
+  if (ok) { toast('프로그램이 저장됐어요!'); ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_image'].forEach(id => document.getElementById(id).value=''); loadPrograms(); }
+  else toast('저장 중 오류가 발생했어요.', true);
+}
+
+async function loadPrograms() {
+  const data = await sbGet('JD_programs');
+  const el = document.getElementById('pg_list');
+  if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 프로그램이 없어요.</div>'; return; }
+  el.innerHTML = '<div class="item-list">' + data.map(p => `
+    <div class="item-row">
+      <div class="item-info">
+        <h4>${p.title}</h4>
+        <p>${p.date_start || ''}${p.date_end ? ' ~ ' + p.date_end : ''} ${p.venue ? '· ' + p.venue : ''}</p>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+// ── PROPOSALS ──
+async function saveProposal() {
+  const book = document.getElementById('pr_book').value.trim();
+  if (!book) { toast('도서 제목을 입력해 주세요.', true); return; }
+  const ok = await sbPost('JD_proposals', {
+    season: document.getElementById('pr_season').value,
+    session_number: document.getElementById('pr_session').value,
+    book_title: book,
+    author_name: document.getElementById('pr_author').value,
+    content: document.getElementById('pr_content').value,
+    file_url: document.getElementById('pr_file').value,
+    visible: true
+  });
+  if (ok) { toast('발제문이 저장됐어요!'); ['pr_season','pr_session','pr_book','pr_author','pr_content','pr_file'].forEach(id => document.getElementById(id).value=''); loadProposals(); }
+  else toast('저장 중 오류가 발생했어요.', true);
+}
+
+async function loadProposals() {
+  const data = await sbGet('JD_proposals');
+  const el = document.getElementById('pr_list');
+  if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 발제문이 없어요.</div>'; return; }
+  el.innerHTML = '<div class="item-list">' + data.map(p => `
+    <div class="item-row">
+      <div class="item-info">
+        <h4>${p.book_title} <span class="badge badge-blue">${p.season || ''} ${p.session_number || ''}</span></h4>
+        <p>발제자: ${p.author_name || '—'}</p>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showDetail('proposal',${JSON.stringify(p).replace(/"/g,'&quot;')})">보기</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_proposals','${p.id}',loadProposals)">삭제</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+// ── COLUMNS ──
+function fmt(cmd) { document.execCommand(cmd, false, null); document.getElementById('col_body').focus(); }
+function insertHr() { document.execCommand('insertHTML', false, '<hr>'); }
+
+async function saveColumn() {
+  const title = document.getElementById('col_title').value.trim();
+  if (!title) { toast('제목을 입력해 주세요.', true); return; }
+  const ok = await sbPost('JD_columns', {
+    title,
+    author: document.getElementById('col_author').value,
+    season: document.getElementById('col_season').value,
+    tag: document.getElementById('col_tag').value,
+    summary: document.getElementById('col_summary').value,
+    content: document.getElementById('col_body').innerHTML,
+    image_url: document.getElementById('col_image').value,
+    visible: true
+  });
+  if (ok) { toast('칼럼이 저장됐어요!'); ['col_title','col_author','col_season','col_tag','col_summary','col_image'].forEach(id => document.getElementById(id).value=''); document.getElementById('col_body').innerHTML=''; loadColumns(); }
+  else toast('저장 중 오류가 발생했어요.', true);
+}
+
+async function loadColumns() {
+  const data = await sbGet('JD_columns');
+  const el = document.getElementById('col_list');
+  if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 칼럼이 없어요.</div>'; return; }
+  el.innerHTML = '<div class="item-list">' + data.map(c => `
+    <div class="item-row">
+      <div class="item-info">
+        <h4>${c.title}</h4>
+        <p>${c.author || ''} ${c.season ? '· ' + c.season : ''} ${c.tag ? '· ' + c.tag : ''}</p>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showDetail('column',${JSON.stringify(c).replace(/"/g,'&quot;')})">보기</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_columns','${c.id}',loadColumns)">삭제</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+// ── APPLICATIONS ──
+async function loadApplications() {
+  const filter = document.getElementById('app_filter').value;
+  const data = await sbGet('JD_applications', filter ? `&season=eq.${encodeURIComponent(filter)}` : '');
+  const tbody = document.getElementById('app_tbody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tl)">신청 내역이 없어요.</td></tr>'; return; }
+  tbody.innerHTML = data.map(a => {
+    const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
+    const name = fields['성함'] || fields['이름'] || '—';
+    const phone = fields['전화번호'] || '—';
+    const date = a.submitted_at ? new Date(a.submitted_at).toLocaleDateString('ko') : '—';
+    return `<tr>
+      <td><span class="badge badge-blue">${a.season || '—'}</span></td>
+      <td>${name}</td><td>${phone}</td><td>${date}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${JSON.stringify(a)})'>상세</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showAppDetail(a) {
+  const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
+  const rows = Object.entries(fields).map(([k,v]) => `<div style="margin-bottom:.75rem"><div style="font-size:.78rem;font-weight:600;color:var(--tl);margin-bottom:.2rem">${k}</div><div style="font-size:.9rem;color:var(--ts)">${v||'—'}</div></div>`).join('');
+  document.getElementById('modal_content').innerHTML = `<h3 style="font-family:'DM Sans',sans-serif;margin-bottom:1.25rem">${a.season}</h3>${rows}`;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+// ── IMAGES ──
+async function uploadImages(files) {
+  const prog = document.getElementById('upload_progress');
+  const msg = document.getElementById('upload_msg');
+  prog.style.display = 'block';
+  for (let i=0; i<files.length; i++) {
+    const file = files[i];
+    const ext = file.name.split('.').pop();
+    const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+    msg.textContent = `업로드 중... (${i+1}/${files.length}) ${file.name}`;
+    const res = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${fname}`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': file.type },
+      body: file
+    });
+    if (!res.ok) { toast(`${file.name} 업로드 실패`, true); }
+  }
+  prog.style.display = 'none';
+  toast('업로드 완료!');
+  loadImages();
+}
+
+async function loadImages() {
+  const res = await fetch(`${SUPA_URL}/storage/v1/object/list/jd-images?limit=100&offset=0&sortBy={"column":"created_at","order":"desc"}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY },
+    body: JSON.stringify({ limit: 100, offset: 0, sortBy: { column: 'created_at', order: 'desc' } })
+  });
+  const data = await res.json();
+  const grid = document.getElementById('img_grid');
+  if (!data || !data.length) { grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">업로드된 이미지가 없어요.</div>'; return; }
+  grid.innerHTML = data.filter(f => f.name).map(f => {
+    const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${f.name}`;
+    return `<div class="img-card">
+      <img src="${url}" loading="lazy">
+      <div class="img-card-overlay">
+        <button class="img-url-btn" onclick="copyUrl('${url}')">URL 복사</button>
+        <button class="img-url-btn" style="background:#fee2e2;color:#ef4444" onclick="deleteImg('${f.name}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url).then(() => toast('URL 복사됐어요!'));
+}
+
+async function deleteImg(name) {
+  if (!confirm('이미지를 삭제할까요?')) return;
+  const res = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${name}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  if (res.ok) { toast('삭제됐어요!'); loadImages(); }
+  else toast('삭제 실패', true);
+}
+
+// Drag & drop
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--ac)'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.borderColor = ''; uploadImages(e.dataTransfer.files); });
+
+// Generic delete
+async function deleteItem(table, id, reload) {
+  if (!confirm('삭제할까요?')) return;
+  const ok = await sbDelete(table, id);
+  if (ok) { toast('삭제됐어요!'); reload(); }
+  else toast('삭제 실패', true);
+}
+
+// Detail modal
+function showDetail(type, item) {
+  let html = '';
+  if (type === 'column') {
+    html = `<h3 style="font-family:'DM Sans',sans-serif;margin-bottom:.5rem">${item.title}</h3>
+    <p style="font-size:.82rem;color:var(--tl);margin-bottom:1.5rem">${item.author||''} · ${item.season||''}</p>
+    <div style="font-size:.9rem;line-height:1.9;color:var(--ts)">${item.content||''}</div>`;
+  } else if (type === 'proposal') {
+    html = `<h3 style="font-family:'DM Sans',sans-serif;margin-bottom:.5rem">${item.book_title}</h3>
+    <p style="font-size:.82rem;color:var(--tl);margin-bottom:1.5rem">${item.season||''} ${item.session_number||''} · 발제자: ${item.author_name||'—'}</p>
+    <div style="font-size:.9rem;line-height:1.9;color:var(--ts);white-space:pre-wrap">${item.content||''}</div>`;
+  }
+  document.getElementById('modal_content').innerHTML = html;
+  document.getElementById('modal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+</script>
+</body></html>
