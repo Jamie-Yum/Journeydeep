@@ -351,6 +351,7 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
 
 // Nav scroll
 const nav = document.getElementById('nav');
+  nav.classList.add('scrolled');
 window.addEventListener('scroll', function(){ nav && (window.scrollY > 50 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled')); });
 function toggleMenu(){ document.getElementById('navLinks')?.classList.toggle('open'); }
 document.querySelectorAll('.nav-links a').forEach(function(a){ a.addEventListener('click', function(){ document.getElementById('navLinks')?.classList.remove('open'); }); });

@@ -328,7 +328,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     }).then(onDone).catch(onDone);
   };
 })();
-</script><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){
+</script><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');nav.classList.add('scrolled');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.add('scrolled'))});function toggleMenu(){
   var nl=document.getElementById('navLinks');
   if(!nl)return;
   var opening=!nl.classList.contains('open');

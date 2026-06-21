@@ -188,7 +188,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   <p style="font-size:.88rem;color:var(--tl);line-height:1.7;margin-bottom:.6rem">각 세션별로 성찰을 기록해보세요</p>
   <div style="font-size:.8rem;color:var(--dm)">3개 세션</div>
 </a>
-</div><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.remove('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
+</div><footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p></footer><script>const nav=document.getElementById('nav');nav.classList.add('scrolled');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.add('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
 document.addEventListener('click',function(e){
   if(window.innerWidth>900)return;
