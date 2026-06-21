@@ -126,6 +126,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
     <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
+    <div class="nav-item" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
   </nav>
   <div class="sidebar-footer">
     <a href="../index.html" class="back-btn">← 사이트로</a>
@@ -252,6 +253,19 @@ tr:hover td{background:rgba(37,99,235,.03)}
   </div>
 
   <!-- 이미지 -->
+  <!-- 홈화면 사진 -->
+  <div id="panel-homepage" class="panel">
+    <div class="page-header">
+      <div class="page-title">홈화면 사진</div>
+      <div class="page-sub">홈페이지에 표시되는 사진을 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">사진 교체</div>
+      <p style="font-size:.85rem;color:var(--tl);margin-bottom:1.5rem">사진을 클릭하거나 새 파일을 선택하면 바로 업로드되고 홈화면에 반영돼요.</p>
+      <div id="hp_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.25rem"></div>
+    </div>
+  </div>
+
   <div id="panel-images" class="panel">
     <div class="page-header">
       <div class="page-title">이미지 관리</div>
@@ -323,6 +337,7 @@ function showPanel(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
+  if (id === 'homepage') loadHomepagePhotos();
 }
 
 // Supabase helpers
@@ -581,5 +596,77 @@ function showDetail(type, item) {
 }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+
+// ── 홈화면 사진 ────────────────────────────────────────────
+const HP_SLOTS = [
+  { key: 'home_hero_image', label: '히어로 배경' },
+  { key: 'home_book_1',     label: '책 표지 1' },
+  { key: 'home_book_2',     label: '책 표지 2' },
+  { key: 'home_book_3',     label: '책 표지 3' },
+  { key: 'home_book_4',     label: '책 표지 4' },
+  { key: 'home_book_5',     label: '책 표지 5' },
+];
+
+async function loadHomepagePhotos() {
+  const grid = document.getElementById('hp_grid');
+  grid.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중...</div>';
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?select=key,value`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const rows = await res.json();
+  const map = {};
+  if (Array.isArray(rows)) rows.forEach(r => { map[r.key] = r.value; });
+
+  grid.innerHTML = '';
+  HP_SLOTS.forEach(slot => {
+    const src = map[slot.key] || '';
+    const card = document.createElement('div');
+    card.style.cssText = 'border:1px solid rgba(100,116,139,.3);background:var(--bg);border-radius:0;overflow:hidden;cursor:pointer;position:relative;transition:box-shadow .2s';
+    card.onmouseenter = () => card.style.boxShadow = '0 4px 20px rgba(37,99,235,.2)';
+    card.onmouseleave = () => card.style.boxShadow = '';
+    card.innerHTML = `
+      <div style="width:100%;aspect-ratio:4/3;background:#e2e8f0;overflow:hidden;position:relative">
+        ${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : ''}
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s" class="hp-overlay">
+          <span style="color:#fff;font-size:.82rem;font-weight:700">사진 교체</span>
+        </div>
+      </div>
+      <div style="padding:.65rem .75rem;font-size:.78rem;font-weight:600;color:var(--ts)">${slot.label}</div>
+      <input type="file" accept="image/*" style="display:none" onchange="replaceHomePhoto(this,'${slot.key}')">
+    `;
+    card.querySelector('div').onmouseenter = () => card.querySelector('.hp-overlay').style.opacity = '1';
+    card.querySelector('div').onmouseleave = () => card.querySelector('.hp-overlay').style.opacity = '0';
+    card.onclick = () => card.querySelector('input[type=file]').click();
+    grid.appendChild(card);
+  });
+}
+
+async function replaceHomePhoto(input, key) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('업로드 중...');
+  const ext = file.name.split('.').pop();
+  const path = `homepage/${key}_${Date.now()}.${ext}`;
+  const upRes = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${path}`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': file.type },
+    body: file
+  });
+  if (!upRes.ok) { toast('업로드 실패', true); return; }
+  const publicUrl = `${SUPA_URL}/storage/v1/object/public/jd-images/${path}`;
+
+  // Upsert setting
+  const upsertRes = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify({ key, value: publicUrl, updated_at: new Date().toISOString() })
+  });
+  if (upsertRes.ok) { toast('사진이 교체됐어요! 홈화면에 바로 반영돼요 ✓'); loadHomepagePhotos(); }
+  else toast('저장 실패', true);
+}
 </script>
 </body></html>
