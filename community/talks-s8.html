@@ -13,17 +13,19 @@
 <style>:root{--bg:#F4F6FA;--wh:#FFFFFF;--be:#E8ECF4;--sa:#D5DCF0;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ol:#64748B;--tp:#0F172A;--ts:#334155;--tl:#64748B;--dm:#64748B;--sw:rgba(15,23,42,.06);--sd:rgba(37,99,235,.18)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);overflow-x:hidden;line-height:1.8}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 3.5rem;height:76px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;background:transparent;}
-.nav.scrolled{background:rgba(244,246,250,.96);backdrop-filter:blur(24px);box-shadow:0 1px 40px rgba(0,0,0,.12)}
-.nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:var(--dk)}.nav-logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--te));display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.1rem;color:#fff}.nav-logo-text{font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.05rem}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 2.5rem;height:68px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;background:transparent;}
+.nav.scrolled{background:rgba(15,23,42,.92);backdrop-filter:blur(20px)}
+.nav-logo{display:flex;align-items:flex-start;flex-direction:column;text-decoration:none;color:#fff;line-height:1.15}.nav-logo-icon{display:none}.nav-logo-text{font-family:'DM Sans',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.01em;color:#fff}
+.nav-logo-sub{font-family:'DM Sans',sans-serif;font-size:.7rem;color:rgba(255,255,255,.45);font-weight:400;letter-spacing:.02em}
 .nav-links{display:flex;align-items:center;gap:0;list-style:none}
 .nav-li{position:relative}
-.nav-link-item{display:flex;flex-direction:column;align-items:center;text-decoration:none;padding:.5rem 1.1rem;gap:.05rem;transition:color .25s;cursor:pointer}
-.nav-link-main{font-size:.92rem;font-weight:600;color:var(--ts);transition:color .25s;letter-spacing:.01em;font-family:'DM Sans',sans-serif}
-.nav-link-sub{font-size:.62rem;color:var(--dm);letter-spacing:.06em;text-transform:uppercase;font-weight:500;transition:color .25s}
-.nav-li:hover .nav-link-main,.nav-li:hover .nav-link-sub{color:var(--ac)}
-.nav-li::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:0;height:1.5px;background:var(--ac);transition:width .3s}
+.nav-link-item{display:flex;flex-direction:column;align-items:center;text-decoration:none;padding:.5rem 1rem;gap:.05rem;transition:color .25s;cursor:pointer}
+.nav-link-main{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);transition:color .25s;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Sans',sans-serif}
+.nav-link-sub{display:none}
+.nav-li:hover .nav-link-main{color:#fff}
+.nav-li::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:0;height:1px;background:#fff;transition:width .3s}
 .nav-li:hover::after{width:60%}
+.nav-cta-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.4rem;background:var(--ac);color:#fff;text-decoration:none;border-radius:4px;font-size:.82rem;font-weight:700;letter-spacing:.04em;font-family:'DM Sans',sans-serif;transition:all .3s;margin-left:1rem}.nav-cta-btn:hover{background:#1D4ED8;transform:translateY(-1px)}
 .nav-dropdown{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);background:rgba(244,246,250,.98);backdrop-filter:blur(24px);border:1px solid rgba(37,99,235,.12);border-radius:0;padding:.6rem;min-width:180px;box-shadow:0 20px 60px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-8px);transition:all .22s cubic-bezier(.4,0,.2,1);z-index:100}
 .nav-li:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 .nav-dd-item{display:block;padding:.55rem 1rem;font-size:.85rem;color:var(--ts);text-decoration:none;border-radius:0;transition:all .15s;white-space:nowrap;font-weight:500}
@@ -158,44 +160,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
 @media(max-width:900px){.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(244,246,250,.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.1);border-radius:0;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
 @media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}</style></head><body><nav class="nav" id="nav">
-<a href="../index.html" class="nav-logo">
-  <div class="nav-logo-icon">JD</div>
-  <span class="nav-logo-text">조니딥</span>
-</a>
-<ul class="nav-links" id="navLinks">
-  <li class="nav-li">
-<a href="../index.html#about" class="nav-link-item">
-  <span class="nav-link-main">About</span>
-  
-</a>
-
-</li><li class="nav-li has-dropdown">
-<a href="../index.html#begin" class="nav-link-item">
-  <span class="nav-link-main">Begin</span>
-  <span class="nav-link-sub">신청하기</span>
-</a>
-<div class="nav-dropdown"><a href="../join/s8-guest.html" class="nav-dd-item">조니딥 시즌 8 게스트 신청</a></div>
-</li><li class="nav-li has-dropdown">
-<a href="../index.html#journeys" class="nav-link-item">
-  <span class="nav-link-main">Journeys</span>
-  <span class="nav-link-sub">프로그램</span>
-</a>
-<div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">조니딥 시즌 8 소개</a></div>
-</li><li class="nav-li has-dropdown">
-<a href="../index.html#together" class="nav-link-item">
-  <span class="nav-link-main">Together</span>
-  <span class="nav-link-sub">커뮤니티</span>
-</a>
-<div class="nav-dropdown"><a href="../community/talks-s8.html" class="nav-dd-item">발제 - 조니딥 시즌8</a><div class="nav-dd-divider"></div><a href="../community/columns.html" class="nav-dd-item">칼럼</a><a href="../community/reflections-s8.html" class="nav-dd-item">성찰 - 조니딥 시즌 8</a></div>
-</li><li class="nav-li has-dropdown">
-<a href="../index.html#trace" class="nav-link-item">
-  <span class="nav-link-main">Trace</span>
-  <span class="nav-link-sub">아카이브</span>
-</a>
-<div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">조니딥 Book List</a></div>
-</li>
-</ul>
-<div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  <a href="../index.html" class="nav-logo" id="navLogo">
+    <span class="nav-logo-text">조니딥</span>
+    <span class="nav-logo-sub">JourneyDeep</span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li class="nav-li"><a href="#about" class="nav-link-item"><span class="nav-link-main">About</span></a></li>
+    <li class="nav-li has-dropdown">
+      <a href="#journeys" class="nav-link-item"><span class="nav-link-main">Journeys</span></a>
+      <div class="nav-dropdown"><a href="../program/s8.html" class="nav-dd-item">조니딥 시즌 8</a></div>
+    </li>
+    <li class="nav-li has-dropdown">
+      <a href="#together" class="nav-link-item"><span class="nav-link-main">Together</span></a>
+      <div class="nav-dropdown">
+        <a href="../community/talks-s8.html" class="nav-dd-item">발제문</a>
+        <a href="../community/columns.html" class="nav-dd-item">칼럼</a>
+        <a href="../community/reflections-s8.html" class="nav-dd-item">성찰</a>
+      </div>
+    </li>
+    <li class="nav-li has-dropdown">
+      <a href="#trace" class="nav-link-item"><span class="nav-link-main">Trace</span></a>
+      <div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">Book List</a></div>
+    </li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <a href="../join/s8-guest.html" class="nav-cta-btn">시즌 신청 →</a>
+    <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
 </nav>
 <div style="min-height:100vh;padding:7rem 1.5rem 5rem;background:var(--bg)">
   <div style="max-width:820px;margin:0 auto">
