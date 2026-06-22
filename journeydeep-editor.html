@@ -2122,6 +2122,18 @@ ${buildPanel('🖼 히어로 배경 사진', `
     <button class="iu-x" onclick="event.stopPropagation();rmImg('hero',0)">✕</button>
   </div>
 </div>
+<div class="fg" style="margin-top:.75rem"><label class="fl">사진 포커스 위치</label>
+<select class="fi" onchange="updatePageData('heroImgPosition',this.value);schedulePreview()">
+  <option value="center" ${(d.heroImgPosition||'center')==='center'?'selected':''}>가운데</option>
+  <option value="top" ${d.heroImgPosition==='top'?'selected':''}>위쪽</option>
+  <option value="bottom" ${d.heroImgPosition==='bottom'?'selected':''}>아래쪽</option>
+  <option value="left" ${d.heroImgPosition==='left'?'selected':''}>왼쪽</option>
+  <option value="right" ${d.heroImgPosition==='right'?'selected':''}>오른쪽</option>
+</select>
+<p class="hint">사진의 어느 부분을 중심으로 보여줄지 설정해요</p></div>
+<div class="fg"><label class="fl">모바일 히어로 높이: <strong id="heroMobileHLabel">${d.heroMobileH||60}vh</strong></label>
+<input type="range" min="30" max="100" step="5" value="${d.heroMobileH||60}" style="width:100%;accent-color:var(--ac)" oninput="document.getElementById('heroMobileHLabel').textContent=this.value+'vh';updatePageData('heroMobileH',parseInt(this.value));schedulePreview()">
+<p class="hint">모바일에서 히어로 사진 높이 (기본 60vh — 값이 작을수록 짧아져요)</p></div>
 `)}
 ${buildPanel('📸 갤러리', `
 <div class="fg"><label class="fl">갤러리 모드</label>
@@ -4698,7 +4710,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .prog-card:hover{transform:translateY(-3px);box-shadow:0 16px 50px var(--sw)}
 .back-link{display:inline-flex;align-items:center;gap:.5rem;color:var(--ac);text-decoration:none;font-size:.9rem;margin-bottom:2rem;transition:color .3s}.back-link:hover{color:var(--te)}
 @media(max-width:900px){.nav{padding:0 1.5rem}.mobile-toggle{display:flex}.values-grid{grid-template-columns:1fr}.program-layout{grid-template-columns:1fr}.program-image-stack{gap:1rem}.people-grid{grid-template-columns:repeat(2,1fr)}.testi-grid{grid-template-columns:1fr}.schedule-row{grid-template-columns:1fr 1fr;gap:.5rem}.schedule-note{grid-column:1/-1}.nav-links{display:none;position:fixed;top:76px;left:0;right:0;background:rgba(${dark?'16,16,25':'253,246,236'},.98);backdrop-filter:blur(20px);flex-direction:column;padding:2rem;gap:.5rem}.nav-links.open{display:flex}.nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}.nav-link-item{display:block;font-size:1rem;font-weight:600;color:var(--dk);padding:.65rem 0;letter-spacing:.01em;text-decoration:none;transition:color .2s;width:100%}.nav-link-item:hover{color:var(--ac)}.nav-dropdown{display:none}.nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(${dark?'255,255,255':'201,169,110'},.05);border:1px solid rgba(${dark?'255,255,255':'201,169,110'},.1);border-radius:0;padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}.nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6;transition:transform .2s}.nav-li.has-dropdown.open>.nav-link-item::after{transform:rotate(180deg)}}
-@media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}}`;
+@media(max-width:600px){.section{padding:4rem 1.25rem}.book-grid,.letter-list{grid-template-columns:1fr}.hero{min-height:${d.heroMobileH||60}vh}}`;
 }
 
 function generateNav(backToHome) {
@@ -4968,9 +4980,11 @@ function generateHomeBody(page) {
             if (!hasPhoto || bgStyle === 'gradient') {
                 bgHTML = `<div class="hero-bg"><div class="hero-bg-circle"></div><div class="hero-bg-circle"></div><div class="hero-bg-circle"></div></div>`;
             } else if (bgStyle === 'photo-overlay') {
-                bgHTML = `<div class="hero-bg" style="inset:0;position:absolute"><img src="${d.heroImage}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.65) 100%)"></div></div>`;
+                const imgPos = d.heroImgPosition || 'center';
+                bgHTML = `<div class="hero-bg" style="inset:0;position:absolute"><img src="${d.heroImage}" style="width:100%;height:100%;object-fit:cover;object-position:${imgPos};position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.65) 100%)"></div></div>`;
             } else if (bgStyle === 'photo-blend') {
-                bgHTML = `<div class="hero-bg" style="inset:0;position:absolute"><img src="${d.heroImage}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(61,43,31,.82) 0%,rgba(90,61,46,.65) 50%,rgba(42,26,10,.75) 100%);mix-blend-mode:multiply"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(37,99,235,.18),transparent 65%)"></div></div>`;
+                const imgPos = d.heroImgPosition || 'center';
+                bgHTML = `<div class="hero-bg" style="inset:0;position:absolute"><img src="${d.heroImage}" style="width:100%;height:100%;object-fit:cover;object-position:${imgPos};position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(61,43,31,.82) 0%,rgba(90,61,46,.65) 50%,rgba(42,26,10,.75) 100%);mix-blend-mode:multiply"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(37,99,235,.18),transparent 65%)"></div></div>`;
             }
 
             // photo 모드일 때 텍스트 색상 항상 밝게
