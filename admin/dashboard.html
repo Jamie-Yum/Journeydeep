@@ -157,7 +157,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field field-full"><label>대표 이미지 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pg_image" placeholder="https://..."></div>
       </div>
-      <button class="btn btn-primary" onclick="saveProgram()">저장하기</button>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveProgram()">저장하기</button>
+        <button class="btn btn-ghost" onclick="previewProgram()">👁 미리보기</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">등록된 프로그램 <button class="btn btn-ghost btn-sm" onclick="loadPrograms()">새로고침</button></div>
@@ -181,7 +184,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
         <div class="field field-full"><label>첨부 파일 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pr_file" placeholder="https://..."></div>
       </div>
-      <button class="btn btn-primary" onclick="saveProposal()">저장하기</button>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveProposal()">저장하기</button>
+        <button class="btn btn-ghost" onclick="previewProposal()">👁 미리보기</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">등록된 발제문 <button class="btn btn-ghost btn-sm" onclick="loadProposals()">새로고침</button></div>
@@ -216,7 +222,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <div class="field field-full"><label>대표 이미지 URL</label><input id="col_image" placeholder="https://..."></div>
       </div>
-      <button class="btn btn-primary" onclick="saveColumn()">저장하기</button>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveColumn()">저장하기</button>
+        <button class="btn btn-ghost" onclick="previewColumn()">👁 미리보기</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">등록된 칼럼 <button class="btn btn-ghost btn-sm" onclick="loadColumns()">새로고침</button></div>
@@ -300,6 +309,17 @@ tr:hover td{background:rgba(37,99,235,.03)}
   <div style="background:#fff;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:2rem;position:relative">
     <button onclick="closeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--tl)">✕</button>
     <div id="modal_content"></div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto" onclick="if(event.target===this)closePreview()">
+  <div style="background:#F4F6FA;max-width:760px;width:100%;position:relative;margin:auto">
+    <div style="background:#0F172A;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between">
+      <span style="color:rgba(255,255,255,.5);font-size:.78rem;font-family:'DM Sans',sans-serif">미리보기 — 실제 사이트에서 보이는 모습이에요</span>
+      <button onclick="closePreview()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:1rem;cursor:pointer">✕</button>
+    </div>
+    <div id="preview_content" style="padding:2rem;font-family:'Pretendard',sans-serif"></div>
   </div>
 </div>
 
@@ -596,6 +616,107 @@ function showDetail(type, item) {
 }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+
+// ── PREVIEW ──
+function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
+
+function showPreview(html) {
+  document.getElementById('preview_content').innerHTML = html;
+  document.getElementById('previewModal').style.display = 'flex';
+}
+
+function previewProgram() {
+  const title = document.getElementById('pg_title').value || '프로그램 제목';
+  const badge = document.getElementById('pg_badge').value || '';
+  const subtitle = document.getElementById('pg_subtitle').value || '';
+  const desc = document.getElementById('pg_desc').value || '';
+  const start = document.getElementById('pg_start').value || '';
+  const end = document.getElementById('pg_end').value || '';
+  const venue = document.getElementById('pg_venue').value || '';
+  const fee = document.getElementById('pg_fee').value || '';
+  const capacity = document.getElementById('pg_capacity').value || '';
+  const apply = document.getElementById('pg_apply').value || '#';
+  const image = document.getElementById('pg_image').value || '';
+
+  showPreview(`
+    <div style="background:#fff;border:1px solid rgba(100,116,139,.2);overflow:hidden">
+      ${image ? `<div style="width:100%;aspect-ratio:16/7;overflow:hidden"><img src="${image}" style="width:100%;height:100%;object-fit:cover"></div>` : '<div style="width:100%;aspect-ratio:16/7;background:linear-gradient(135deg,#1E3A8A,#2563EB);display:flex;align-items:center;justify-content:center;font-size:2rem;color:rgba(255,255,255,.3)">📋</div>'}
+      <div style="padding:2rem">
+        ${badge ? `<div style="display:inline-block;padding:.3rem .9rem;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:#2563EB;font-size:.72rem;font-weight:700;letter-spacing:.1em;margin-bottom:1rem">${badge}</div>` : ''}
+        <h2 style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:700;color:#0F172A;margin-bottom:.4rem;line-height:1.3">${title}</h2>
+        ${subtitle ? `<p style="font-size:1rem;color:#334155;margin-bottom:1.25rem">${subtitle}</p>` : ''}
+        ${desc ? `<p style="font-size:.92rem;color:#475569;line-height:1.85;margin-bottom:1.5rem;white-space:pre-wrap">${desc}</p>` : ''}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem">
+          ${start||end ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">📅 일정</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${start}${end?' ~ '+end:''}</div></div>` : ''}
+          ${venue ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">📍 장소</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${venue}</div></div>` : ''}
+          ${fee ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">💳 참가비</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${fee}</div></div>` : ''}
+          ${capacity ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">👥 정원</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${capacity}</div></div>` : ''}
+        </div>
+        <a href="${apply}" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2rem;background:#2563EB;color:#fff;text-decoration:none;font-weight:600;font-size:.9rem">신청하기 →</a>
+      </div>
+    </div>
+  `);
+}
+
+function previewProposal() {
+  const season = document.getElementById('pr_season').value || '';
+  const session = document.getElementById('pr_session').value || '';
+  const book = document.getElementById('pr_book').value || '도서 제목';
+  const author = document.getElementById('pr_author').value || '';
+  const content = document.getElementById('pr_content').value || '';
+  const file = document.getElementById('pr_file').value || '';
+
+  showPreview(`
+    <div style="background:#fff;border:1px solid rgba(100,116,139,.2);padding:2rem">
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">
+        ${season ? `<span style="display:inline-block;padding:.22rem .75rem;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:#2563EB;font-size:.72rem;font-weight:700;letter-spacing:.07em">${season}</span>` : ''}
+        ${session ? `<span style="display:inline-block;padding:.22rem .75rem;background:rgba(100,116,139,.1);border:1px solid rgba(100,116,139,.3);color:#475569;font-size:.72rem;font-weight:700;letter-spacing:.07em">${session}</span>` : ''}
+      </div>
+      <h2 style="font-family:'DM Sans',sans-serif;font-size:1.4rem;font-weight:700;color:#0F172A;margin-bottom:.5rem;line-height:1.4">${book}</h2>
+      ${author ? `<p style="font-size:.85rem;color:#64748B;margin-bottom:1.5rem;font-weight:500">발제자 · ${author}</p>` : '<div style="margin-bottom:1.5rem"></div>'}
+      ${content ? `<div style="font-size:.92rem;color:#334155;line-height:1.9;white-space:pre-wrap;border-top:1px solid rgba(100,116,139,.2);padding-top:1.25rem">${content}</div>` : ''}
+      ${file ? `<a href="${file}" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.6rem 1.25rem;border:1px solid rgba(37,99,235,.3);color:#2563EB;text-decoration:none;font-size:.85rem;font-weight:600">📎 첨부파일 보기</a>` : ''}
+    </div>
+  `);
+}
+
+function previewColumn() {
+  const title = document.getElementById('col_title').value || '칼럼 제목';
+  const author = document.getElementById('col_author').value || '';
+  const category = document.getElementById('col_category').value || '';
+  const emoji = document.getElementById('col_emoji').value || '✍️';
+  const excerpt = document.getElementById('col_excerpt').value || '';
+  const url = document.getElementById('col_url').value || '';
+  const body = document.getElementById('col_body').innerHTML || '';
+  const image = document.getElementById('col_image').value || '';
+  const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+
+  showPreview(`
+    <p style="font-size:.78rem;color:#64748B;margin-bottom:1rem">목록 카드 미리보기</p>
+    <div style="background:#fff;border:1px solid rgba(100,116,139,.4);overflow:hidden;margin-bottom:2rem">
+      <div style="width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#E8ECF4,#D5DCF0);position:relative;overflow:hidden">
+        ${image ? `<img src="${image}" style="width:100%;height:100%;object-fit:cover">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.5">${emoji}</div>`}
+      </div>
+      <div style="padding:1.5rem">
+        ${category ? `<div style="display:inline-block;padding:.22rem .75rem;background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:#2563EB;font-size:.72rem;font-weight:600;letter-spacing:.07em;margin-bottom:.75rem">${category}</div>` : ''}
+        <h3 style="font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;color:#0F172A;line-height:1.5;margin-bottom:.75rem">${title}</h3>
+        ${excerpt ? `<p style="font-size:.88rem;color:#334155;line-height:1.75;margin-bottom:1.25rem">${excerpt}</p>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:#64748B;border-top:1px solid rgba(100,116,139,.4);padding-top:1rem">
+          <span style="font-weight:600;color:#334155">${author || '작성자'}</span>
+          <span style="font-style:italic">${today}</span>
+        </div>
+      </div>
+    </div>
+    ${body||url ? `
+    <p style="font-size:.78rem;color:#64748B;margin-bottom:1rem">본문 미리보기</p>
+    <div style="background:#fff;border:1px solid rgba(100,116,139,.2);padding:2rem">
+      <h2 style="font-family:'DM Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#0F172A;margin-bottom:.5rem">${title}</h2>
+      ${author ? `<p style="font-size:.85rem;color:#64748B;margin-bottom:1.5rem">${author} · ${today}</p>` : ''}
+      ${url ? `<a href="${url}" style="display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1.5rem;padding:.6rem 1.25rem;background:#2563EB;color:#fff;text-decoration:none;font-size:.85rem;font-weight:600">원문 보러가기 →</a>` : ''}
+      ${body ? `<div style="font-size:.95rem;color:#334155;line-height:1.9;border-top:1px solid rgba(100,116,139,.2);padding-top:1.5rem">${body}</div>` : ''}
+    </div>` : ''}
+  `);
+}
 
 // ── 홈화면 사진 ────────────────────────────────────────────
 const HP_SLOTS = [
