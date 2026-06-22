@@ -885,8 +885,9 @@ function confirmResize() {
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
     canvas.toBlob(blob => {
+      const cb = _resizeOnConfirm;
       closeResizeModal();
-      if (_resizeOnConfirm) _resizeOnConfirm(blob);
+      if (cb) cb(blob);
     }, 'image/jpeg', q);
   };
   img.src = src;
