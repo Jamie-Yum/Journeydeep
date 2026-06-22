@@ -239,17 +239,17 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-title">신청 현황</div>
       <div class="page-sub">접수된 신청을 확인해요</div>
     </div>
+    <!-- 요약 카드 -->
+    <div id="app_summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem"></div>
     <div class="card">
       <div class="card-title">
-        <span>신청 목록</span>
-        <div style="display:flex;gap:.75rem;align-items:center">
+        <span>신청 목록 <span id="app_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></span>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
           <select id="app_filter" onchange="loadApplications()" style="width:auto;padding:.4rem .75rem;font-size:.82rem">
             <option value="">전체</option>
-            <option value="join/s9-member">시즌 9 정규</option>
-            <option value="join/s9-guest">시즌 9 게스트</option>
-            <option value="join/s8-guest">시즌 8 게스트</option>
           </select>
           <button class="btn btn-ghost btn-sm" onclick="loadApplications()">새로고침</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -348,7 +348,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadPrograms(); loadProposals(); loadColumns(); loadApplications(); loadImages();
+  loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages();
 }
 
 // Nav
@@ -503,29 +503,107 @@ async function loadColumns() {
 }
 
 // ── APPLICATIONS ──
+let _allApplications = [];
+
+const SEASON_LABELS = {
+  'join/s9-member': '시즌 9 정규',
+  'join/s9-guest':  '시즌 9 게스트',
+  'join/s8-guest':  '시즌 8 게스트',
+};
+function seasonLabel(s) { return SEASON_LABELS[s] || s || '—'; }
+
+async function initApplications() {
+  // DB에서 존재하는 시즌 목록 자동 로드
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?select=season&order=submitted_at.desc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const rows = await res.json();
+  const seasons = [...new Set((rows||[]).map(r => r.season).filter(Boolean))].sort();
+  const sel = document.getElementById('app_filter');
+  sel.innerHTML = '<option value="">전체</option>' + seasons.map(s => `<option value="${s}">${seasonLabel(s)}</option>`).join('');
+
+  // 요약 카드
+  const counts = {};
+  seasons.forEach(s => { counts[s] = (rows||[]).filter(r => r.season === s).length; });
+  const sumEl = document.getElementById('app_summary');
+  sumEl.innerHTML = seasons.map(s => `
+    <div style="background:#fff;border:1px solid rgba(100,116,139,.2);padding:1.25rem;cursor:pointer" onclick="document.getElementById('app_filter').value='${s}';loadApplications()">
+      <div style="font-size:1.6rem;font-weight:700;color:var(--ac);font-family:'DM Sans',sans-serif">${counts[s]}</div>
+      <div style="font-size:.8rem;color:var(--tl);margin-top:.2rem">${seasonLabel(s)}</div>
+    </div>`).join('') +
+    `<div style="background:var(--dk);border:1px solid rgba(100,116,139,.2);padding:1.25rem">
+      <div style="font-size:1.6rem;font-weight:700;color:#fff;font-family:'DM Sans',sans-serif">${(rows||[]).length}</div>
+      <div style="font-size:.8rem;color:rgba(255,255,255,.4);margin-top:.2rem">전체 신청</div>
+    </div>`;
+
+  await loadApplications();
+}
+
 async function loadApplications() {
   const filter = document.getElementById('app_filter').value;
-  const data = await sbGet('JD_applications', filter ? `&season=eq.${encodeURIComponent(filter)}` : '');
   const tbody = document.getElementById('app_tbody');
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tl)">신청 내역이 없어요.</td></tr>'; return; }
-  tbody.innerHTML = data.map(a => {
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tl);padding:2rem">불러오는 중...</td></tr>';
+
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?order=submitted_at.desc${filter ? '&season=eq.'+encodeURIComponent(filter) : ''}`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const data = await res.json();
+  _allApplications = Array.isArray(data) ? data : [];
+
+  document.getElementById('app_count').textContent = _allApplications.length ? `(${_allApplications.length}건)` : '';
+
+  if (!_allApplications.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tl);padding:2rem">신청 내역이 없어요.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = _allApplications.map((a, i) => {
     const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
-    const name = fields['성함'] || fields['이름'] || '—';
+    const name  = fields['성함'] || fields['성함을 알려주세요.'] || fields['이름'] || '—';
     const phone = fields['전화번호'] || '—';
-    const date = a.submitted_at ? new Date(a.submitted_at).toLocaleDateString('ko') : '—';
+    const date  = a.submitted_at ? new Date(a.submitted_at).toLocaleDateString('ko', {year:'2-digit',month:'2-digit',day:'2-digit'}) : '—';
     return `<tr>
-      <td><span class="badge badge-blue">${a.season || '—'}</span></td>
-      <td>${name}</td><td>${phone}</td><td>${date}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${JSON.stringify(a)})'>상세</button></td>
+      <td><span class="badge badge-blue">${seasonLabel(a.season)}</span></td>
+      <td style="font-weight:600">${name}</td>
+      <td>${phone}</td>
+      <td style="color:var(--tl)">${date}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button></td>
     </tr>`;
   }).join('');
 }
 
-function showAppDetail(a) {
+function showAppDetail(idx) {
+  const a = _allApplications[idx];
+  if (!a) return;
   const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
-  const rows = Object.entries(fields).map(([k,v]) => `<div style="margin-bottom:.75rem"><div style="font-size:.78rem;font-weight:600;color:var(--tl);margin-bottom:.2rem">${k}</div><div style="font-size:.9rem;color:var(--ts)">${v||'—'}</div></div>`).join('');
-  document.getElementById('modal_content').innerHTML = `<h3 style="font-family:'DM Sans',sans-serif;margin-bottom:1.25rem">${a.season}</h3>${rows}`;
+  const date = a.submitted_at ? new Date(a.submitted_at).toLocaleString('ko') : '—';
+  const rows = Object.entries(fields).map(([k,v]) => `
+    <div style="margin-bottom:.85rem;padding-bottom:.85rem;border-bottom:1px solid rgba(100,116,139,.1)">
+      <div style="font-size:.75rem;font-weight:700;color:var(--tl);margin-bottom:.3rem;letter-spacing:.04em;text-transform:uppercase">${k}</div>
+      <div style="font-size:.92rem;color:var(--dk);line-height:1.7">${v||'—'}</div>
+    </div>`).join('');
+  document.getElementById('modal_content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem">
+      <span class="badge badge-blue">${seasonLabel(a.season)}</span>
+      <span style="font-size:.78rem;color:var(--tl)">${date}</span>
+    </div>
+    ${rows}`;
   document.getElementById('modal').style.display = 'flex';
+}
+
+function exportCSV() {
+  if (!_allApplications.length) { toast('내보낼 데이터가 없어요.', true); return; }
+  const allKeys = [...new Set(_allApplications.flatMap(a => { try { return Object.keys(JSON.parse(a.fields)); } catch { return []; } }))];
+  const header = ['시즌', '신청일', ...allKeys];
+  const rows = _allApplications.map(a => {
+    const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
+    return [seasonLabel(a.season), a.submitted_at ? new Date(a.submitted_at).toLocaleString('ko') : '', ...allKeys.map(k => (fields[k]||'').replace(/,/g,'，'))].join(',');
+  });
+  const csv = '﻿' + [header.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = `조니딥_신청현황_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV 다운로드 완료!');
 }
 
 // ── IMAGES ──
