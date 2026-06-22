@@ -105,7 +105,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-season-tag{font-size:.65rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-bottom:.3rem;opacity:.85}
 .book-info-v h4{font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--dk);line-height:1.45;margin-bottom:.2rem}
 .book-author-v{font-size:.72rem;color:var(--tl)}
-.history{background:var(--wh)}.timeline{margin-top:2rem;position:relative;padding-left:2.5rem}
+.history{background:var(--wh)}.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}@media(max-width:768px){.history-grid{grid-template-columns:1fr;gap:3rem}}.timeline{margin-top:2rem;position:relative;padding-left:2.5rem}
 .timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--ac),var(--sa),transparent)}
 .timeline-item{position:relative;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(100,116,139,.15)}.timeline-item:last-child{border-bottom:none}
 .timeline-dot{position:absolute;left:-2.5rem;top:4px;width:12px;height:12px;border-radius:50%;background:var(--ac);border:2px solid var(--wh);box-shadow:0 0 0 2px var(--ac)}
@@ -348,7 +348,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   </div>
 </div></section><section class="section history" id="history" style="padding:5rem 2rem">
 <div class="section-container">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start">
+  <div class="history-grid">
     <div class="reveal">
       <div class="section-eyebrow">History</div>
       <h2 class="section-title">조니딥의 여정</h2>
