@@ -894,17 +894,23 @@ function confirmResize() {
 }
 
 async function uploadBlob(blob, fname) {
-  return fetch(`${SUPA_URL}/storage/v1/object/jd-images/${fname}`, {
+  if (!blob) { console.error('uploadBlob: blob is null'); return { ok: false, _err: 'blob null' }; }
+  const res = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${fname}`, {
     method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'image/jpeg' },
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': blob.type || 'image/jpeg', 'x-upsert': 'true' },
     body: blob
   });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    console.error('uploadBlob failed', res.status, txt);
+    return { ok: false, _err: `${res.status} ${txt}` };
+  }
+  return res;
 }
 
 async function uploadImages(files) {
   const arr = Array.from(files);
   if (!arr.length) return;
-  // 파일 하나씩 리사이즈 모달 → 순서대로 업로드
   let i = 0;
   const processNext = () => {
     if (i >= arr.length) { loadImages(); return; }
@@ -913,7 +919,7 @@ async function uploadImages(files) {
       const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
       toast(`업로드 중... (${i}/${arr.length})`);
       const res = await uploadBlob(blob, fname);
-      if (!res.ok) toast(`업로드 실패`, true);
+      if (!res.ok) toast(`업로드 실패: ${res._err || ''}`, true);
       else toast(`(${i}/${arr.length}) 완료!`);
       processNext();
     });
@@ -1460,7 +1466,7 @@ async function replaceHomePhoto(input, key) {
     toast('업로드 중...');
     const path = `homepage/${key}_${Date.now()}.jpg`;
     const upRes = await uploadBlob(blob, path);
-    if (!upRes.ok) { toast('업로드 실패', true); return; }
+    if (!upRes.ok) { toast(`업로드 실패: ${upRes._err || ''}`, true); return; }
     const publicUrl = `${SUPA_URL}/storage/v1/object/public/jd-images/${path}`;
 
     // Upsert setting
