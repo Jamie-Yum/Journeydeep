@@ -1,6 +1,8 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>조니딥 관리자</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <style>
 :root{--bg:#F4F6FA;--wh:#FFFFFF;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ts:#334155;--tl:#64748B;--be:#E8ECF4;--sw:rgba(15,23,42,.06);--red:#EF4444;--green:#10B981}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -67,6 +69,15 @@ textarea{resize:vertical;min-height:120px;line-height:1.7}
 .img-card-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;opacity:0;transition:opacity .2s}
 .img-card:hover .img-card-overlay{opacity:1}
 .img-url-btn{font-size:.72rem;background:#fff;border:none;padding:.3rem .7rem;cursor:pointer;font-weight:600;color:var(--ac)}
+
+/* Crop modal */
+.crop-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.crop-box{background:#fff;width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;padding:1.5rem;gap:1rem}
+.crop-wrap{flex:1;min-height:0;overflow:hidden;background:#0f172a;display:flex;align-items:center;justify-content:center;max-height:440px}
+.crop-wrap img{max-width:100%;max-height:440px;display:block}
+.crop-ratio-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.crop-ratio-btn{padding:.3rem .75rem;border:1px solid var(--be);background:#fff;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--ts);transition:all .15s}
+.crop-ratio-btn.active{background:var(--ac);border-color:var(--ac);color:#fff}
 
 /* Image resize modal */
 .resize-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1.5rem}
@@ -356,6 +367,36 @@ tr:hover td{background:rgba(37,99,235,.03)}
   <div style="background:#fff;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;padding:2rem;position:relative">
     <button onclick="closeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--tl)">✕</button>
     <div id="modal_content"></div>
+  </div>
+</div>
+
+<!-- Crop Modal -->
+<div id="cropModal" class="crop-modal" style="display:none" onclick="if(event.target===this)closeCropModal()">
+  <div class="crop-box">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem">사진 자르기</div>
+        <div style="font-size:.78rem;color:var(--tl);margin-top:.15rem">드래그해서 영역을 선택하고, 확인을 누르면 다음 단계로 넘어가요</div>
+      </div>
+      <button onclick="closeCropModal()" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tl)">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span style="font-size:.78rem;font-weight:600;color:var(--ts)">비율:</span>
+      <div class="crop-ratio-btns">
+        <button class="crop-ratio-btn active" onclick="setCropRatio('free')">자유</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(1)">1:1</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(4/3)">4:3</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(16/9)">16:9</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(3/4)">3:4</button>
+        <button class="crop-ratio-btn" onclick="setCropRatio(9/16)">9:16</button>
+      </div>
+    </div>
+    <div class="crop-wrap"><img id="crop_img" src=""></div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-primary" style="flex:1" onclick="confirmCrop()">자르기 완료 →</button>
+      <button class="btn btn-ghost" onclick="skipCrop()">자르지 않고 다음 →</button>
+      <button class="btn btn-ghost" onclick="closeCropModal()">취소</button>
+    </div>
   </div>
 </div>
 
@@ -706,6 +747,59 @@ let _resizeIdx = 0;
 let _resizeOrigW = 0, _resizeOrigH = 0;
 let _resizeOnConfirm = null;
 
+/* ── Crop ── */
+let _cropper = null;
+let _cropOnConfirm = null;
+
+function openCropModal(file, onConfirm) {
+  _cropOnConfirm = onConfirm;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('crop_img');
+    if (_cropper) { _cropper.destroy(); _cropper = null; }
+    img.src = e.target.result;
+    img.onload = () => {
+      _cropper = new Cropper(img, { viewMode: 1, autoCropArea: 1, movable: true, zoomable: true });
+      document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.crop-ratio-btn').classList.add('active');
+    };
+    document.getElementById('cropModal').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function setCropRatio(ratio) {
+  if (!_cropper) return;
+  document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  _cropper.setAspectRatio(ratio === 'free' ? NaN : ratio);
+}
+
+function confirmCrop() {
+  if (!_cropper) return;
+  _cropper.getCroppedCanvas({ maxWidth: 4096, maxHeight: 4096 }).toBlob(blob => {
+    closeCropModal();
+    const croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+    openResizeModal(croppedFile, _cropOnConfirm);
+  }, 'image/jpeg', 0.95);
+}
+
+function skipCrop() {
+  const src = document.getElementById('crop_img').src;
+  const cb = _cropOnConfirm;
+  closeCropModal();
+  fetch(src).then(r => r.blob()).then(blob => {
+    const f = new File([blob], 'original.jpg', { type: blob.type });
+    openResizeModal(f, cb);
+  });
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').style.display = 'none';
+  if (_cropper) { _cropper.destroy(); _cropper = null; }
+  _cropOnConfirm = null;
+}
+
 function openResizeModal(file, onConfirm) {
   _resizeOnConfirm = onConfirm;
   const reader = new FileReader();
@@ -813,7 +907,7 @@ async function uploadImages(files) {
   const processNext = () => {
     if (i >= arr.length) { loadImages(); return; }
     const file = arr[i++];
-    openResizeModal(file, async blob => {
+    openCropModal(file, async blob => {
       const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
       toast(`업로드 중... (${i}/${arr.length})`);
       const res = await uploadBlob(blob, fname);
@@ -1336,7 +1430,7 @@ async function loadHomepagePhotos() {
         }
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s" class="hp-overlay">
           ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer;backdrop-filter:blur(4px)">미리보기</button>` : ''}
-          <button onclick="event.stopPropagation();card${slot.key}.click()" style="background:var(--ac);border:none;color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer" id="hpBtn_${slot.key}">교체</button>
+          <button onclick="event.stopPropagation();document.getElementById('card${slot.key}').click()" style="background:var(--ac);border:none;color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer">교체</button>
         </div>
       </div>
       <div style="padding:.65rem .75rem;font-size:.78rem;font-weight:600;color:var(--ts)">${slot.label}</div>
@@ -1360,7 +1454,7 @@ function hpPreview(src) {
 async function replaceHomePhoto(input, key) {
   const file = input.files[0];
   if (!file) return;
-  openResizeModal(file, async blob => {
+  openCropModal(file, async blob => {
     toast('업로드 중...');
     const path = `homepage/${key}_${Date.now()}.jpg`;
     const upRes = await uploadBlob(blob, path);
