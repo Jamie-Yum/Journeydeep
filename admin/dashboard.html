@@ -777,10 +777,11 @@ function setCropRatio(ratio) {
 
 function confirmCrop() {
   if (!_cropper) return;
+  const cb = _cropOnConfirm;
   _cropper.getCroppedCanvas({ maxWidth: 4096, maxHeight: 4096 }).toBlob(blob => {
     closeCropModal();
     const croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
-    openResizeModal(croppedFile, _cropOnConfirm);
+    openResizeModal(croppedFile, cb);
   }, 'image/jpeg', 0.95);
 }
 
