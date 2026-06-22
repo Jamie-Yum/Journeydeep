@@ -920,7 +920,8 @@ function renderMemberSeason(si) {
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
         onblur="updateCell(${si},${mi},${ci},this.innerText.trim())">${disp}</td>`;
     }).join('');
-    const totalN = m.total;
+    const totalN = s.deposit + m.att.reduce((sum, v) => sum + parseAmt(v), 0);
+    membersData.seasons[si].members[mi].total = totalN;
     const totalCls = totalN < 0 ? 'm-neg' : totalN > 0 ? 'm-pos' : '';
     const totalDisp = fmtAmt(totalN);
     return `<tr>
@@ -933,9 +934,7 @@ function renderMemberSeason(si) {
         onblur="updateMember(${si},${mi},'phone',this.innerText.trim())">${m.phone}</td>
       <td style="color:var(--tl)">₩${s.deposit.toLocaleString()}</td>
       ${cells}
-      <td class="${totalCls}" style="font-weight:700" contenteditable="true"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
-        onblur="updateMemberTotal(${si},${mi},this.innerText.trim())">${totalDisp}</td>
+      <td class="${totalCls}" style="font-weight:700;background:rgba(37,99,235,.04)">${totalDisp}</td>
       <td class="m-note" contenteditable="true"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
         onblur="updateMember(${si},${mi},'note',this.innerText.trim())">${m.note}</td>
