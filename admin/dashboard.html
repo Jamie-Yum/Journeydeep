@@ -70,8 +70,11 @@ textarea{resize:vertical;min-height:120px;line-height:1.7}
 
 /* Image resize modal */
 .resize-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:1.5rem}
-.resize-box{background:#fff;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:1.75rem;position:relative}
-.resize-preview{width:100%;aspect-ratio:16/9;object-fit:contain;background:var(--bg);border:1px solid var(--be);margin-bottom:1.25rem}
+.resize-box{background:#fff;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:1.75rem;position:relative}
+.resize-preview-wrap{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+.resize-preview-label{font-size:.72rem;font-weight:600;color:var(--tl);text-align:center;margin-bottom:.35rem}
+.resize-preview{width:100%;aspect-ratio:unset;object-fit:contain;background:var(--bg);border:1px solid var(--be);display:block;max-height:200px}
+canvas.resize-preview{max-height:200px}
 .resize-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
 .resize-label{font-size:.78rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.3rem}
 .resize-input{width:100%;padding:.55rem .75rem;border:1px solid rgba(100,116,139,.3);font-size:.88rem;font-family:'Pretendard',sans-serif;outline:none}
@@ -366,7 +369,16 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <button onclick="closeResizeModal()" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tl)">✕</button>
     </div>
-    <img id="resize_preview" class="resize-preview" src="">
+    <div class="resize-preview-wrap">
+      <div>
+        <div class="resize-preview-label">원본</div>
+        <img id="resize_preview" class="resize-preview" src="">
+      </div>
+      <div>
+        <div class="resize-preview-label">미리보기</div>
+        <canvas id="resize_canvas" class="resize-preview"></canvas>
+      </div>
+    </div>
     <div class="resize-row">
       <div>
         <label class="resize-label">너비 (px)</label>
@@ -706,8 +718,8 @@ function openResizeModal(file, onConfirm) {
       document.getElementById('resize_w').value = img.width;
       document.getElementById('resize_h').value = img.height;
       document.getElementById('resize_orig_info').textContent = `원본: ${img.width} × ${img.height}px · ${(file.size/1024).toFixed(0)}KB`;
-      updateOutInfo();
       document.getElementById('resizeModal').style.display = 'flex';
+      updateOutInfo();
     };
     img.src = e.target.result;
   };
@@ -727,10 +739,39 @@ function syncResize(changed) {
   updateOutInfo();
 }
 
+let _canvasTimer = null;
 function updateOutInfo() {
   const w = parseInt(document.getElementById('resize_w').value) || 0;
   const h = parseInt(document.getElementById('resize_h').value) || 0;
   document.getElementById('resize_out_info').textContent = w && h ? `출력: ${w} × ${h}px` : '';
+  clearTimeout(_canvasTimer);
+  _canvasTimer = setTimeout(drawCanvasPreview, 200);
+}
+
+function drawCanvasPreview() {
+  const src = document.getElementById('resize_preview').src;
+  if (!src) return;
+  const w = parseInt(document.getElementById('resize_w').value) || _resizeOrigW;
+  const h = parseInt(document.getElementById('resize_h').value) || _resizeOrigH;
+  const q = parseInt(document.getElementById('resize_q').value) / 100;
+  const canvas = document.getElementById('resize_canvas');
+  const img = new Image();
+  img.onload = () => {
+    const tmp = document.createElement('canvas');
+    tmp.width = w; tmp.height = h;
+    tmp.getContext('2d').drawImage(img, 0, 0, w, h);
+    const dataUrl = tmp.toDataURL('image/jpeg', q);
+    const previewImg = new Image();
+    previewImg.onload = () => {
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(previewImg, 0, 0);
+      // estimate compressed size
+      const kb = Math.round((dataUrl.length * 3/4) / 1024);
+      document.getElementById('resize_out_info').textContent = `출력: ${w} × ${h}px · 약 ${kb}KB`;
+    };
+    previewImg.src = dataUrl;
+  };
+  img.src = src;
 }
 
 function closeResizeModal() {
