@@ -98,6 +98,30 @@ tr:hover td{background:rgba(37,99,235,.03)}
 .rich-editor{width:100%;min-height:200px;padding:.75rem;border:1px solid rgba(100,116,139,.3);outline:none;font-family:'Pretendard',sans-serif;font-size:.9rem;line-height:1.8;color:var(--dk)}
 
 @media(max-width:768px){.sidebar{width:60px}.sidebar-logo-main,.sidebar-logo-sub,.nav-label,.sidebar-footer{display:none}.main{margin-left:60px}.form-grid,.form-grid-3{grid-template-columns:1fr}}
+
+/* Member management */
+.m-tabs{display:flex;gap:0;flex-wrap:wrap;margin-bottom:1.5rem}
+.m-tab{padding:.45rem 1rem;font-size:.8rem;font-weight:600;background:none;border:1px solid rgba(100,116,139,.25);color:var(--tl);cursor:pointer;transition:all .15s;margin-right:-1px;margin-bottom:-1px}
+.m-tab.active{background:var(--ac);color:#fff;border-color:var(--ac);z-index:1;position:relative}
+.m-tab:hover:not(.active){background:var(--be);color:var(--dk)}
+.m-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.m-table{border-collapse:collapse;font-size:.8rem;width:100%;min-width:600px}
+.m-table th{background:var(--dk);color:#fff;padding:.5rem .65rem;white-space:nowrap;font-weight:600;text-align:center;border:1px solid rgba(255,255,255,.08);font-size:.72rem}
+.m-table td{padding:.4rem .55rem;border:1px solid rgba(100,116,139,.18);text-align:center;vertical-align:middle;white-space:nowrap;min-width:48px}
+.m-table tr:nth-child(even) td{background:rgba(100,116,139,.04)}
+.m-table tr:hover td{background:rgba(37,99,235,.05)!important}
+.m-name{text-align:left!important;font-weight:600;min-width:72px}
+.m-phone{color:var(--tl);min-width:104px;font-size:.75rem}
+.m-num{color:var(--tl);width:28px;font-size:.72rem}
+.m-note{text-align:left!important;color:var(--tl);font-size:.73rem;min-width:90px}
+.m-ok{color:#16a34a;font-weight:700}
+.m-x{color:#94a3b8}
+.m-neg{color:#ef4444;font-weight:600}
+.m-pos{color:#2563eb;font-weight:600}
+.m-txt{color:#94a3b8;font-size:.72rem;font-style:italic}
+.m-total-row td{font-weight:700;border-top:2px solid rgba(100,116,139,.3);background:var(--bg)!important;font-size:.75rem}
+[contenteditable]:focus{outline:2px solid var(--ac);outline-offset:-1px;background:#fffbf0!important}
+.m-legend{font-size:.72rem;color:var(--tl);margin-top:.75rem;padding:.5rem .75rem;background:var(--bg);border-left:3px solid rgba(100,116,139,.3)}
 </style>
 </head>
 <body>
@@ -127,6 +151,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
     <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
     <div class="nav-item" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
+    <div class="nav-item" onclick="showPanel('members')"><span class="nav-icon">👥</span><span class="nav-label">회원 관리</span></div>
   </nav>
   <div class="sidebar-footer">
     <a href="../index.html" class="back-btn">← 사이트로</a>
@@ -275,6 +300,16 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
   </div>
 
+  <!-- 회원 관리 -->
+  <div id="panel-members" class="panel">
+    <div class="page-header">
+      <div class="page-title">회원 관리</div>
+      <div class="page-sub">시즌별 회원 출석 및 정산을 관리해요. 셀을 클릭하면 바로 수정할 수 있어요.</div>
+    </div>
+    <div class="m-tabs" id="member_tabs"></div>
+    <div id="member_content"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+  </div>
+
   <div id="panel-images" class="panel">
     <div class="page-header">
       <div class="page-title">이미지 관리</div>
@@ -348,7 +383,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages();
+  loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers();
 }
 
 // Nav
@@ -692,6 +727,315 @@ function showDetail(type, item) {
   document.getElementById('modal_content').innerHTML = html;
   document.getElementById('modal').style.display = 'flex';
 }
+// ── MEMBERS ──
+let membersData = null;
+let currentSeasonIdx = 0;
+const MEMBERS_KEY = 'members_v1';
+
+const MD_INIT = {seasons:[
+  {id:'s8',name:'시즌 8',period:'2026. 상반기',deposit:20000,
+   sessions:[{n:'1회차',d:'02/07'},{n:'2회차',d:'03/07'},{n:'3회차',d:'04/11'},{n:'4회차',d:'05/09'},{n:'5회차',d:'06/13'}],
+   members:[
+    {name:'김예원',phone:'010-9757-9891',att:['O','-5000','-5000','O','-10000'],total:-20000,note:''},
+    {name:'김유희',phone:'010-9922-7354',att:['O','O','O','O','O'],total:0,note:''},
+    {name:'박정환',phone:'010-9497-6255',att:['O','O','O','O','-10000'],total:-10000,note:''},
+    {name:'송민정',phone:'010-5113-7537',att:['X','-10000','X','X','O'],total:-10000,note:''},
+    {name:'임상우',phone:'010-9332-1563',att:['O','O','X','O','O'],total:0,note:''},
+    {name:'제갈란',phone:'010-4787-8455',att:['O','O','O','O','-7000'],total:-7000,note:''},
+    {name:'최지명',phone:'010-3723-8679',att:['O','X','O','-7000','O'],total:-7000,note:''},
+   ]},
+  {id:'s7',name:'시즌 7',period:'2025. 하반기',deposit:20000,
+   sessions:[{n:'1회차',d:'8/09'},{n:'2회차',d:'9/13'},{n:'3회차',d:'10/18'},{n:'4회차',d:'11/08'},{n:'5회차',d:'12/13'}],
+   members:[
+    {name:'김가현',phone:'01065751615',att:['O','X','X','X','-7000'],total:13000,note:''},
+    {name:'김예원',phone:'010-9757-9891',att:['X','1889','-10000','4285','5167'],total:21341,note:''},
+    {name:'박송이',phone:'010-5259-3832',att:['O','X','5000','-10000','X'],total:15000,note:''},
+    {name:'박정환',phone:'010-9497-6255',att:['O','1889','5000','4285','X'],total:31174,note:''},
+    {name:'송민정',phone:'01051137537',att:['O','1889','-10000','4285','5167'],total:21341,note:''},
+    {name:'염제명',phone:'',att:['O','1889','5000','4285','5167'],total:36341,note:''},
+    {name:'용인주',phone:'01090391080',att:['O','-7000','5000','X','X'],total:18000,note:''},
+    {name:'이정연',phone:'01029956274',att:['O','1889','X','-10000','-10000'],total:1889,note:''},
+    {name:'정유진',phone:'010 8252 4389',att:['X','X','-10000','X','5167'],total:15167,note:''},
+    {name:'제갈란',phone:'010-4787-8455',att:['X','1889','5000','4285','5167'],total:36341,note:''},
+    {name:'주윤정',phone:'01034696625',att:['X','-10000','5000','-10000','-7000'],total:-2000,note:''},
+    {name:'지수연',phone:'01023755900',att:['O','1889','-10000','4285','-7000'],total:9174,note:''},
+    {name:'최지명',phone:'01037238679',att:['X','1889','5000','4285','X (온라인)'],total:31174,note:''},
+    {name:'홍민아',phone:'01033403712',att:['O','1889','5000','X','5167'],total:32056,note:''},
+   ]},
+  {id:'s6',name:'시즌 6',period:'2025. 상반기',deposit:20000,
+   sessions:[{n:'2회차',d:'3/16'},{n:'3회차',d:'10/7'},{n:'4회차',d:'11/09'},{n:'5회차',d:'12/09'}],
+   members:[
+    {name:'강연정',phone:'',att:['-5000','-5000','2857','3666'],total:16523,note:'2회차, 3회차 - 지각'},
+    {name:'김가현',phone:'',att:['1889','3143','2857','3666'],total:31555,note:''},
+    {name:'김채은',phone:'',att:['1889','X','통보결석','통보결석'],total:21889,note:''},
+    {name:'박송이',phone:'',att:['1889','3143','-10000','3666'],total:18698,note:'4회차 - 결석'},
+    {name:'박정환',phone:'',att:['1889','통보결석','2857','통보결석'],total:24746,note:''},
+    {name:'서다영',phone:'',att:['통보결석','통보결석','통보결석','통보결석'],total:20000,note:''},
+    {name:'염제명',phone:'',att:['1889','3143','2857','3666'],total:31555,note:''},
+    {name:'용인주',phone:'',att:['-7000','3143','2857','-7000'],total:12000,note:'2회차 지각, 5회차 지각'},
+    {name:'이정연',phone:'',att:['-5000','3143','통보결석','-5000'],total:13143,note:'2회차 이석, 5회차 지각'},
+    {name:'임상우',phone:'',att:['1889','-7000','-5000','-5000'],total:4889,note:'3·4·5회차 지각'},
+    {name:'정유진',phone:'',att:['1889','통보결석','2857','통보결석'],total:24746,note:''},
+    {name:'제갈란',phone:'',att:['1889','3143','2857','3666'],total:31555,note:''},
+    {name:'최지명',phone:'',att:['1889','-10000','-5000','-5000'],total:1889,note:'3회차 늦통결, 4·5회차 지각'},
+    {name:'한지혜',phone:'',att:['통보결석','3143','통보결석','3666'],total:26809,note:''},
+   ]},
+  {id:'s5',name:'시즌 5',period:'2024. 하반기',deposit:20000,
+   sessions:[{n:'2회차',d:'3/16'},{n:'3회차',d:'10/7'},{n:'4회차',d:'11/09'},{n:'5회차',d:'12/09'}],
+   members:[
+    {name:'강연정',phone:'',att:['통보결석','6666','통보결석','1666'],total:28332,note:''},
+    {name:'박정환',phone:'',att:['통보결석','-10000','2500','1666'],total:14166,note:''},
+    {name:'박송이',phone:'',att:['3500','6666','통보결석','통보결석'],total:30166,note:''},
+    {name:'임상우',phone:'',att:['-7000','-10000','-5000','-5000'],total:-7000,note:''},
+    {name:'염제명',phone:'',att:['3500','6666','2500','1666'],total:34332,note:''},
+   ]},
+  {id:'s4',name:'시즌 4',period:'2024. 상반기',deposit:20000,
+   sessions:[{n:'2회차',d:'3/16'},{n:'3회차',d:'10/7'},{n:'4회차',d:'11/11'},{n:'5회차',d:'12/09'}],
+   members:[
+    {name:'김가현',phone:'',att:['1250','2143','1429','714'],total:25536,note:''},
+    {name:'김다인',phone:'',att:['1250','-10000','1429','714'],total:13393,note:''},
+    {name:'김유리',phone:'',att:['1250','2143','통보결석','통보결석'],total:23393,note:''},
+    {name:'남지우',phone:'',att:['1250','-5000','-10000','714'],total:6964,note:''},
+    {name:'민세희',phone:'',att:['1250','2143','1429','714'],total:25536,note:''},
+    {name:'박송이',phone:'',att:['1250','2143','1429','714'],total:25536,note:''},
+    {name:'박정환',phone:'',att:['1250','2143','1429','714'],total:25536,note:''},
+    {name:'임상우',phone:'',att:['-10000','2143','1429','-5000'],total:8572,note:''},
+    {name:'염제명',phone:'',att:['1250','2143','1429','714'],total:25536,note:''},
+    {name:'이석찬',phone:'',att:['','','',''],total:0,note:'업무로 이탈'},
+   ]},
+  {id:'s3',name:'시즌 3',period:'2023. 하반기',deposit:20000,
+   sessions:[{n:'1회차',d:'9/9'},{n:'2회차',d:'10/7'},{n:'3회차',d:'11/11'},{n:'4회차',d:'12/09'}],
+   members:[
+    {name:'김민경',phone:'',att:['-7000','6166','-10000','통보결석'],total:9166,note:'지각 - 가족모임(늦통)'},
+    {name:'김신애',phone:'',att:['2125','-10000','1428','통보결석'],total:13553,note:'결(늦통)'},
+    {name:'문하서',phone:'',att:['2125','6166','1428','1428'],total:31147,note:''},
+    {name:'민세희',phone:'',att:['2125','6166','1428','1428'],total:31147,note:''},
+    {name:'박송이',phone:'',att:['2125','-7000','통보결석','1428'],total:16553,note:'지각'},
+    {name:'박정환',phone:'',att:['2125','6166','1428','1428'],total:31147,note:''},
+    {name:'이석찬',phone:'',att:['2125','-10000','통보결석','1428'],total:13553,note:'결(늦통)'},
+    {name:'임정아',phone:'',att:['2125','-10000','1428','-10000'],total:3553,note:'결(늦통)'},
+    {name:'염제명',phone:'',att:['2125','6166','1428','1428'],total:31147,note:''},
+    {name:'장미진',phone:'',att:['-10000','6166','1428','1428'],total:19022,note:'결(늦통)'},
+   ]},
+  {id:'s2',name:'시즌 2',period:'2023. 상반기',deposit:20000,
+   sessions:[{n:'1회차',d:'3/11'},{n:'2회차',d:'4/8'},{n:'3회차',d:'5/13'},{n:'4회차',d:'6/10'}],
+   members:[
+    {name:'구자운',phone:'',att:['합류전','-10000','6000','3000'],total:19000,note:'결-월요일 이후 통'},
+    {name:'김기현',phone:'',att:['1000','3571','-10000','미리통결'],total:14571,note:'결-전날 통'},
+    {name:'김신애',phone:'',att:['-7000','3571','-10000','미리통결'],total:6571,note:'지-10분 이후/전날 통'},
+    {name:'김예지',phone:'',att:['1000','-10000','미리통결','3000'],total:14000,note:'결-월요일 이후 통'},
+    {name:'박규나',phone:'',att:['1000','-5000','-10000','-10000'],total:-4000,note:'지-10분 이전/결-목통/결-토통'},
+    {name:'박송이',phone:'',att:['합류전','3571','6000','미리통결'],total:29571,note:''},
+    {name:'박정환',phone:'',att:['1000','3571','6000','3000'],total:33571,note:''},
+    {name:'염제명',phone:'',att:['1000','3571','6000','3000'],total:33571,note:''},
+    {name:'이석찬',phone:'',att:['1000','3571','6000','-5000'],total:25571,note:'지-10분 이전'},
+    {name:'한지혜',phone:'',att:['1000','3571','미리통결','3000'],total:27571,note:''},
+   ]},
+]};
+
+function parseAmt(v) {
+  if (!v) return 0;
+  const m = (v+'').match(/-?[\d]+/);
+  return m ? parseInt(m[0]) : 0;
+}
+
+function fmtAmt(n) {
+  if (n === 0) return '₩0';
+  return (n < 0 ? '-₩' : '₩') + Math.abs(n).toLocaleString();
+}
+
+function cellClass(v) {
+  if (!v || v === '') return '';
+  if (v === 'O') return 'm-ok';
+  if (v.toString().startsWith('X')) return 'm-x';
+  const n = parseAmt(v);
+  if (n < 0) return 'm-neg';
+  if (n > 0) return 'm-pos';
+  return 'm-txt';
+}
+
+function cellDisplay(v) {
+  if (!v || v === '') return '';
+  const n = parseAmt(v);
+  if (v === 'O' || v.toString().startsWith('X') || isNaN(n) || n === 0 && !/\d/.test(v)) return v;
+  return (n < 0 ? '-₩' : '+₩') + Math.abs(n).toLocaleString();
+}
+
+async function initMembers() {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.${MEMBERS_KEY}&select=value`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const rows = await res.json();
+    if (rows && rows.length && rows[0].value) {
+      membersData = JSON.parse(rows[0].value);
+    } else {
+      membersData = JSON.parse(JSON.stringify(MD_INIT));
+      await saveMembersData(false);
+    }
+  } catch(e) {
+    membersData = JSON.parse(JSON.stringify(MD_INIT));
+  }
+  renderMemberTabs();
+  renderMemberSeason(0);
+}
+
+async function saveMembersData(showToast=true) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ key: MEMBERS_KEY, value: JSON.stringify(membersData), updated_at: new Date().toISOString() })
+  });
+  if (showToast) res.ok ? toast('저장됐어요!') : toast('저장 실패', true);
+}
+
+function renderMemberTabs() {
+  const tabs = document.getElementById('member_tabs');
+  tabs.innerHTML = membersData.seasons.map((s, i) =>
+    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})">${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small></button>`
+  ).join('') +
+  `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+}
+
+function switchSeason(i) {
+  currentSeasonIdx = i;
+  renderMemberTabs();
+  renderMemberSeason(i);
+}
+
+function renderMemberSeason(si) {
+  const s = membersData.seasons[si];
+  const sc = s.sessions.length;
+  const thSessions = s.sessions.map(ss =>
+    `<th>${ss.n}<br><small style="font-weight:400;opacity:.7">${ss.d}</small></th>`
+  ).join('');
+
+  const rows = s.members.map((m, mi) => {
+    const cells = s.sessions.map((_, ci) => {
+      const v = m.att[ci] !== undefined ? m.att[ci] : '';
+      const cls = cellClass(v);
+      const disp = cellDisplay(v);
+      return `<td class="${cls}" contenteditable="true"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateCell(${si},${mi},${ci},this.innerText.trim())">${disp}</td>`;
+    }).join('');
+    const totalN = m.total;
+    const totalCls = totalN < 0 ? 'm-neg' : totalN > 0 ? 'm-pos' : '';
+    const totalDisp = fmtAmt(totalN);
+    return `<tr>
+      <td class="m-num">${mi+1}</td>
+      <td class="m-name" contenteditable="true"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateMember(${si},${mi},'name',this.innerText.trim())">${m.name}</td>
+      <td class="m-phone" contenteditable="true"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateMember(${si},${mi},'phone',this.innerText.trim())">${m.phone}</td>
+      <td style="color:var(--tl)">₩${s.deposit.toLocaleString()}</td>
+      ${cells}
+      <td class="${totalCls}" style="font-weight:700" contenteditable="true"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateMemberTotal(${si},${mi},this.innerText.trim())">${totalDisp}</td>
+      <td class="m-note" contenteditable="true"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateMember(${si},${mi},'note',this.innerText.trim())">${m.note}</td>
+      <td><button style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5" onclick="deleteMember(${si},${mi})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // 회차별 합계 행
+  const colSums = s.sessions.map((_, ci) => {
+    const sum = s.members.reduce((acc, m) => acc + parseAmt(m.att[ci]), 0);
+    return `<td style="font-size:.72rem;color:${sum<0?'#ef4444':sum>0?'#2563eb':'var(--tl)'}">${sum!==0?fmtAmt(sum):''}</td>`;
+  }).join('');
+  const grandTotal = s.members.reduce((acc, m) => acc + m.total, 0);
+
+  document.getElementById('member_content').innerHTML = `
+    <div class="card" style="padding:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
+        <div>
+          <span style="font-weight:700;font-size:1rem">${s.name}</span>
+          <span style="color:var(--tl);font-size:.85rem;margin-left:.75rem">${s.period}</span>
+          <span style="color:var(--tl);font-size:.82rem;margin-left:.75rem">디파짓 ₩${s.deposit.toLocaleString()} · ${s.members.length}명</span>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="addMemberRow(${si})">+ 회원 추가</button>
+          <button class="btn btn-ghost btn-sm" onclick="addSession(${si})">+ 회차 추가</button>
+          <button class="btn btn-primary btn-sm" onclick="saveMembersData()">💾 저장</button>
+        </div>
+      </div>
+      <div class="m-scroll">
+        <table class="m-table">
+          <thead><tr>
+            <th>#</th><th>이름</th><th>연락처</th><th>디파짓</th>
+            ${thSessions}
+            <th>총합계</th><th>비고</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr class="m-total-row">
+            <td colspan="4" style="text-align:right;font-size:.72rem;color:var(--tl)">회차 합계</td>
+            ${colSums}
+            <td style="font-weight:700;color:${grandTotal<0?'#ef4444':grandTotal>0?'#2563eb':'var(--ts)'}">${fmtAmt(grandTotal)}</td>
+            <td colspan="2"></td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <div class="m-legend">
+        <b>O</b> 출석 &nbsp;|&nbsp; <b>X</b> 결석 &nbsp;|&nbsp; <b>통보결석</b> 사전통보 결석(패널티 없음) &nbsp;|&nbsp;
+        지각(-₩5,000/-₩7,000) &nbsp;|&nbsp; 늦통결(-₩10,000) &nbsp;|&nbsp; 양수: 분배금
+      </div>
+    </div>`;
+}
+
+function updateCell(si, mi, ci, val) {
+  // 표시 형식을 저장 형식으로 변환 (+₩1,000 → 1000, -₩5,000 → -5000)
+  let store = val.replace(/\+?₩|,/g, '').trim();
+  membersData.seasons[si].members[mi].att[ci] = store;
+  // 셀 색상 재적용 (contenteditable 내용은 유지, 클래스만 업데이트)
+  renderMemberSeason(si);
+}
+
+function updateMember(si, mi, field, val) {
+  membersData.seasons[si].members[mi][field] = val;
+}
+
+function updateMemberTotal(si, mi, val) {
+  const n = parseInt(val.replace(/[₩+,\s]/g, '')) || 0;
+  membersData.seasons[si].members[mi].total = val.includes('-') ? -Math.abs(n) : n;
+}
+
+function addMemberRow(si) {
+  const sc = membersData.seasons[si].sessions.length;
+  membersData.seasons[si].members.push({ name:'', phone:'', att: Array(sc).fill(''), total:0, note:'' });
+  renderMemberSeason(si);
+}
+
+function deleteMember(si, mi) {
+  if (!confirm('삭제할까요?')) return;
+  membersData.seasons[si].members.splice(mi, 1);
+  renderMemberSeason(si);
+}
+
+function addSession(si) {
+  const n = prompt('회차 이름 (예: 6회차)');
+  if (!n) return;
+  const d = prompt('날짜 (예: 07/11)');
+  membersData.seasons[si].sessions.push({ n, d: d||'' });
+  membersData.seasons[si].members.forEach(m => m.att.push(''));
+  renderMemberSeason(si);
+}
+
+function addSeason() {
+  const name = prompt('시즌 이름 (예: 시즌 9)');
+  if (!name) return;
+  const period = prompt('기간 (예: 2026. 하반기)') || '';
+  const deposit = parseInt(prompt('디파짓 금액 (예: 20000)') || '20000');
+  membersData.seasons.unshift({ id:'s'+Date.now(), name, period, deposit, sessions:[], members:[] });
+  currentSeasonIdx = 0;
+  renderMemberTabs();
+  renderMemberSeason(0);
+}
+
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
 
