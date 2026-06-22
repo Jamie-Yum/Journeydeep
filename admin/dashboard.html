@@ -1325,24 +1325,36 @@ async function loadHomepagePhotos() {
   HP_SLOTS.forEach(slot => {
     const src = map[slot.key] || '';
     const card = document.createElement('div');
-    card.style.cssText = 'border:1px solid rgba(100,116,139,.3);background:var(--bg);border-radius:0;overflow:hidden;cursor:pointer;position:relative;transition:box-shadow .2s';
+    card.style.cssText = 'border:1px solid rgba(100,116,139,.3);background:var(--bg);border-radius:0;overflow:hidden;position:relative;transition:box-shadow .2s';
     card.onmouseenter = () => card.style.boxShadow = '0 4px 20px rgba(37,99,235,.2)';
     card.onmouseleave = () => card.style.boxShadow = '';
     card.innerHTML = `
       <div style="width:100%;aspect-ratio:4/3;background:#e2e8f0;overflow:hidden;position:relative">
-        ${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">` : ''}
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);opacity:0;transition:opacity .2s" class="hp-overlay">
-          <span style="color:#fff;font-size:.82rem;font-weight:700">사진 교체</span>
+        ${src
+          ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:.8rem">사진 없음</div>`
+        }
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s" class="hp-overlay">
+          ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer;backdrop-filter:blur(4px)">미리보기</button>` : ''}
+          <button onclick="event.stopPropagation();card${slot.key}.click()" style="background:var(--ac);border:none;color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer" id="hpBtn_${slot.key}">교체</button>
         </div>
       </div>
       <div style="padding:.65rem .75rem;font-size:.78rem;font-weight:600;color:var(--ts)">${slot.label}</div>
-      <input type="file" accept="image/*" style="display:none" onchange="replaceHomePhoto(this,'${slot.key}')">
+      <input type="file" accept="image/*" style="display:none" id="card${slot.key}" onchange="replaceHomePhoto(this,'${slot.key}')">
     `;
-    card.querySelector('div').onmouseenter = () => card.querySelector('.hp-overlay').style.opacity = '1';
-    card.querySelector('div').onmouseleave = () => card.querySelector('.hp-overlay').style.opacity = '0';
-    card.onclick = () => card.querySelector('input[type=file]').click();
+    const imgWrap = card.querySelector('div');
+    imgWrap.onmouseenter = () => card.querySelector('.hp-overlay').style.opacity = '1';
+    imgWrap.onmouseleave = () => card.querySelector('.hp-overlay').style.opacity = '0';
     grid.appendChild(card);
   });
+}
+
+function hpPreview(src) {
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:20000;display:flex;align-items:center;justify-content:center;padding:2rem;cursor:zoom-out';
+  m.innerHTML = `<img src="${src}" style="max-width:100%;max-height:90vh;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5)">`;
+  m.onclick = () => m.remove();
+  document.body.appendChild(m);
 }
 
 async function replaceHomePhoto(input, key) {
