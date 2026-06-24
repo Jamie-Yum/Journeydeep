@@ -207,7 +207,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field field-full"><label>대표 이미지 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pg_image" placeholder="https://..."></div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="saveProgram()">저장하기</button>
+        <span id="pg_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
+        <button class="btn btn-primary" id="pg_save_btn" onclick="saveProgram()">저장하기</button>
+        <button class="btn btn-ghost" id="pg_cancel_btn" style="display:none" onclick="pgClearForm()">취소</button>
         <button class="btn btn-ghost" onclick="previewProgram()">👁 미리보기</button>
       </div>
     </div>
@@ -526,6 +528,14 @@ async function sbDelete(table, id) {
   });
   return res.ok;
 }
+async function sbPatch(table, id, data) {
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
+    body: JSON.stringify(data)
+  });
+  return res.ok;
+}
 
 // Toast
 function toast(msg, err=false) {
@@ -536,11 +546,13 @@ function toast(msg, err=false) {
 }
 
 // ── PROGRAMS ──
-async function saveProgram() {
-  const title = document.getElementById('pg_title').value.trim();
-  if (!title) { toast('제목을 입력해 주세요.', true); return; }
-  const ok = await sbPost('JD_programs', {
-    title, badge: document.getElementById('pg_badge').value,
+let _editingProgramId = null;
+const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'];
+
+function pgFormData() {
+  return {
+    title: document.getElementById('pg_title').value.trim(),
+    badge: document.getElementById('pg_badge').value,
     subtitle: document.getElementById('pg_subtitle').value,
     description: document.getElementById('pg_desc').value,
     date_start: document.getElementById('pg_start').value,
@@ -551,9 +563,44 @@ async function saveProgram() {
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
     image_url: document.getElementById('pg_image').value,
-    visible: true
-  });
-  if (ok) { toast('프로그램이 저장됐어요!'); ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'].forEach(id => document.getElementById(id).value=''); loadPrograms(); }
+  };
+}
+
+function pgClearForm() {
+  PG_FIELDS.forEach(id => document.getElementById(id).value = '');
+  _editingProgramId = null;
+  document.getElementById('pg_save_btn').textContent = '저장하기';
+  document.getElementById('pg_cancel_btn').style.display = 'none';
+  document.getElementById('pg_form_status').textContent = '';
+}
+
+function editProgram(p) {
+  document.getElementById('pg_title').value = p.title || '';
+  document.getElementById('pg_badge').value = p.badge || '';
+  document.getElementById('pg_subtitle').value = p.subtitle || '';
+  document.getElementById('pg_desc').value = p.description || '';
+  document.getElementById('pg_start').value = p.date_start || '';
+  document.getElementById('pg_end').value = p.date_end || '';
+  document.getElementById('pg_venue').value = p.venue || '';
+  document.getElementById('pg_fee').value = p.fee || '';
+  document.getElementById('pg_capacity').value = p.capacity || '';
+  document.getElementById('pg_apply').value = p.apply_link || '';
+  document.getElementById('pg_page_url').value = p.page_url || '';
+  document.getElementById('pg_image').value = p.image_url || '';
+  _editingProgramId = p.id;
+  document.getElementById('pg_save_btn').textContent = '수정 저장';
+  document.getElementById('pg_cancel_btn').style.display = 'inline-flex';
+  document.getElementById('pg_form_status').textContent = `"${p.title}" 수정 중`;
+  document.getElementById('pg_form_status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function saveProgram() {
+  const data = pgFormData();
+  if (!data.title) { toast('제목을 입력해 주세요.', true); return; }
+  const ok = _editingProgramId
+    ? await sbPatch('JD_programs', _editingProgramId, data)
+    : await sbPost('JD_programs', { ...data, visible: true });
+  if (ok) { toast(_editingProgramId ? '수정됐어요 ✓' : '저장됐어요 ✓'); pgClearForm(); loadPrograms(); }
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
@@ -570,6 +617,7 @@ async function loadPrograms() {
       <div class="item-actions">
         ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm">페이지 보기</a>` : ''}
         ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick='editProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
