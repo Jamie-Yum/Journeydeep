@@ -203,6 +203,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>참가비</label><input id="pg_fee" placeholder="예: 150,000원"></div>
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
+        <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
         <div class="field field-full"><label>대표 이미지 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pg_image" placeholder="https://..."></div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
@@ -548,10 +549,11 @@ async function saveProgram() {
     fee: document.getElementById('pg_fee').value,
     capacity: document.getElementById('pg_capacity').value,
     apply_link: document.getElementById('pg_apply').value,
+    page_url: document.getElementById('pg_page_url').value,
     image_url: document.getElementById('pg_image').value,
     visible: true
   });
-  if (ok) { toast('프로그램이 저장됐어요!'); ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_image'].forEach(id => document.getElementById(id).value=''); loadPrograms(); }
+  if (ok) { toast('프로그램이 저장됐어요!'); ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'].forEach(id => document.getElementById(id).value=''); loadPrograms(); }
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
@@ -562,10 +564,12 @@ async function loadPrograms() {
   el.innerHTML = '<div class="item-list">' + data.map(p => `
     <div class="item-row">
       <div class="item-info">
-        <h4>${p.title}</h4>
+        <h4>${p.badge ? `<span style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-right:.5rem">${p.badge}</span>` : ''}${p.title}</h4>
         <p>${p.date_start || ''}${p.date_end ? ' ~ ' + p.date_end : ''} ${p.venue ? '· ' + p.venue : ''}</p>
       </div>
       <div class="item-actions">
+        ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm">페이지 보기</a>` : ''}
+        ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
