@@ -204,7 +204,15 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
-        <div class="field field-full"><label>히어로 배경 이미지 URL <span style="font-weight:400;color:var(--tl)">(프로그램 페이지 상단 배경 이미지 — 이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pg_image" placeholder="https://..."></div>
+        <div class="field field-full">
+          <label>히어로 배경 이미지 <span style="font-weight:400;color:var(--tl)">(프로그램 페이지 상단 배경)</span></label>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <input id="pg_image" placeholder="https://..." style="flex:1">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('pg_image_file').click()">📁 업로드</button>
+            <input type="file" id="pg_image_file" accept="image/*" style="display:none" onchange="inlineUpload(this.files[0],'pg_image','pg_image_preview');this.value=''">
+          </div>
+          <img id="pg_image_preview" src="" style="display:none;margin-top:.5rem;max-height:120px;object-fit:cover;border:1px solid var(--be);width:100%">
+        </div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
         <span id="pg_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
@@ -233,7 +241,15 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>도서 제목</label><input id="pr_book" placeholder="예: 익숙한 것과의 결별"></div>
         <div class="field"><label>발제자</label><input id="pr_author" placeholder="이름"></div>
         <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
-        <div class="field field-full"><label>첨부 파일 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pr_file" placeholder="https://..."></div>
+        <div class="field field-full">
+          <label>첨부 파일 / 이미지</label>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <input id="pr_file" placeholder="https://..." style="flex:1">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('pr_file_input').click()">📁 업로드</button>
+            <input type="file" id="pr_file_input" accept="image/*" style="display:none" onchange="inlineUpload(this.files[0],'pr_file','pr_file_preview');this.value=''">
+          </div>
+          <img id="pr_file_preview" src="" style="display:none;margin-top:.5rem;max-height:120px;object-fit:cover;border:1px solid var(--be);width:100%">
+        </div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
         <span id="pr_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
@@ -273,7 +289,15 @@ tr:hover td{background:rgba(37,99,235,.03)}
           </div>
           <div class="rich-editor" id="col_body" contenteditable="true"></div>
         </div>
-        <div class="field field-full"><label>대표 이미지 URL</label><input id="col_image" placeholder="https://..."></div>
+        <div class="field field-full">
+          <label>대표 이미지</label>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <input id="col_image" placeholder="https://..." style="flex:1">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('col_image_file').click()">📁 업로드</button>
+            <input type="file" id="col_image_file" accept="image/*" style="display:none" onchange="inlineUpload(this.files[0],'col_image','col_image_preview');this.value=''">
+          </div>
+          <img id="col_image_preview" src="" style="display:none;margin-top:.5rem;max-height:120px;object-fit:cover;border:1px solid var(--be);width:100%">
+        </div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
         <span id="col_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
@@ -591,6 +615,7 @@ function editProgram(p) {
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
   document.getElementById('pg_image').value = p.image_url || '';
+  const pgPrev = document.getElementById('pg_image_preview'); if(pgPrev){pgPrev.src=p.image_url||'';pgPrev.style.display=p.image_url?'block':'none';}
   _editingProgramId = p.id;
   document.getElementById('pg_save_btn').textContent = '수정 저장';
   document.getElementById('pg_cancel_btn').style.display = 'inline-flex';
@@ -713,6 +738,7 @@ function editColumn(c) {
   document.getElementById('col_excerpt').value = c.excerpt || '';
   document.getElementById('col_url').value = c.url || '';
   document.getElementById('col_image').value = c.cover_url || '';
+  const colPrev = document.getElementById('col_image_preview'); if(colPrev){colPrev.src=c.cover_url||'';colPrev.style.display=c.cover_url?'block':'none';}
   document.getElementById('col_body').innerHTML = c.content || '';
   _editingColumnId = c.id;
   document.getElementById('col_save_btn').textContent = '수정 저장';
@@ -1594,6 +1620,19 @@ async function loadHomepagePhotos() {
     imgWrap.onmouseenter = () => card.querySelector('.hp-overlay').style.opacity = '1';
     imgWrap.onmouseleave = () => card.querySelector('.hp-overlay').style.opacity = '0';
     grid.appendChild(card);
+  });
+}
+
+function inlineUpload(file, targetId, previewId) {
+  openCropModal(file, async blob => {
+    const fname = 'content/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
+    toast('업로드 중...');
+    const res = await uploadBlob(blob, fname);
+    if (!res.ok) { toast('업로드 실패: ' + (res._err||''), true); return; }
+    const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
+    document.getElementById(targetId).value = url;
+    if (previewId) { const p = document.getElementById(previewId); if(p){p.src=url;p.style.display='block';} }
+    toast('업로드 완료 ✓');
   });
 }
 
