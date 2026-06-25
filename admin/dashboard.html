@@ -500,12 +500,14 @@ tr:hover td{background:rgba(37,99,235,.03)}
 <script>
 const SUPA_URL = 'https://dvlrzbckneucpvlacdll.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
-const ADMIN_PW = 'journeydeep2026';
+const ADMIN_PW_HASH = '354948ef61d10149fa91ad1bf6a8676f94e7d6f2b0f7d1920797b8fbe56b3c81';
 
 // Auth
-function checkPw() {
+async function checkPw() {
   const val = document.getElementById('pwInput').value;
-  if (val === ADMIN_PW) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(val));
+  const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (hash === ADMIN_PW_HASH) {
     sessionStorage.setItem('jd_admin', '1');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appWrap').style.display = 'flex';
