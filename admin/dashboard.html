@@ -236,7 +236,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field field-full"><label>첨부 파일 URL <span style="font-weight:400;color:var(--tl)">(이미지 탭에서 업로드 후 URL 복사)</span></label><input id="pr_file" placeholder="https://..."></div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="saveProposal()">저장하기</button>
+        <span id="pr_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
+        <button class="btn btn-primary" id="pr_save_btn" onclick="saveProposal()">저장하기</button>
+        <button class="btn btn-ghost" id="pr_cancel_btn" style="display:none" onclick="prClearForm()">취소</button>
         <button class="btn btn-ghost" onclick="previewProposal()">👁 미리보기</button>
       </div>
     </div>
@@ -274,7 +276,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field field-full"><label>대표 이미지 URL</label><input id="col_image" placeholder="https://..."></div>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="saveColumn()">저장하기</button>
+        <span id="col_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
+        <button class="btn btn-primary" id="col_save_btn" onclick="saveColumn()">저장하기</button>
+        <button class="btn btn-ghost" id="col_cancel_btn" style="display:none" onclick="colClearForm()">취소</button>
         <button class="btn btn-ghost" onclick="previewColumn()">👁 미리보기</button>
       </div>
     </div>
@@ -624,19 +628,46 @@ async function loadPrograms() {
 }
 
 // ── PROPOSALS ──
+let _editingProposalId = null;
+const PR_FIELDS = ['pr_season','pr_session','pr_book','pr_author','pr_content','pr_file'];
+
+function prClearForm() {
+  PR_FIELDS.forEach(id => document.getElementById(id).value = '');
+  _editingProposalId = null;
+  document.getElementById('pr_save_btn').textContent = '저장하기';
+  document.getElementById('pr_cancel_btn').style.display = 'none';
+  document.getElementById('pr_form_status').textContent = '';
+}
+
+function editProposal(p) {
+  document.getElementById('pr_season').value = p.season || '';
+  document.getElementById('pr_session').value = p.session_number || '';
+  document.getElementById('pr_book').value = p.book_title || '';
+  document.getElementById('pr_author').value = p.author_name || '';
+  document.getElementById('pr_content').value = p.content || '';
+  document.getElementById('pr_file').value = p.file_url || '';
+  _editingProposalId = p.id;
+  document.getElementById('pr_save_btn').textContent = '수정 저장';
+  document.getElementById('pr_cancel_btn').style.display = 'inline-flex';
+  document.getElementById('pr_form_status').textContent = `"${p.book_title}" 수정 중`;
+  document.getElementById('pr_form_status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 async function saveProposal() {
   const book = document.getElementById('pr_book').value.trim();
   if (!book) { toast('도서 제목을 입력해 주세요.', true); return; }
-  const ok = await sbPost('JD_proposals', {
+  const data = {
     season: document.getElementById('pr_season').value,
     session_number: document.getElementById('pr_session').value,
     book_title: book,
     author_name: document.getElementById('pr_author').value,
     content: document.getElementById('pr_content').value,
     file_url: document.getElementById('pr_file').value,
-    visible: true
-  });
-  if (ok) { toast('발제문이 저장됐어요!'); ['pr_season','pr_session','pr_book','pr_author','pr_content','pr_file'].forEach(id => document.getElementById(id).value=''); loadProposals(); }
+  };
+  const ok = _editingProposalId
+    ? await sbPatch('JD_proposals', _editingProposalId, data)
+    : await sbPost('JD_proposals', { ...data, visible: true });
+  if (ok) { toast(_editingProposalId ? '수정됐어요 ✓' : '발제문이 저장됐어요 ✓'); prClearForm(); loadProposals(); }
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
@@ -652,6 +683,7 @@ async function loadProposals() {
       </div>
       <div class="item-actions">
         <button class="btn btn-ghost btn-sm" onclick="showDetail('proposal',${JSON.stringify(p).replace(/"/g,'&quot;')})">보기</button>
+        <button class="btn btn-ghost btn-sm" onclick='editProposal(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_proposals','${p.id}',loadProposals)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
@@ -661,10 +693,38 @@ async function loadProposals() {
 function fmt(cmd) { document.execCommand(cmd, false, null); document.getElementById('col_body').focus(); }
 function insertHr() { document.execCommand('insertHTML', false, '<hr>'); }
 
+let _editingColumnId = null;
+const COL_FIELDS = ['col_title','col_author','col_category','col_emoji','col_excerpt','col_url','col_image'];
+
+function colClearForm() {
+  COL_FIELDS.forEach(id => document.getElementById(id).value = '');
+  document.getElementById('col_body').innerHTML = '';
+  _editingColumnId = null;
+  document.getElementById('col_save_btn').textContent = '저장하기';
+  document.getElementById('col_cancel_btn').style.display = 'none';
+  document.getElementById('col_form_status').textContent = '';
+}
+
+function editColumn(c) {
+  document.getElementById('col_title').value = c.title || '';
+  document.getElementById('col_author').value = c.author || '';
+  document.getElementById('col_category').value = c.category || '';
+  document.getElementById('col_emoji').value = c.emoji || '';
+  document.getElementById('col_excerpt').value = c.excerpt || '';
+  document.getElementById('col_url').value = c.url || '';
+  document.getElementById('col_image').value = c.cover_url || '';
+  document.getElementById('col_body').innerHTML = c.content || '';
+  _editingColumnId = c.id;
+  document.getElementById('col_save_btn').textContent = '수정 저장';
+  document.getElementById('col_cancel_btn').style.display = 'inline-flex';
+  document.getElementById('col_form_status').textContent = `"${c.title}" 수정 중`;
+  document.getElementById('col_form_status').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 async function saveColumn() {
   const title = document.getElementById('col_title').value.trim();
   if (!title) { toast('제목을 입력해 주세요.', true); return; }
-  const ok = await sbPost('JD_columns', {
+  const data = {
     title,
     author: document.getElementById('col_author').value,
     category: document.getElementById('col_category').value,
@@ -673,10 +733,11 @@ async function saveColumn() {
     url: document.getElementById('col_url').value,
     content: document.getElementById('col_body').innerHTML,
     cover_url: document.getElementById('col_image').value,
-    date: new Date().toISOString().slice(0,10),
-    visible: true
-  });
-  if (ok) { toast('칼럼이 저장됐어요!'); ['col_title','col_author','col_category','col_emoji','col_excerpt','col_url','col_image'].forEach(id => document.getElementById(id).value=''); document.getElementById('col_body').innerHTML=''; loadColumns(); }
+  };
+  const ok = _editingColumnId
+    ? await sbPatch('JD_columns', _editingColumnId, data)
+    : await sbPost('JD_columns', { ...data, date: new Date().toISOString().slice(0,10), visible: true });
+  if (ok) { toast(_editingColumnId ? '수정됐어요 ✓' : '칼럼이 저장됐어요 ✓'); colClearForm(); loadColumns(); }
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
@@ -688,10 +749,11 @@ async function loadColumns() {
     <div class="item-row">
       <div class="item-info">
         <h4>${c.title}</h4>
-        <p>${c.author || ''} ${c.season ? '· ' + c.season : ''} ${c.tag ? '· ' + c.tag : ''}</p>
+        <p>${c.author || ''} ${c.category ? '· ' + c.category : ''}</p>
       </div>
       <div class="item-actions">
         <button class="btn btn-ghost btn-sm" onclick="showDetail('column',${JSON.stringify(c).replace(/"/g,'&quot;')})">보기</button>
+        <button class="btn btn-ghost btn-sm" onclick='editColumn(${JSON.stringify(c).replace(/'/g,"&#39;")})'>수정</button>
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_columns','${c.id}',loadColumns)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
