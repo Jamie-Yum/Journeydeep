@@ -227,15 +227,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </div><div class="reveal" style="padding:2rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.5)">
   <div style="font-size:1.5rem;margin-bottom:.75rem">📍</div>
   <div style="font-size:.78rem;font-weight:600;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem">장소</div>
-  <div style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">을지로와 종로, 모임하기 좋은 공간</div>
+  <div id="s9_venue" style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">을지로와 종로, 모임하기 좋은 공간</div>
 </div><div class="reveal" style="padding:2rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.5)">
   <div style="font-size:1.5rem;margin-bottom:.75rem">💰</div>
   <div style="font-size:.78rem;font-weight:600;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem">회비</div>
-  <div style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">추후 안내 예정</div>
+  <div id="s9_fee" style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">추후 안내 예정</div>
 </div><div class="reveal" style="padding:2rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.5)">
   <div style="font-size:1.5rem;margin-bottom:.75rem">👥</div>
   <div style="font-size:.78rem;font-weight:600;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem">정원</div>
-  <div style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">최대 12명</div>
+  <div id="s9_capacity" style="font-size:1rem;color:var(--dk);font-weight:500;line-height:1.6">최대 12명</div>
 </div>
 </div>
 </div></section><section class="section" id="season-books" style="background:var(--bg)"><div class="section-container">
@@ -401,4 +401,19 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
 
 
 
+<script>
+(function(){
+  var SU='https://dvlrzbckneucpvlacdll.supabase.co';
+  var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  fetch(SU+'/rest/v1/JD_programs?badge=eq.SEASON%209&select=fee,capacity,venue,date_start,date_end&limit=1',{
+    headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(!rows||!rows[0])return;
+    var p=rows[0];
+    if(p.fee){var el=document.getElementById('s9_fee');if(el)el.textContent=p.fee;}
+    if(p.capacity){var el2=document.getElementById('s9_capacity');if(el2)el2.textContent=p.capacity;}
+    if(p.venue){var el3=document.getElementById('s9_venue');if(el3)el3.textContent=p.venue;}
+  }).catch(function(){});
+})();
+</script>
 </body></html>
