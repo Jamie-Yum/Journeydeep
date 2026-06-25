@@ -86,6 +86,16 @@ textarea{resize:vertical;min-height:120px;line-height:1.7}
 .resize-preview-label{font-size:.72rem;font-weight:600;color:var(--tl);text-align:center;margin-bottom:.35rem}
 .resize-preview{width:100%;aspect-ratio:unset;object-fit:contain;background:var(--bg);border:1px solid var(--be);display:block;max-height:200px}
 canvas.resize-preview{max-height:200px}
+
+/* Focal point picker */
+.focal-wrap{position:relative;cursor:crosshair;user-select:none;border:1px solid var(--be);background:#0f172a;overflow:hidden}
+.focal-wrap img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.focal-dot{position:absolute;width:22px;height:22px;border-radius:50%;border:2.5px solid #fff;background:rgba(37,99,235,.7);transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 0 2px rgba(0,0,0,.4);transition:left .1s,top .1s}
+.ctx-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.6rem}
+.ctx-preview-item{}
+.ctx-preview-label{font-size:.68rem;font-weight:600;color:var(--tl);margin-bottom:.3rem;text-align:center}
+.ctx-preview-frame{overflow:hidden;background:#e2e8f0;border:1px solid var(--be)}
+.ctx-preview-frame img{width:100%;height:100%;object-fit:cover;display:block;transition:object-position .15s}
 .resize-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
 .resize-label{font-size:.78rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.3rem}
 .resize-input{width:100%;padding:.55rem .75rem;border:1px solid rgba(100,116,139,.3);font-size:.88rem;font-family:'Pretendard',sans-serif;outline:none}
@@ -450,13 +460,14 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <button onclick="closeResizeModal()" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tl)">✕</button>
     </div>
+    <!-- 크기 조정 -->
     <div class="resize-preview-wrap">
       <div>
         <div class="resize-preview-label">원본</div>
         <img id="resize_preview" class="resize-preview" src="">
       </div>
       <div>
-        <div class="resize-preview-label">미리보기</div>
+        <div class="resize-preview-label">출력 미리보기</div>
         <canvas id="resize_canvas" class="resize-preview"></canvas>
       </div>
     </div>
@@ -470,15 +481,45 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <input class="resize-input" id="resize_h" type="number" oninput="syncResize('h')">
       </div>
     </div>
-    <div style="margin-bottom:1rem">
+    <div style="margin-bottom:.75rem">
       <label class="resize-label">품질 <span id="resize_q_label">85%</span></label>
-      <input type="range" id="resize_q" min="10" max="100" value="85" style="width:100%;accent-color:var(--ac)" oninput="document.getElementById('resize_q_label').textContent=this.value+'%'">
+      <input type="range" id="resize_q" min="10" max="100" value="85" style="width:100%;accent-color:var(--ac)" oninput="document.getElementById('resize_q_label').textContent=this.value+'%';updateOutInfo()">
     </div>
     <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem">
       <input type="checkbox" id="resize_lock" checked style="accent-color:var(--ac)">
       <label for="resize_lock" style="font-size:.82rem;color:var(--ts);cursor:pointer">비율 유지</label>
       <span style="margin-left:auto;font-size:.75rem;color:var(--tl)" id="resize_out_info"></span>
     </div>
+
+    <!-- 포커스 포인트 -->
+    <div style="margin-bottom:1.25rem">
+      <label class="resize-label">포커스 포인트 <span style="font-weight:400;color:var(--tl)">— 클릭해서 화면에 보일 중심 위치 선택</span></label>
+      <div class="focal-wrap" id="focal_wrap" style="height:160px" onmousedown="setFocal(event)">
+        <img id="focal_img" src="">
+        <div class="focal-dot" id="focal_dot" style="left:50%;top:50%"></div>
+      </div>
+      <div style="font-size:.72rem;color:var(--tl);margin-top:.3rem;text-align:right" id="focal_label">중심: 50% 50%</div>
+    </div>
+
+    <!-- 페이지 컨텍스트 미리보기 -->
+    <div style="margin-bottom:1.25rem">
+      <label class="resize-label">페이지 미리보기 <span style="font-weight:400;color:var(--tl)">— 실제 화면에서 어떻게 보이는지</span></label>
+      <div class="ctx-preview-grid">
+        <div class="ctx-preview-item">
+          <div class="ctx-preview-label">PC 히어로</div>
+          <div class="ctx-preview-frame" style="aspect-ratio:21/9"><img id="ctx_pc" src=""></div>
+        </div>
+        <div class="ctx-preview-item">
+          <div class="ctx-preview-label">모바일 히어로</div>
+          <div class="ctx-preview-frame" style="aspect-ratio:9/16;max-height:160px"><img id="ctx_mobile" src=""></div>
+        </div>
+        <div class="ctx-preview-item">
+          <div class="ctx-preview-label">카드 썸네일</div>
+          <div class="ctx-preview-frame" style="aspect-ratio:4/3"><img id="ctx_card" src=""></div>
+        </div>
+      </div>
+    </div>
+
     <div style="display:flex;gap:.75rem">
       <button class="btn btn-primary" style="flex:1" onclick="confirmResize()">업로드</button>
       <button class="btn btn-ghost" onclick="closeResizeModal()">취소</button>
@@ -965,6 +1006,7 @@ function openResizeModal(file, onConfirm) {
       document.getElementById('resize_h').value = img.height;
       document.getElementById('resize_orig_info').textContent = `원본: ${img.width} × ${img.height}px · ${(file.size/1024).toFixed(0)}KB`;
       document.getElementById('resizeModal').style.display = 'flex';
+      initFocalPoint(e.target.result);
       updateOutInfo();
     };
     img.src = e.target.result;
@@ -983,6 +1025,46 @@ function syncResize(changed) {
     document.getElementById('resize_w').value = Math.round(h * ratio);
   }
   updateOutInfo();
+}
+
+/* ── Focal point ── */
+let _focalX = 50, _focalY = 50;
+
+function setFocal(e) {
+  const wrap = document.getElementById('focal_wrap');
+  const rect = wrap.getBoundingClientRect();
+  const onMove = ev => {
+    const x = Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100));
+    _focalX = Math.round(x);
+    _focalY = Math.round(y);
+    document.getElementById('focal_dot').style.left = _focalX + '%';
+    document.getElementById('focal_dot').style.top = _focalY + '%';
+    document.getElementById('focal_label').textContent = `중심: ${_focalX}% ${_focalY}%`;
+    updateCtxPreviews();
+  };
+  const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+  onMove(e);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function updateCtxPreviews() {
+  const src = document.getElementById('resize_preview').src;
+  const pos = _focalX + '% ' + _focalY + '%';
+  ['ctx_pc','ctx_mobile','ctx_card'].forEach(id => {
+    const img = document.getElementById(id);
+    if (img) { img.src = src; img.style.objectPosition = pos; }
+  });
+}
+
+function initFocalPoint(src) {
+  _focalX = 50; _focalY = 50;
+  document.getElementById('focal_dot').style.left = '50%';
+  document.getElementById('focal_dot').style.top = '50%';
+  document.getElementById('focal_label').textContent = '중심: 50% 50%';
+  document.getElementById('focal_img').src = src;
+  updateCtxPreviews();
 }
 
 let _canvasTimer = null;
