@@ -184,6 +184,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
     <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
     <div class="nav-item" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
+    <div class="nav-item" onclick="showPanel('books')"><span class="nav-icon">📚</span><span class="nav-label">책 목록</span></div>
     <div class="nav-item" onclick="showPanel('members')"><span class="nav-icon">👥</span><span class="nav-label">회원 관리</span></div>
   </nav>
   <div class="sidebar-footer">
@@ -353,6 +354,43 @@ tr:hover td{background:rgba(37,99,235,.03)}
 
   <!-- 이미지 -->
   <!-- 홈화면 사진 -->
+  <!-- 책 목록 -->
+  <div id="panel-books" class="panel">
+    <div class="page-header">
+      <div class="page-title">책 목록</div>
+      <div class="page-sub">시즌별 도서를 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">새 책 추가</div>
+      <div class="form-grid">
+        <div class="field"><label>제목 *</label><input id="bk_title" placeholder="책 제목"></div>
+        <div class="field"><label>저자</label><input id="bk_author" placeholder="저자명"></div>
+        <div class="field"><label>시즌 (카테고리)</label><input id="bk_category" placeholder="예: 시즌9"></div>
+        <div class="field"><label>모임 날짜</label><input id="bk_date" placeholder="예: 2026-08-08" type="date"></div>
+        <div class="field"><label>이모지</label><input id="bk_emoji" placeholder="📖" style="font-size:1.2rem"></div>
+        <div class="field"><label>표지 이미지 URL</label><input id="bk_cover" placeholder="https://..."></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:1rem" onclick="saveBook()">추가하기</button>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <span>전체 책 목록 <span id="bk_count" style="font-size:.8rem;color:var(--tl);font-weight:400"></span></span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <select id="bk_filter" onchange="renderBooks()" style="width:auto;padding:.4rem .75rem;font-size:.82rem">
+            <option value="">전체 시즌</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadBooks()">새로고침</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>시즌</th><th>제목</th><th>저자</th><th>날짜</th><th>삭제</th></tr></thead>
+          <tbody id="bk_tbody"><tr><td colspan="5" style="text-align:center;color:var(--tl)">불러오는 중...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div id="panel-homepage" class="panel">
     <div class="page-header">
       <div class="page-title">홈화면 사진</div>
@@ -576,6 +614,7 @@ function showPanel(id) {
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
+  if (id === 'books') loadBooks();
 }
 
 // Supabase helpers
@@ -1639,6 +1678,79 @@ function previewColumn() {
       ${body ? `<div style="font-size:.95rem;color:#334155;line-height:1.9;border-top:1px solid rgba(100,116,139,.2);padding-top:1.5rem">${body}</div>` : ''}
     </div>` : ''}
   `);
+}
+
+// ── 책 목록 ────────────────────────────────────────────────
+let _allBooks = [];
+
+async function loadBooks() {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?select=*&order=sort_order.asc,id.asc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  _allBooks = await res.json();
+  if (!Array.isArray(_allBooks)) { _allBooks = []; }
+
+  // 시즌 필터 옵션 구성
+  const sel = document.getElementById('bk_filter');
+  const cur = sel.value;
+  const seasons = [...new Set(_allBooks.map(b => b.category).filter(Boolean))];
+  sel.innerHTML = '<option value="">전체 시즌</option>' +
+    seasons.map(s => `<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('');
+
+  renderBooks();
+}
+
+function renderBooks() {
+  const filter = document.getElementById('bk_filter').value;
+  const books = filter ? _allBooks.filter(b => b.category === filter) : _allBooks;
+  document.getElementById('bk_count').textContent = `(${books.length}권)`;
+  const tbody = document.getElementById('bk_tbody');
+  if (!books.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tl)">책이 없어요.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = books.map(b => `
+    <tr>
+      <td><span style="font-size:.75rem;font-weight:700;color:var(--ac);letter-spacing:.04em">${b.category||'—'}</span></td>
+      <td style="font-weight:500">${b.emoji ? b.emoji + ' ' : ''}${b.title}</td>
+      <td style="color:var(--tl)">${b.author||'—'}</td>
+      <td style="color:var(--tl);font-size:.82rem">${b.date||'—'}</td>
+      <td><button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="deleteBook(${b.id},'${(b.title||'').replace(/'/g,"\\'")}')">삭제</button></td>
+    </tr>
+  `).join('');
+}
+
+async function saveBook() {
+  const title = document.getElementById('bk_title').value.trim();
+  if (!title) { toast('제목을 입력해 주세요.', true); return; }
+  const body = {
+    title,
+    author: document.getElementById('bk_author').value,
+    category: document.getElementById('bk_category').value,
+    date: document.getElementById('bk_date').value || null,
+    emoji: document.getElementById('bk_emoji').value,
+    cover_url: document.getElementById('bk_cover').value,
+  };
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(body)
+  });
+  if (res.ok) {
+    toast('책이 추가됐어요!');
+    ['bk_title','bk_author','bk_category','bk_date','bk_emoji','bk_cover'].forEach(id => document.getElementById(id).value = '');
+    loadBooks();
+  } else toast('저장 실패', true);
+}
+
+async function deleteBook(id, title) {
+  if (!confirm(`"${title}" 을 삭제할까요?`)) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  if (res.ok) { toast('삭제됐어요.'); loadBooks(); }
+  else toast('삭제 실패', true);
 }
 
 // ── 홈화면 사진 ────────────────────────────────────────────
