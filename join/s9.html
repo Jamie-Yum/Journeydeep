@@ -174,7 +174,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           <div class="price-value">시즌 전체 참여</div>
           <div class="price-sub">8월 ~ 12월 · 총 5회차</div>
         </div>
-        <div class="price-scope">가격은 추후 안내 예정</div>
+        <div class="price-scope" id="fee_member_display">가격은 추후 안내 예정</div>
       </div>
 
       <div class="form-card">
@@ -237,7 +237,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           <div class="price-value">원하는 회차 선택</div>
           <div class="price-sub">1회차 단위 체험 참여</div>
         </div>
-        <div class="price-scope">가격은 추후 안내 예정</div>
+        <div class="price-scope" id="fee_guest_display">가격은 추후 안내 예정</div>
       </div>
 
       <div class="form-card">
@@ -379,6 +379,20 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', function(){ nav && (window.scrollY > 50 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled')); });
 function toggleMenu(){ document.getElementById('navLinks')?.classList.toggle('open'); }
 document.querySelectorAll('.nav-links a').forEach(function(a){ a.addEventListener('click', function(){ document.getElementById('navLinks')?.classList.remove('open'); }); });
+// 참가비 Supabase 연동
+(function() {
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=fee_member,fee_guest&order=created_at.desc&limit=1&visible=eq.true', {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!Array.isArray(data) || !data.length) return;
+    var p = data[0];
+    var mEl = document.getElementById('fee_member_display');
+    var gEl = document.getElementById('fee_guest_display');
+    if (mEl && p.fee_member) mEl.textContent = p.fee_member;
+    if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
+  }).catch(function() {});
+})();
+
 document.addEventListener('click', function(e) {
   if(window.innerWidth > 900) return;
   var li = e.target.closest('.nav-li.has-dropdown');

@@ -210,7 +210,8 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>시작일</label><input id="pg_start" placeholder="예: 2026.08.08"></div>
         <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
         <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
-        <div class="field"><label>참가비</label><input id="pg_fee" placeholder="예: 150,000원"></div>
+        <div class="field"><label>참가비 — 정규 멤버</label><input id="pg_fee_member" placeholder="예: 150,000원"></div>
+        <div class="field"><label>참가비 — 게스트</label><input id="pg_fee_guest" placeholder="예: 35,000원/회"></div>
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
@@ -618,7 +619,7 @@ function toast(msg, err=false) {
 
 // ── PROGRAMS ──
 let _editingProgramId = null;
-const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'];
+const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee_member','pg_fee_guest','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
 function pgFormData() {
   return {
@@ -629,7 +630,8 @@ function pgFormData() {
     date_start: document.getElementById('pg_start').value,
     date_end: document.getElementById('pg_end').value,
     venue: document.getElementById('pg_venue').value,
-    fee: document.getElementById('pg_fee').value,
+    fee_member: document.getElementById('pg_fee_member').value,
+    fee_guest: document.getElementById('pg_fee_guest').value,
     capacity: document.getElementById('pg_capacity').value,
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
@@ -653,7 +655,8 @@ function editProgram(p) {
   document.getElementById('pg_start').value = p.date_start || '';
   document.getElementById('pg_end').value = p.date_end || '';
   document.getElementById('pg_venue').value = p.venue || '';
-  document.getElementById('pg_fee').value = p.fee || '';
+  document.getElementById('pg_fee_member').value = p.fee_member || '';
+  document.getElementById('pg_fee_guest').value = p.fee_guest || '';
   document.getElementById('pg_capacity').value = p.capacity || '';
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
@@ -1551,7 +1554,8 @@ function previewProgram() {
   const start = document.getElementById('pg_start').value || '';
   const end = document.getElementById('pg_end').value || '';
   const venue = document.getElementById('pg_venue').value || '';
-  const fee = document.getElementById('pg_fee').value || '';
+  const fee_member = document.getElementById('pg_fee_member').value || '';
+  const fee_guest = document.getElementById('pg_fee_guest').value || '';
   const capacity = document.getElementById('pg_capacity').value || '';
   const apply = document.getElementById('pg_apply').value || '#';
   const image = document.getElementById('pg_image').value || '';
@@ -1567,7 +1571,8 @@ function previewProgram() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem">
           ${start||end ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">📅 일정</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${start}${end?' ~ '+end:''}</div></div>` : ''}
           ${venue ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">📍 장소</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${venue}</div></div>` : ''}
-          ${fee ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">💳 참가비</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${fee}</div></div>` : ''}
+          ${fee_member ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">💳 정규 멤버</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${fee_member}</div></div>` : ''}
+          ${fee_guest ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">💳 게스트</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${fee_guest}</div></div>` : ''}
           ${capacity ? `<div style="padding:.85rem;background:#F4F6FA;border:1px solid rgba(100,116,139,.2)"><div style="font-size:.72rem;font-weight:600;color:#64748B;margin-bottom:.25rem;letter-spacing:.06em">👥 정원</div><div style="font-size:.88rem;color:#0F172A;font-weight:500">${capacity}</div></div>` : ''}
         </div>
         <a href="${apply}" style="display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 2rem;background:#2563EB;color:#fff;text-decoration:none;font-weight:600;font-size:.9rem">신청하기 →</a>
