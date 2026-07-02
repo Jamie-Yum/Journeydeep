@@ -1454,7 +1454,7 @@ async function loadBooks() {
   if (!data || !data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
   list.innerHTML = data.map(b => `
     <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
-      ${b.cover_url
+      ${b.cover_url && b.cover_url.startsWith('http')
         ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
         : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
       <div style="padding:7px 9px 4px;">
@@ -1478,7 +1478,7 @@ function editBook(b) {
   document.getElementById('bk_emoji').value = b.emoji || '';
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   _bkCoverBlob = null;
-  _bkCoverUrl = b.cover_url || null;
+  _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
   const prev = document.getElementById('bk_cover_preview');
   const rm = document.getElementById('bk_cover_remove');
   if (_bkCoverUrl) { prev.src = _bkCoverUrl; prev.style.display = 'block'; rm.style.display = ''; }
