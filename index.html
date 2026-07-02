@@ -378,13 +378,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co';
   var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  // 히어로 이미지: JD_site_settings
   fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
   .then(function(r){return r.json();}).then(function(rows){
     if(!Array.isArray(rows))return;
     rows.forEach(function(row){
-      var el=document.getElementById(row.key);if(el&&row.value)el.src=row.value;
+      if(row.key==='home_hero_image'){var el=document.getElementById('home_hero_image');if(el&&row.value)el.src=row.value;}
       if(row.key==='hero_mobile_height'&&row.value)document.documentElement.style.setProperty('--hero-mobile-h',row.value);
     });
+  }).catch(function(){});
+  // 책 표지 1~5: JD_books 최신 시즌에서 자동 로딩
+  fetch(SU+'/rest/v1/JD_books?select=category,cover_url,sort_order&order=created_at.desc',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  .then(function(r){return r.json();}).then(function(books){
+    if(!Array.isArray(books)||!books.length)return;
+    // 가장 최신 시즌(첫 번째 책의 category)
+    var latestSeason=books[0].category;
+    var seasonBooks=books.filter(function(b){return b.category===latestSeason&&b.cover_url;});
+    // sort_order 기준 정렬 (없으면 원래 순서 유지)
+    seasonBooks.sort(function(a,b){return (a.sort_order||0)-(b.sort_order||0);});
+    for(var i=0;i<5;i++){
+      var el=document.getElementById('home_book_'+(i+1));
+      if(el&&seasonBooks[i])el.src=seasonBooks[i].cover_url;
+    }
   }).catch(function(){});
 })();
 </script>
