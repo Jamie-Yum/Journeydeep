@@ -460,12 +460,12 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
           </div>
           <div>
-            <label class="form-label">이모지</label>
-            <input class="form-input" id="bk_emoji" placeholder="예: 📘">
-          </div>
-          <div>
             <label class="form-label">순서</label>
             <input class="form-input" id="bk_order" type="number" value="0">
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;padding-top:.25rem">
+            <input type="checkbox" id="bk_recommended" style="width:16px;height:16px;accent-color:var(--ac)">
+            <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer">추천 도서 아카이빙</label>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px;">
             <button class="btn btn-primary" onclick="saveBook()">저장</button>
@@ -475,6 +475,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <!-- 목록 -->
       <div class="bk-list-wrap">
+        <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:1rem;padding-bottom:0">
+          <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">전체</button>
+          <button class="bk-tab-btn" data-f="recommended" onclick="setBkFilter('recommended')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">추천 도서</button>
+        </div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
     </div>
@@ -1533,7 +1537,7 @@ function bkSelectFromSearch(idx) {
   document.getElementById('bk_author').value = (b.author || '').split(' (')[0];
   document.getElementById('bk_category').value = '';
   document.getElementById('bk_date').value = '';
-  document.getElementById('bk_emoji').value = '';
+  document.getElementById('bk_recommended').checked = false;
   document.getElementById('bk_order').value = '0';
   // 표지 미리보기 (알라딘 URL 직접 사용)
   _bkCoverBlob = null;
@@ -1605,22 +1609,27 @@ function bkOnSessionChange() {
   if (date) document.getElementById('bk_date').value = date;
 }
 
-async function loadBooks() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?order=sort_order.asc,created_at.asc`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  const data = await res.json();
+let _bkFilter = 'all'; // 'all' | 'recommended'
+let _bkAllData = [];
+
+function renderBookList() {
   const list = document.getElementById('bk_list');
-  if (!data || !data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
+  const data = _bkFilter === 'recommended'
+    ? _bkAllData.filter(b => b.is_recommended)
+    : _bkAllData;
+  if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
   list.innerHTML = data.map(b => `
     <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
       ${b.cover_url && b.cover_url.startsWith('http')
         ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
         : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
       <div style="padding:7px 9px 4px;">
-        <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.emoji||''} ${b.title}</div>
+        <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.title}</div>
         ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
-        ${b.category ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;">${b.category}</div>` : ''}
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">
+          ${b.category ? `<span style="font-size:10px;color:var(--ac);font-weight:600">${b.category}</span>` : ''}
+          ${b.is_recommended ? `<span style="font-size:10px;background:#f59e0b20;color:#d97706;font-weight:600;padding:1px 5px;border-radius:3px">추천</span>` : ''}
+        </div>
       </div>
       <div style="padding:0 6px 6px;display:flex;gap:3px;">
         <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
@@ -1629,13 +1638,31 @@ async function loadBooks() {
     </div>`).join('');
 }
 
+function setBkFilter(f) {
+  _bkFilter = f;
+  document.querySelectorAll('.bk-tab-btn').forEach(el => {
+    el.style.fontWeight = el.dataset.f === f ? '700' : '400';
+    el.style.borderBottom = el.dataset.f === f ? '2px solid var(--ac)' : '2px solid transparent';
+    el.style.color = el.dataset.f === f ? 'var(--ac)' : 'var(--tl)';
+  });
+  renderBookList();
+}
+
+async function loadBooks() {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?order=sort_order.asc,created_at.asc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  _bkAllData = await res.json() || [];
+  renderBookList();
+}
+
 function editBook(b) {
   document.getElementById('bk_id').value = b.id;
   document.getElementById('bk_title').value = b.title || '';
   document.getElementById('bk_author').value = b.author || '';
   document.getElementById('bk_category').value = b.category || '';
   document.getElementById('bk_date').value = b.date || '';
-  document.getElementById('bk_emoji').value = b.emoji || '';
+  document.getElementById('bk_recommended').checked = !!b.is_recommended;
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   _bkCoverBlob = null;
   _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
@@ -1664,7 +1691,7 @@ function bkClearForm() {
   const sessionSel = document.getElementById('bk_session_sel');
   if (sessionSel) { sessionSel.innerHTML = '<option value="">회차 선택...</option>'; }
   document.getElementById('bk_date').value = '';
-  document.getElementById('bk_emoji').value = '';
+  document.getElementById('bk_recommended').checked = false;
   document.getElementById('bk_order').value = 0;
   _bkCoverBlob = null; _bkCoverUrl = null;
   const prev = document.getElementById('bk_cover_preview');
@@ -1711,7 +1738,7 @@ async function saveBook() {
     author: document.getElementById('bk_author').value.trim() || null,
     category: document.getElementById('bk_category').value.trim() || null,
     date: document.getElementById('bk_date').value.trim() || null,
-    emoji: document.getElementById('bk_emoji').value.trim() || null,
+    is_recommended: document.getElementById('bk_recommended').checked,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,
     cover_url: cover_url || null,
   };
