@@ -101,6 +101,16 @@ canvas.resize-preview{max-height:200px}
 .resize-input{width:100%;padding:.55rem .75rem;border:1px solid rgba(100,116,139,.3);font-size:.88rem;font-family:'Pretendard',sans-serif;outline:none}
 .resize-input:focus{border-color:var(--ac)}
 
+/* Books layout */
+.bk-layout{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.bk-form-card{flex:0 0 300px}
+.bk-list-wrap{flex:1;min-width:240px}
+@media(max-width:700px){
+  .bk-layout{flex-direction:column}
+  .bk-form-card{flex:none;width:100%;order:-1}
+  .bk-list-wrap{width:100%}
+}
+
 /* Toast */
 .toast{position:fixed;bottom:2rem;right:2rem;padding:.85rem 1.5rem;background:var(--dk);color:#fff;font-size:.88rem;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;border-left:3px solid var(--ac)}
 .toast.show{transform:translateY(0);opacity:1}
@@ -380,9 +390,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-title">책 관리</div>
       <div class="page-sub">조니딥에서 다룬 책들을 관리해요.</div>
     </div>
-    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+    <div class="bk-layout">
       <!-- 폼 -->
-      <div class="card" style="flex:0 0 320px;">
+      <div class="card bk-form-card">
         <div class="card-header"><span id="bk_form_title">새 책 추가</span></div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
           <input type="hidden" id="bk_id">
@@ -428,7 +438,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
       </div>
       <!-- 목록 -->
-      <div style="flex:1;min-width:280px;">
+      <div class="bk-list-wrap">
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
     </div>
@@ -1439,9 +1449,9 @@ async function loadBooks() {
         ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
         ${b.category ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;">${b.category}</div>` : ''}
       </div>
-      <div style="padding:0 9px 8px;display:flex;gap:4px;">
-        <button class="btn btn-ghost btn-sm" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
+      <div style="padding:0 6px 6px;display:flex;gap:3px;">
+        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
+        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
       </div>
     </div>`).join('');
 }
