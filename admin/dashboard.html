@@ -1525,7 +1525,7 @@ function bkCoverSelected(input) {
 
 async function saveBook() {
   const title = document.getElementById('bk_title').value.trim();
-  if (!title) { showToast('제목을 입력해주세요.', true); return; }
+  if (!title) { toast('제목을 입력해주세요.', true); return; }
   const id = document.getElementById('bk_id').value;
   let cover_url = _bkCoverUrl;
   if (_bkCoverBlob) {
@@ -1553,9 +1553,9 @@ async function saveBook() {
       body: JSON.stringify(payload)
     });
     ok = res.ok;
-    if (!res.ok) { const e = await res.text(); showToast('저장 실패: ' + e, true); return; }
+    if (!res.ok) { const e = await res.text(); toast('저장 실패: ' + e, true); return; }
   }
-  if (ok !== false) { showToast('저장 완료!'); bkClearForm(); loadBooks(); }
+  if (ok !== false) { toast('저장 완료!'); bkClearForm(); loadBooks(); }
 }
 
 async function deleteBook(id) {
@@ -1563,8 +1563,8 @@ async function deleteBook(id) {
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?id=eq.${id}`, {
     method: 'DELETE', headers: SUPA_HEADERS
   });
-  if (res.ok) { showToast('삭제 완료'); loadBooks(); bkClearForm(); }
-  else { const e = await res.text(); showToast('삭제 실패: ' + e, true); }
+  if (res.ok) { toast('삭제 완료'); loadBooks(); bkClearForm(); }
+  else { const e = await res.text(); toast('삭제 실패: ' + e, true); }
 }
 
 async function initMembers() {
@@ -1586,14 +1586,14 @@ async function initMembers() {
   renderMemberSeason(0);
 }
 
-async function saveMembersData(showToast=true) {
+async function saveMembersData(toast=true) {
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
     method: 'POST',
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
       'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({ key: MEMBERS_KEY, value: JSON.stringify(membersData), updated_at: new Date().toISOString() })
   });
-  if (showToast) res.ok ? toast('저장됐어요!') : toast('저장 실패', true);
+  if (toast) res.ok ? toast('저장됐어요!') : toast('저장 실패', true);
 }
 
 function renderMemberTabs() {
