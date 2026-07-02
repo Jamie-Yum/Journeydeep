@@ -178,49 +178,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       </div>
 
       <div class="form-card">
-        <form id="memberForm">
-          <div class="field-wrap">
-            <label class="field-label">1. 성함을 알려주세요.<span class="field-req">*</span></label>
-            <input type="text" id="m_name" required class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">2. 전화번호<span class="field-req">*</span></label>
-            <input type="text" id="m_phone" required class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">3. 인스타그램 아이디</label>
-            <input type="text" id="m_insta" class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">4. 조니딥 모임을 어떻게 알게 되셨나요?<span class="field-req">*</span></label>
-            <div class="radio-group">
-              <label class="radio-label"><input type="radio" name="m_how" value="인스타그램을 통해"> 인스타그램을 통해</label>
-              <label class="radio-label"><input type="radio" name="m_how" value="검색을 통해서"> 검색을 통해서</label>
-              <label class="radio-label"><input type="radio" name="m_how" value="지인 추천으로"> 지인 추천으로</label>
-              <label class="radio-label"><input type="radio" name="m_how" value="기존 참가 멤버"> 기존 참가 멤버</label>
-            </div>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">5. 최근의 관심사 및 키워드는?<span class="field-req">*</span></label>
-            <textarea id="m_interest" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">6. 현재 어떤 업무를 하고 계세요?<span class="field-req">*</span></label>
-            <textarea id="m_job" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">7. 커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?<span class="field-req">*</span></label>
-            <textarea id="m_future" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">8. 나에게 '조직문화&amp;교육'이란?<span class="field-req">*</span></label>
-            <textarea id="m_culture" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">9. 이번 조니딥 참여 계기와 기대하는 점을 알려주세요.<span class="field-req">*</span></label>
-            <textarea id="m_reason" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <button type="submit" class="submit-btn">제출하기 →</button>
+        <form id="memberForm" novalidate>
+          <div id="m-fields"><div style="color:var(--tl);font-size:.88rem;padding:.5rem 0">설문을 불러오는 중...</div></div>
+          <button type="submit" class="submit-btn" style="margin-top:1.5rem">제출하기 →</button>
         </form>
         <div id="memberSuccess" class="success-box">
           <div style="font-size:2.5rem;margin-bottom:1rem">✅</div>
@@ -241,59 +201,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       </div>
 
       <div class="form-card">
-        <form id="guestForm">
-          <div class="field-wrap">
-            <label class="field-label">1. 성함을 알려주세요.<span class="field-req">*</span></label>
-            <input type="text" id="g_name" required class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">2. 어떤 모임에 신청하고 싶으신가요?<span class="field-req">*</span></label>
-            <div class="check-group">
-              <label class="check-label"><input type="checkbox" name="g_session" value="1회차 (08/08)"> 1회차 (08/08) — 도서 공개 예정</label>
-              <label class="check-label"><input type="checkbox" name="g_session" value="2회차 (09/12)"> 2회차 (09/12) — 도서 공개 예정</label>
-              <label class="check-label"><input type="checkbox" name="g_session" value="3회차 (10/10)"> 3회차 (10/10) — 도서 공개 예정</label>
-              <label class="check-label"><input type="checkbox" name="g_session" value="4회차 (11월)"> 4회차 (11월) — 날짜·도서 공개 예정</label>
-              <label class="check-label"><input type="checkbox" name="g_session" value="5회차 (12/12)"> 5회차 (12/12) — 도서 공개 예정</label>
-            </div>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">3. 전화번호<span class="field-req">*</span></label>
-            <input type="text" id="g_phone" required class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">4. 인스타그램 아이디</label>
-            <input type="text" id="g_insta" class="field-input" placeholder="입력해 주세요">
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">5. 조니딥 모임을 어떻게 알게 되셨나요?<span class="field-req">*</span></label>
-            <div class="radio-group">
-              <label class="radio-label"><input type="radio" name="g_how" value="인스타그램을 통해"> 인스타그램을 통해</label>
-              <label class="radio-label"><input type="radio" name="g_how" value="검색을 통해서"> 검색을 통해서</label>
-              <label class="radio-label"><input type="radio" name="g_how" value="지인 추천으로"> 지인 추천으로</label>
-              <label class="radio-label"><input type="radio" name="g_how" value="기존 참가 멤버"> 기존 참가 멤버</label>
-            </div>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">6. 최근의 관심사 및 키워드는?<span class="field-req">*</span></label>
-            <textarea id="g_interest" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">7. 현재 어떤 업무를 하고 계세요?<span class="field-req">*</span></label>
-            <textarea id="g_job" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">8. 커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?<span class="field-req">*</span></label>
-            <textarea id="g_future" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">9. 나에게 '조직문화&amp;교육'이란?<span class="field-req">*</span></label>
-            <textarea id="g_culture" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <div class="field-wrap">
-            <label class="field-label">10. 이번 조니딥 참여 계기와 기대하는 점을 알려주세요.<span class="field-req">*</span></label>
-            <textarea id="g_reason" rows="3" required class="field-textarea" placeholder="내용을 입력해 주세요"></textarea>
-          </div>
-          <button type="submit" class="submit-btn">제출하기 →</button>
+        <form id="guestForm" novalidate>
+          <div id="g-fields"><div style="color:var(--tl);font-size:.88rem;padding:.5rem 0">설문을 불러오는 중...</div></div>
+          <button type="submit" class="submit-btn" style="margin-top:1.5rem">제출하기 →</button>
         </form>
         <div id="guestSuccess" class="success-box">
           <div style="font-size:2.5rem;margin-bottom:1rem">✅</div>
@@ -320,9 +230,98 @@ function switchTab(tab, btn) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+// ── 동적 폼 렌더링 ──────────────────────────────────────────
+var _memberFields = [], _guestFields = [], _activeSeason = '';
+
+function renderFields(fields, containerId, prefix) {
+  var c = document.getElementById(containerId);
+  if (!fields || !fields.length) {
+    c.innerHTML = '<p style="color:var(--tl);font-size:.9rem">설문 항목을 불러오지 못했어요.</p>';
+    return;
+  }
+  c.innerHTML = '';
+  fields.forEach(function(f, i) {
+    var wrap = document.createElement('div');
+    wrap.className = 'field-wrap';
+    var lbl = document.createElement('label');
+    lbl.className = 'field-label';
+    lbl.innerHTML = (i + 1) + '. ' + f.label + (f.required ? '<span class="field-req">*</span>' : '');
+    wrap.appendChild(lbl);
+
+    if (f.type === 'text') {
+      var inp = document.createElement('input');
+      inp.type = 'text'; inp.id = prefix + '_' + f.id;
+      inp.className = 'field-input'; inp.placeholder = '입력해 주세요';
+      wrap.appendChild(inp);
+    } else if (f.type === 'textarea') {
+      var ta = document.createElement('textarea');
+      ta.id = prefix + '_' + f.id; ta.rows = 3;
+      ta.className = 'field-textarea'; ta.placeholder = '내용을 입력해 주세요';
+      wrap.appendChild(ta);
+    } else if (f.type === 'radio') {
+      var rg = document.createElement('div'); rg.className = 'radio-group';
+      (f.options || []).forEach(function(opt) {
+        var rl = document.createElement('label'); rl.className = 'radio-label';
+        var ri = document.createElement('input');
+        ri.type = 'radio'; ri.name = prefix + '_' + f.id; ri.value = opt;
+        rl.appendChild(ri); rl.appendChild(document.createTextNode(' ' + opt));
+        rg.appendChild(rl);
+      });
+      wrap.appendChild(rg);
+    } else if (f.type === 'checkbox') {
+      var cg = document.createElement('div'); cg.className = 'check-group';
+      (f.options || []).forEach(function(opt) {
+        var cl = document.createElement('label'); cl.className = 'check-label';
+        var ci = document.createElement('input');
+        ci.type = 'checkbox'; ci.name = prefix + '_' + f.id; ci.value = opt;
+        cl.appendChild(ci); cl.appendChild(document.createTextNode(' ' + opt));
+        cg.appendChild(cl);
+      });
+      wrap.appendChild(cg);
+    }
+    c.appendChild(wrap);
+  });
+}
+
+function collectFields(fields, prefix) {
+  var data = {};
+  fields.forEach(function(f) {
+    if (f.type === 'text' || f.type === 'textarea') {
+      var el = document.getElementById(prefix + '_' + f.id);
+      data[f.label] = el ? el.value.trim() : '';
+    } else if (f.type === 'radio') {
+      var ch = document.querySelector('input[name="' + prefix + '_' + f.id + '"]:checked');
+      data[f.label] = ch ? ch.value : '';
+    } else if (f.type === 'checkbox') {
+      var chs = document.querySelectorAll('input[name="' + prefix + '_' + f.id + '"]:checked');
+      data[f.label] = Array.from(chs).map(function(c){ return c.value; }).join(', ');
+    }
+  });
+  return data;
+}
+
+function validateFields(fields, prefix) {
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    if (!f.required) continue;
+    if (f.type === 'text' || f.type === 'textarea') {
+      var el = document.getElementById(prefix + '_' + f.id);
+      if (!el || !el.value.trim()) { alert((i+1) + '. ' + f.label + ' 항목을 입력해 주세요.'); if(el) el.focus(); return false; }
+    } else if (f.type === 'radio') {
+      if (!document.querySelector('input[name="' + prefix + '_' + f.id + '"]:checked')) {
+        alert((i+1) + '. ' + f.label + ' 항목을 선택해 주세요.'); return false;
+      }
+    } else if (f.type === 'checkbox') {
+      if (!document.querySelector('input[name="' + prefix + '_' + f.id + '"]:checked')) {
+        alert((i+1) + '. ' + f.label + ' 항목을 하나 이상 선택해 주세요.'); return false;
+      }
+    }
+  }
+  return true;
+}
+
 function submitToSupabase(season, data, formEl, successEl, btnEl) {
-  btnEl.disabled = true;
-  btnEl.textContent = '제출 중...';
+  btnEl.disabled = true; btnEl.textContent = '제출 중...';
   var payload = { season: season, fields: JSON.stringify(data), submitted_at: new Date().toISOString() };
   fetch(SUPA_URL + '/rest/v1/JD_applications', {
     method: 'POST',
@@ -336,42 +335,42 @@ function onDone(formEl, successEl) {
   setTimeout(function(){ formEl.style.display = 'none'; successEl.style.display = 'block'; }, 2800);
 }
 
-// 정규 멤버 폼
 document.getElementById('memberForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  var data = {
-    '성함': document.getElementById('m_name').value,
-    '전화번호': document.getElementById('m_phone').value,
-    '인스타그램': document.getElementById('m_insta').value,
-    '알게된 경로': (document.querySelector('input[name="m_how"]:checked') || {}).value || '',
-    '관심사 및 키워드': document.getElementById('m_interest').value,
-    '현재 업무': document.getElementById('m_job').value,
-    '커리어 미래': document.getElementById('m_future').value,
-    '조직문화란': document.getElementById('m_culture').value,
-    '참여 계기 및 기대': document.getElementById('m_reason').value
-  };
-  submitToSupabase('join/s9-member', data, this, document.getElementById('memberSuccess'), this.querySelector('button[type="submit"]'));
+  if (!validateFields(_memberFields, 'm')) return;
+  var data = collectFields(_memberFields, 'm');
+  submitToSupabase(_activeSeason + '-member', data, this, document.getElementById('memberSuccess'), this.querySelector('button[type="submit"]'));
 });
 
-// 게스트 폼
 document.getElementById('guestForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  var sessions = Array.from(document.querySelectorAll('input[name="g_session"]:checked')).map(function(c){ return c.value; }).join(', ');
-  if (!sessions) { alert('참여하실 회차를 하나 이상 선택해주세요.'); return; }
-  var data = {
-    '성함': document.getElementById('g_name').value,
-    '신청 회차': sessions,
-    '전화번호': document.getElementById('g_phone').value,
-    '인스타그램': document.getElementById('g_insta').value,
-    '알게된 경로': (document.querySelector('input[name="g_how"]:checked') || {}).value || '',
-    '관심사 및 키워드': document.getElementById('g_interest').value,
-    '현재 업무': document.getElementById('g_job').value,
-    '커리어 미래': document.getElementById('g_future').value,
-    '조직문화란': document.getElementById('g_culture').value,
-    '참여 계기 및 기대': document.getElementById('g_reason').value
-  };
-  submitToSupabase('join/s9-guest', data, this, document.getElementById('guestSuccess'), this.querySelector('button[type="submit"]'));
+  if (!validateFields(_guestFields, 'g')) return;
+  var data = collectFields(_guestFields, 'g');
+  submitToSupabase(_activeSeason + '-guest', data, this, document.getElementById('guestSuccess'), this.querySelector('button[type="submit"]'));
 });
+
+// 프로그램에서 form_fields + 참가비 로드
+(function() {
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields&order=created_at.desc&limit=1&visible=eq.true', {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!Array.isArray(data) || !data.length) return;
+    var p = data[0];
+    _activeSeason = p.badge || 'season';
+    var mEl = document.getElementById('fee_member_display');
+    var gEl = document.getElementById('fee_guest_display');
+    if (mEl && p.fee_member) mEl.textContent = p.fee_member;
+    if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
+    var ff = p.form_fields || {};
+    _memberFields = ff.member || [];
+    _guestFields  = ff.guest  || [];
+    renderFields(_memberFields, 'm-fields', 'm');
+    renderFields(_guestFields,  'g-fields', 'g');
+  }).catch(function() {
+    document.getElementById('m-fields').innerHTML = '<p style="color:var(--tl)">설문을 불러오지 못했어요. 새로고침 해주세요.</p>';
+    document.getElementById('g-fields').innerHTML = '<p style="color:var(--tl)">설문을 불러오지 못했어요. 새로고침 해주세요.</p>';
+  });
+})();
 
 // Nav scroll
 const nav = document.getElementById('nav');
@@ -379,19 +378,6 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', function(){ nav && (window.scrollY > 50 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled')); });
 function toggleMenu(){ document.getElementById('navLinks')?.classList.toggle('open'); }
 document.querySelectorAll('.nav-links a').forEach(function(a){ a.addEventListener('click', function(){ document.getElementById('navLinks')?.classList.remove('open'); }); });
-// 참가비 Supabase 연동
-(function() {
-  fetch(SUPA_URL + '/rest/v1/JD_programs?select=fee_member,fee_guest&order=created_at.desc&limit=1&visible=eq.true', {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (!Array.isArray(data) || !data.length) return;
-    var p = data[0];
-    var mEl = document.getElementById('fee_member_display');
-    var gEl = document.getElementById('fee_guest_display');
-    if (mEl && p.fee_member) mEl.textContent = p.fee_member;
-    if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
-  }).catch(function() {});
-})();
 
 document.addEventListener('click', function(e) {
   if(window.innerWidth > 900) return;

@@ -263,6 +263,30 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="card-title">등록된 프로그램 <button class="btn btn-ghost btn-sm" onclick="loadPrograms()">새로고침</button></div>
       <div id="pg_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
     </div>
+
+    <!-- 설문 에디터 (프로그램 카드에서 "설문 편집" 클릭 시 표시) -->
+    <div id="form-editor-section" class="card" style="display:none;border:2px solid var(--ac)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div class="card-title" id="form-editor-title" style="margin:0">설문 편집</div>
+        <button class="btn btn-ghost btn-sm" onclick="fmClose()">✕ 닫기</button>
+      </div>
+      <div style="display:flex;gap:1rem;border-bottom:1px solid var(--be);margin-bottom:1.25rem;padding-bottom:0">
+        <button class="fm-tab-btn" data-t="member" onclick="fmSetTab('member')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">정규 멤버</button>
+        <button class="fm-tab-btn" data-t="guest" onclick="fmSetTab('guest')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">게스트</button>
+      </div>
+      <div id="fm-field-list" style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem"></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding-top:.75rem;border-top:1px solid var(--be)">
+        <span style="font-size:.8rem;color:var(--tl);align-self:center">질문 추가:</span>
+        <button class="btn btn-ghost btn-sm" onclick="fmAddField('text')">+ 텍스트</button>
+        <button class="btn btn-ghost btn-sm" onclick="fmAddField('textarea')">+ 장문</button>
+        <button class="btn btn-ghost btn-sm" onclick="fmAddField('radio')">+ 라디오</button>
+        <button class="btn btn-ghost btn-sm" onclick="fmAddField('checkbox')">+ 체크박스</button>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+        <button class="btn btn-primary" onclick="fmSaveFields()">저장</button>
+        <button class="btn btn-ghost" onclick="fmResetToDefault()">현재 기본값으로 초기화</button>
+      </div>
+    </div>
   </div>
 
   <!-- 발제문 -->
@@ -828,9 +852,151 @@ async function loadPrograms() {
         ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm">페이지 보기</a>` : ''}
         ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
         <button class="btn btn-ghost btn-sm" onclick='editProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
+        <button class="btn btn-ghost btn-sm" onclick='openFormEditor(${JSON.stringify(p).replace(/'/g,"&#39;")})'>설문 편집</button>
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
+}
+
+// ── FORM EDITOR ────────────────────────────────────────────
+let _fmPgId = null, _fmTab = 'member';
+let _fmFields = { member: [], guest: [] };
+
+const FM_DEFAULT = {
+  member: [
+    {id:'name',       type:'text',     label:'성함을 알려주세요.',                              required:true},
+    {id:'phone',      type:'text',     label:'전화번호',                                       required:true},
+    {id:'instagram',  type:'text',     label:'인스타그램 아이디',                               required:false},
+    {id:'how_found',  type:'radio',    label:'조니딥 모임을 어떻게 알게 되셨나요?',              required:true,  options:['인스타그램을 통해','검색을 통해서','지인 추천으로','기존 참가 멤버']},
+    {id:'interests',  type:'textarea', label:'최근의 관심사 및 키워드는?',                       required:true},
+    {id:'job',        type:'textarea', label:'현재 어떤 업무를 하고 계세요?',                    required:true},
+    {id:'career_dream',type:'textarea',label:'커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?',     required:true},
+    {id:'org_culture',type:'textarea', label:"나에게 '조직문화&교육'이란?",                     required:true},
+    {id:'motivation', type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',required:true},
+  ],
+  guest: [
+    {id:'name',      type:'text',     label:'성함을 알려주세요.',                               required:true},
+    {id:'session',   type:'checkbox', label:'어떤 모임에 신청하고 싶으신가요?',                  required:true, options:['1회차 (08/08)','2회차 (09/12)','3회차 (10/10)','4회차 (11월)','5회차 (12/12)']},
+    {id:'phone',     type:'text',     label:'전화번호',                                        required:true},
+    {id:'instagram', type:'text',     label:'인스타그램 아이디',                                required:false},
+    {id:'how_found', type:'radio',    label:'조니딥 모임을 어떻게 알게 되셨나요?',               required:true, options:['인스타그램을 통해','검색을 통해서','지인 추천으로','기존 참가 멤버']},
+    {id:'interests', type:'textarea', label:'최근의 관심사 및 키워드는?',                        required:true},
+    {id:'job',       type:'textarea', label:'현재 어떤 업무를 하고 계세요?',                     required:true},
+    {id:'career_dream',type:'textarea',label:'커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?',    required:true},
+    {id:'org_culture',type:'textarea',label:"나에게 '조직문화&교육'이란?",                      required:true},
+    {id:'motivation',type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',required:true},
+  ]
+};
+
+function openFormEditor(p) {
+  _fmPgId = p.id;
+  const ff = p.form_fields;
+  _fmFields = (ff && (ff.member || ff.guest))
+    ? JSON.parse(JSON.stringify(ff))
+    : JSON.parse(JSON.stringify(FM_DEFAULT));
+  if (!_fmFields.member) _fmFields.member = JSON.parse(JSON.stringify(FM_DEFAULT.member));
+  if (!_fmFields.guest)  _fmFields.guest  = JSON.parse(JSON.stringify(FM_DEFAULT.guest));
+  document.getElementById('form-editor-title').textContent = `설문 편집 — ${p.badge || p.title || ''}`;
+  const sec = document.getElementById('form-editor-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({behavior:'smooth', block:'start'});
+  fmSetTab('member');
+}
+
+function fmClose() {
+  document.getElementById('form-editor-section').style.display = 'none';
+  _fmPgId = null;
+}
+
+function fmSetTab(tab) {
+  _fmTab = tab;
+  document.querySelectorAll('.fm-tab-btn').forEach(el => {
+    const on = el.dataset.t === tab;
+    el.style.fontWeight = on ? '700' : '400';
+    el.style.borderBottom = on ? '2px solid var(--ac)' : '2px solid transparent';
+    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
+  });
+  fmRenderFieldList();
+}
+
+const FM_TYPE_LABEL = {text:'텍스트', textarea:'장문', radio:'라디오', checkbox:'체크박스'};
+
+function fmRenderFieldList() {
+  const fields = _fmFields[_fmTab];
+  const list = document.getElementById('fm-field-list');
+  if (!fields.length) {
+    list.innerHTML = '<p style="color:var(--tl);font-size:.85rem">질문이 없어요. 아래에서 추가해 주세요.</p>';
+    return;
+  }
+  list.innerHTML = fields.map((f, i) => `
+    <div style="background:var(--surface2);border:1px solid var(--be);padding:.75rem;display:flex;gap:.5rem;align-items:flex-start">
+      <span style="font-size:.75rem;font-weight:700;color:var(--tl);padding-top:.55rem;min-width:18px">${i+1}.</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:.4rem">
+        <input class="form-input" value="${(f.label||'').replace(/"/g,'&quot;')}" style="font-size:.88rem"
+          oninput="_fmFields['${_fmTab}'][${i}].label=this.value" placeholder="질문 내용을 입력하세요">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+          <select class="form-input" style="width:auto;font-size:.8rem"
+            onchange="_fmFields['${_fmTab}'][${i}].type=this.value;fmRenderFieldList()">
+            ${['text','textarea','radio','checkbox'].map(t =>
+              `<option value="${t}"${f.type===t?' selected':''}>${FM_TYPE_LABEL[t]}</option>`).join('')}
+          </select>
+          <label style="display:flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--ts);cursor:pointer;white-space:nowrap">
+            <input type="checkbox" ${f.required?'checked':''}
+              onchange="_fmFields['${_fmTab}'][${i}].required=this.checked"
+              style="accent-color:var(--ac);width:14px;height:14px"> 필수
+          </label>
+          <div style="margin-left:auto;display:flex;gap:.25rem">
+            ${i > 0 ? `<button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem" onclick="fmMove(${i},-1)">↑</button>` : '<span style="width:28px"></span>'}
+            ${i < fields.length-1 ? `<button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem" onclick="fmMove(${i},1)">↓</button>` : '<span style="width:28px"></span>'}
+            <button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem;color:var(--danger)" onclick="fmRemove(${i})">✕</button>
+          </div>
+        </div>
+        ${(f.type==='radio'||f.type==='checkbox') ? `
+          <div style="font-size:.75rem;color:var(--tl)">선택지 (쉼표로 구분):</div>
+          <input class="form-input" style="font-size:.82rem"
+            value="${(f.options||[]).join(', ').replace(/"/g,'&quot;')}"
+            oninput="_fmFields['${_fmTab}'][${i}].options=this.value.split(',').map(s=>s.trim()).filter(Boolean)"
+            placeholder="옵션1, 옵션2, 옵션3">
+        ` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function fmMove(idx, dir) {
+  const f = _fmFields[_fmTab];
+  const ni = idx + dir;
+  if (ni < 0 || ni >= f.length) return;
+  [f[idx], f[ni]] = [f[ni], f[idx]];
+  fmRenderFieldList();
+}
+
+function fmRemove(idx) {
+  _fmFields[_fmTab].splice(idx, 1);
+  fmRenderFieldList();
+}
+
+function fmAddField(type) {
+  _fmFields[_fmTab].push({
+    id: 'field_' + Date.now(),
+    type, label: '', required: false,
+    ...(type==='radio'||type==='checkbox' ? {options:[]} : {})
+  });
+  fmRenderFieldList();
+  document.getElementById('fm-field-list').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function fmResetToDefault() {
+  if (!confirm(`${_fmTab==='member'?'정규 멤버':'게스트'} 설문을 기본값으로 초기화할까요? 현재 내용이 사라집니다.`)) return;
+  _fmFields[_fmTab] = JSON.parse(JSON.stringify(FM_DEFAULT[_fmTab]));
+  fmRenderFieldList();
+  toast('기본값으로 초기화했어요. 저장 버튼을 눌러야 반영돼요.');
+}
+
+async function fmSaveFields() {
+  if (!_fmPgId) return;
+  const ok = await sbPatch('JD_programs', _fmPgId, { form_fields: _fmFields });
+  if (ok) toast('설문이 저장됐어요 ✓');
+  else toast('저장 실패', true);
 }
 
 // ── PROPOSALS ──
