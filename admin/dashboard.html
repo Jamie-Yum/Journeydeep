@@ -402,6 +402,17 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-title">책 관리</div>
       <div class="page-sub">조니딥에서 다룬 책들을 관리해요.</div>
     </div>
+    <!-- 알라딘 검색 -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-title">🔍 알라딘으로 책 검색</div>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <input id="bk_search_q" class="form-input" placeholder="책 제목으로 검색..." style="flex:1" onkeydown="if(event.key==='Enter')searchBooks()">
+        <button class="btn btn-primary" onclick="searchBooks()">검색</button>
+      </div>
+      <div id="bk_search_msg" style="font-size:.85rem;color:var(--tl);display:none"></div>
+      <div id="bk_results_grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem"></div>
+    </div>
+
     <div class="bk-layout">
       <!-- 폼 -->
       <div class="card bk-form-card">
@@ -1440,6 +1451,63 @@ function cellDisplay(v) {
   const n = parseAmt(v);
   if (v === 'O' || v.toString().startsWith('X') || isNaN(n) || n === 0 && !/\d/.test(v)) return v;
   return (n < 0 ? '-₩' : '+₩') + Math.abs(n).toLocaleString();
+}
+
+// ── Books: 알라딘 검색 ─────────────────────────────────────
+let _bkSearchItems = [];
+
+async function searchBooks() {
+  const q = document.getElementById('bk_search_q').value.trim();
+  if (!q) { toast('검색어를 입력해 주세요.', true); return; }
+  const msg = document.getElementById('bk_search_msg');
+  const grid = document.getElementById('bk_results_grid');
+  msg.textContent = '검색 중...'; msg.style.display = 'block';
+  grid.style.display = 'none'; grid.innerHTML = '';
+
+  try {
+    const res = await fetch(`${SUPA_URL}/functions/v1/aladin-search?q=${encodeURIComponent(q)}`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const data = await res.json();
+    _bkSearchItems = data.items || [];
+    if (!_bkSearchItems.length) { msg.textContent = '검색 결과가 없어요. 직접 입력해 주세요.'; return; }
+    msg.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = _bkSearchItems.map((b, i) => `
+      <div onclick="bkSelectFromSearch(${i})" style="cursor:pointer;border:2px solid transparent;transition:border-color .15s;padding:2px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='transparent'">
+        <img src="${b.cover||''}" alt="${b.title}" style="width:100%;aspect-ratio:2/3;object-fit:cover;background:#e2e8f0;display:block">
+        <div style="font-size:.68rem;font-weight:600;color:var(--dk);line-height:1.35;margin-top:.3rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${b.title}</div>
+        <div style="font-size:.63rem;color:var(--tl);margin-top:.1rem">${(b.author||'').split(' (')[0]}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    msg.textContent = '검색 오류가 발생했어요.';
+  }
+}
+
+function bkSelectFromSearch(idx) {
+  const b = _bkSearchItems[idx];
+  if (!b) return;
+  // 폼에 자동 채우기
+  document.getElementById('bk_id').value = '';
+  document.getElementById('bk_title').value = b.title || '';
+  document.getElementById('bk_author').value = (b.author || '').split(' (')[0];
+  document.getElementById('bk_category').value = '';
+  document.getElementById('bk_date').value = '';
+  document.getElementById('bk_emoji').value = '';
+  document.getElementById('bk_order').value = '0';
+  // 표지 미리보기 (알라딘 URL 직접 사용)
+  _bkCoverBlob = null;
+  _bkCoverUrl = b.cover || '';
+  const prev = document.getElementById('bk_cover_preview');
+  if (_bkCoverUrl) {
+    prev.src = _bkCoverUrl; prev.style.display = 'block';
+    document.getElementById('bk_cover_remove').style.display = 'inline-flex';
+  }
+  document.getElementById('bk_form_title').textContent = '선택한 책 추가';
+  // 폼으로 스크롤
+  document.querySelector('.bk-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('시즌과 날짜를 입력한 뒤 저장해 주세요 ✓');
 }
 
 // ── Books ──────────────────────────────────────────────────
