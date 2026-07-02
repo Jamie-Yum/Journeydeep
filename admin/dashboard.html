@@ -238,6 +238,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
         <div class="field field-full">
+          <label>회차별 일정 <span style="font-weight:400;color:var(--tl)">(책 등록 시 날짜 자동 연동)</span></label>
+          <div id="pg_sessions_wrap" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.4rem"></div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="pgAddSession()">+ 회차 추가</button>
+        </div>
+        <div class="field field-full">
           <label>히어로 배경 이미지 <span style="font-weight:400;color:var(--tl)">(프로그램 페이지 상단 배경)</span></label>
           <div style="display:flex;gap:.5rem;align-items:center">
             <input id="pg_image" placeholder="https://..." style="flex:1">
@@ -439,8 +444,16 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <input class="form-input" id="bk_author" placeholder="저자명">
           </div>
           <div>
-            <label class="form-label">카테고리</label>
-            <input class="form-input" id="bk_category" placeholder="예: 시즌9">
+            <label class="form-label">시즌</label>
+            <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
+              <option value="">시즌 선택...</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">회차</label>
+            <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
+              <option value="">회차 선택...</option>
+            </select>
           </div>
           <div>
             <label class="form-label">날짜</label>
@@ -660,7 +673,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers(); loadBooks();
+  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers(); loadBooks(); loadBkSeasons();
 }
 
 // Nav
@@ -715,6 +728,29 @@ function toast(msg, err=false) {
 let _editingProgramId = null;
 const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
+function pgAddSession(n='', d='') {
+  const wrap = document.getElementById('pg_sessions_wrap');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:.4rem;align-items:center';
+  row.innerHTML = `<input class="form-input pg-session-n" placeholder="예: 1회차" value="${n}" style="width:90px;flex:none">
+    <input class="form-input pg-session-d" placeholder="날짜 예: 2025-08-08" value="${d}" style="flex:1">
+    <button type="button" class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="flex:none">✕</button>`;
+  wrap.appendChild(row);
+}
+
+function pgGetSessions() {
+  const rows = document.querySelectorAll('#pg_sessions_wrap > div');
+  return Array.from(rows).map(r => ({
+    n: r.querySelector('.pg-session-n').value.trim(),
+    d: r.querySelector('.pg-session-d').value.trim()
+  })).filter(s => s.n || s.d);
+}
+
+function pgLoadSessions(sessions) {
+  document.getElementById('pg_sessions_wrap').innerHTML = '';
+  (sessions || []).forEach(s => pgAddSession(s.n, s.d));
+}
+
 function pgFormData() {
   return {
     title: document.getElementById('pg_title').value.trim(),
@@ -729,11 +765,13 @@ function pgFormData() {
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
     image_url: document.getElementById('pg_image').value,
+    sessions: pgGetSessions(),
   };
 }
 
 function pgClearForm() {
   PG_FIELDS.forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pg_sessions_wrap').innerHTML = '';
   _editingProgramId = null;
   document.getElementById('pg_save_btn').textContent = '저장하기';
   document.getElementById('pg_cancel_btn').style.display = 'none';
@@ -753,6 +791,7 @@ function editProgram(p) {
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
   document.getElementById('pg_image').value = p.image_url || '';
+  pgLoadSessions(p.sessions);
   const pgPrev = document.getElementById('pg_image_preview'); if(pgPrev){pgPrev.src=p.image_url||'';pgPrev.style.display=p.image_url?'block':'none';}
   _editingProgramId = p.id;
   document.getElementById('pg_save_btn').textContent = '수정 저장';
@@ -1512,6 +1551,59 @@ function bkSelectFromSearch(idx) {
 
 // ── Books ──────────────────────────────────────────────────
 let _bkCoverBlob = null, _bkCoverUrl = null;
+let _bkPrograms = []; // 시즌별 프로그램 캐시
+
+async function loadBkSeasons() {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=created_at.desc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  _bkPrograms = (await res.json()) || [];
+  const sel = document.getElementById('bk_category');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">시즌 선택...</option>';
+  _bkPrograms.forEach(p => {
+    if (!p.badge) return;
+    const opt = document.createElement('option');
+    opt.value = p.badge; opt.textContent = p.badge;
+    if (p.badge === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // 직접 입력 옵션
+  const other = document.createElement('option');
+  other.value = '__other__'; other.textContent = '기타 (직접 입력)';
+  sel.appendChild(other);
+}
+
+function bkOnSeasonChange() {
+  const val = document.getElementById('bk_category').value;
+  const sessionSel = document.getElementById('bk_session_sel');
+  sessionSel.innerHTML = '<option value="">회차 선택...</option>';
+  document.getElementById('bk_date').value = '';
+
+  if (val === '__other__') {
+    // 직접 입력 모드: category를 text input으로 교체
+    const sel = document.getElementById('bk_category');
+    const input = document.createElement('input');
+    input.className = 'form-input'; input.id = 'bk_category'; input.placeholder = '예: 시즌9';
+    sel.replaceWith(input);
+    sessionSel.innerHTML = '<option value="">—</option>';
+    return;
+  }
+
+  const prog = _bkPrograms.find(p => p.badge === val);
+  if (!prog || !prog.sessions || !prog.sessions.length) return;
+  prog.sessions.forEach(s => {
+    if (!s.n) return;
+    const opt = document.createElement('option');
+    opt.value = s.d || ''; opt.textContent = s.n + (s.d ? '  (' + s.d + ')' : '');
+    sessionSel.appendChild(opt);
+  });
+}
+
+function bkOnSessionChange() {
+  const date = document.getElementById('bk_session_sel').value;
+  if (date) document.getElementById('bk_date').value = date;
+}
 
 async function loadBooks() {
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?order=sort_order.asc,created_at.asc`, {
@@ -1558,7 +1650,19 @@ function bkClearForm() {
   document.getElementById('bk_id').value = '';
   document.getElementById('bk_title').value = '';
   document.getElementById('bk_author').value = '';
-  document.getElementById('bk_category').value = '';
+  // bk_category가 input으로 바뀌었을 경우 select로 복원
+  const catEl = document.getElementById('bk_category');
+  if (catEl.tagName === 'INPUT') {
+    const sel = document.createElement('select');
+    sel.className = 'form-input'; sel.id = 'bk_category';
+    sel.setAttribute('onchange', 'bkOnSeasonChange()');
+    catEl.replaceWith(sel);
+    loadBkSeasons();
+  } else {
+    catEl.value = '';
+  }
+  const sessionSel = document.getElementById('bk_session_sel');
+  if (sessionSel) { sessionSel.innerHTML = '<option value="">회차 선택...</option>'; }
   document.getElementById('bk_date').value = '';
   document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = 0;
