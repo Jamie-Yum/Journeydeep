@@ -1599,9 +1599,23 @@ async function saveMembersData(showToast=true) {
 function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
   tabs.innerHTML = membersData.seasons.map((s, i) =>
-    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})">${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small></button>`
+    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
+      ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
+      <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
+    </button>`
   ).join('') +
   `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+}
+
+function deleteSeason(i) {
+  const name = membersData.seasons[i].name;
+  if (!confirm(`"${name}" 시즌을 삭제할까요?\n포함된 모든 회원/모임 데이터가 함께 삭제돼요.`)) return;
+  membersData.seasons.splice(i, 1);
+  currentSeasonIdx = Math.max(0, Math.min(currentSeasonIdx, membersData.seasons.length - 1));
+  saveMembersData();
+  renderMemberTabs();
+  if (membersData.seasons.length) renderMemberSeason(currentSeasonIdx);
+  else document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌이 없어요. 시즌을 추가해주세요.</p>';
 }
 
 function switchSeason(i) {
