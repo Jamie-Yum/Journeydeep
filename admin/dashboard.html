@@ -951,20 +951,68 @@ async function saveProgram() {
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
+function pgInitDrag() {
+  const list = document.getElementById('pg_sortable');
+  if (!list) return;
+  let dragging = null;
+
+  list.querySelectorAll('.item-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragging = row;
+      setTimeout(() => row.style.opacity = '0.4', 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.style.opacity = '';
+      list.querySelectorAll('.item-row').forEach(r => r.style.borderTop = '');
+      pgSaveOrder();
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (row === dragging) return;
+      list.querySelectorAll('.item-row').forEach(r => r.style.borderTop = '');
+      row.style.borderTop = '2px solid var(--ac)';
+      const bounding = row.getBoundingClientRect();
+      const offset = bounding.y + bounding.height / 2;
+      if (e.clientY < offset) list.insertBefore(dragging, row);
+      else list.insertBefore(dragging, row.nextSibling);
+    });
+  });
+}
+
+async function pgSaveOrder() {
+  const rows = document.querySelectorAll('#pg_sortable .item-row');
+  const total = rows.length;
+  const updates = Array.from(rows).map((r, i) => ({
+    id: r.dataset.id,
+    sort_order: total - i
+  }));
+  await Promise.all(updates.map(u =>
+    fetch(`${SUPA_URL}/rest/v1/JD_programs?id=eq.${u.id}`, {
+      method: 'PATCH',
+      headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ sort_order: u.sort_order })
+    })
+  ));
+  toast('순서 저장됐어요 ✓');
+}
+
 async function duplicateProgram(p) {
   const { id, created_at, ...copy } = p;
   copy.title = copy.title + ' (복사본)';
-  const ok = await sbPost('JD_programs', { ...copy, visible: true });
+  const maxOrder = Math.max(0, ...[...document.querySelectorAll('#pg_sortable .item-row')].map((_, i, a) => a.length - i));
+  const ok = await sbPost('JD_programs', { ...copy, visible: true, sort_order: maxOrder + 1 });
   if (ok) { toast('복제됐어요 ✓'); loadPrograms(); }
   else toast('복제 중 오류가 발생했어요.', true);
 }
 
 async function loadPrograms() {
-  const data = await sbGet('JD_programs', '&order=season_number.desc');
+  const data = await sbGet('JD_programs', '&order=sort_order.desc');
   const el = document.getElementById('pg_list');
   if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 프로그램이 없어요.</div>'; return; }
-  el.innerHTML = '<div class="item-list">' + data.map(p => `
-    <div class="item-row">
+  el.innerHTML = '<div class="item-list" id="pg_sortable">' + data.map(p => `
+    <div class="item-row" draggable="true" data-id="${p.id}" style="cursor:grab">
+      <div style="padding:.4rem .2rem;color:var(--tl);font-size:1rem;cursor:grab;user-select:none">⠿</div>
       <div class="item-info">
         <h4>${p.badge ? `<span style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-right:.5rem">${p.badge}</span>` : ''}${p.title}</h4>
         <p>${p.date_start || ''}${p.date_end ? ' ~ ' + p.date_end : ''} ${p.venue ? '· ' + p.venue : ''}</p>
@@ -978,6 +1026,7 @@ async function loadPrograms() {
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
+  pgInitDrag();
 }
 
 // ── FORM EDITOR ────────────────────────────────────────────
