@@ -621,6 +621,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
         <div class="card-title" style="margin:0">등록된 사진 <span id="gl_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></div>
         <div style="display:flex;gap:.4rem">
+          <button class="btn btn-ghost btn-sm" id="gl_fav_btn" onclick="glToggleFavOnly()" title="즐겨찾기만 보기">☆</button>
           <button class="btn btn-ghost btn-sm" id="gl_select_btn" onclick="glToggleSelectMode()">선택</button>
           <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
         </div>
@@ -1767,14 +1768,14 @@ async function uploadImages(files) {
 
 // ── GALLERY ────────────────────────────────────────────────
 let _glAllPhotos = [], _glSeasonFilter = '전체', _glSessionFilter = '전체', _glPrograms = [];
-let _glSelectMode = false, _glSelected = new Set();
+let _glSelectMode = false, _glSelected = new Set(), _glFavOnly = false;
 
 async function loadGallery() {
   const grid = document.getElementById('gl_grid');
   const countEl = document.getElementById('gl_count');
   grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>';
 
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,session,sort_order,visible&order=season.desc,sort_order.asc,created_at.asc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,session,sort_order,visible,favorited&order=season.desc,sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _glAllPhotos = await res.json() || [];
@@ -1862,6 +1863,7 @@ function glRenderGrid() {
   if (_glSeasonFilter !== '전체' && _glSessionFilter !== '전체') {
     rows = rows.filter(r => r.session === _glSessionFilter);
   }
+  if (_glFavOnly) rows = rows.filter(r => r.favorited);
 
   if (!rows.length) {
     grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">이 시즌에 등록된 사진이 없어요.</p>';
@@ -1891,9 +1893,15 @@ function glRenderGrid() {
             <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
           </div>
         </div>
+        <button onclick="glToggleFav('${r.id}',${!!r.favorited});event.stopPropagation()"
+          style="position:absolute;bottom:.5rem;right:.5rem;background:none;border:none;font-size:1.1rem;cursor:pointer;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));opacity:0;transition:opacity .2s" class="gl-hover-overlay gl-fav-btn">
+          ${r.favorited ? '★' : '☆'}
+        </button>
+        </div>
         <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
       `}
       <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'공개':'비공개'}</div>
+      ${r.favorited && !_glSelectMode ? `<div style="position:absolute;bottom:.5rem;right:.5rem;font-size:1rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))">★</div>` : ''}
     </div>`;
   }).join('');
 
@@ -1903,6 +1911,25 @@ function glRenderGrid() {
       card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
     });
   }
+}
+
+function glToggleFavOnly() {
+  _glFavOnly = !_glFavOnly;
+  const btn = document.getElementById('gl_fav_btn');
+  btn.textContent = _glFavOnly ? '★' : '☆';
+  btn.style.color = _glFavOnly ? '#f59e0b' : '';
+  btn.style.background = _glFavOnly ? '#fef3c720' : '';
+  glRenderGrid();
+}
+
+async function glToggleFav(id, current) {
+  const photo = _glAllPhotos.find(p => p.id === id);
+  if (photo) photo.favorited = !current;
+  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+    method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ favorited: !current })
+  });
+  glRenderGrid();
 }
 
 function glToggleSelectMode() {
