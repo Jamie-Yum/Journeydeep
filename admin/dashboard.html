@@ -863,7 +863,7 @@ function pgAddSession(n='', d='') {
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:.4rem;align-items:center';
   row.innerHTML = `<input class="form-input pg-session-n" placeholder="예: 1회차" value="${n}" style="width:90px;flex:none">
-    <input class="form-input pg-session-d" placeholder="날짜 예: 2025-08-08" value="${d}" style="flex:1">
+    <input type="date" class="form-input pg-session-d" value="${d}" style="flex:1">
     <button type="button" class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="flex:none">✕</button>`;
   wrap.appendChild(row);
 }
