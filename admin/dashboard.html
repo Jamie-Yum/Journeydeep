@@ -2200,13 +2200,99 @@ async function saveMembersData(toast=true) {
 
 function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
-  tabs.innerHTML = membersData.seasons.map((s, i) =>
-    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
-      ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
-      <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
-    </button>`
-  ).join('') +
-  `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+  const summaryActive = currentSeasonIdx === 'summary';
+  tabs.innerHTML =
+    `<button class="m-tab ${summaryActive?'active':''}" onclick="switchToSummary()" style="font-weight:700">종합 현황</button>` +
+    membersData.seasons.map((s, i) =>
+      `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
+        ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
+        <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
+      </button>`
+    ).join('') +
+    `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+}
+
+function switchToSummary() {
+  currentSeasonIdx = 'summary';
+  renderMemberTabs();
+  renderMemberSummary();
+}
+
+function renderMemberSummary() {
+  const seasons = membersData.seasons;
+  if (!seasons.length) {
+    document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>';
+    return;
+  }
+
+  // 전체 멤버 이름 수집 (중복 제거, 빈 이름 제외)
+  const nameSet = new Set();
+  seasons.forEach(s => s.members.forEach(m => { if (m.name.trim()) nameSet.add(m.name.trim()); }));
+  const allNames = [...nameSet].sort((a, b) => a.localeCompare(b, 'ko'));
+
+  // 각 멤버 × 시즌 참여 여부 계산
+  // 참여 = att 배열에 실제 출석 표시(O, o, ○, 출, 빈값 아닌 것)가 1개 이상
+  function participated(member) {
+    if (!member) return false;
+    return member.att.some(v => {
+      const t = (v||'').trim();
+      return t && !t.startsWith('-') && t !== '0';
+    });
+  }
+
+  const thSeasons = seasons.map(s => `<th style="white-space:nowrap">${s.name}</th>`).join('');
+
+  const rows = allNames.map(name => {
+    let total = 0;
+    const cells = seasons.map(s => {
+      const m = s.members.find(m => m.name.trim() === name);
+      const joined = participated(m);
+      if (joined) total++;
+      return joined
+        ? `<td style="text-align:center;color:#2563eb;font-weight:700">O</td>`
+        : m
+          ? `<td style="text-align:center;color:var(--tl);opacity:.4">-</td>`
+          : `<td style="text-align:center;color:var(--tl);opacity:.2">·</td>`;
+    }).join('');
+    const pct = Math.round(total / seasons.length * 100);
+    const barColor = pct >= 80 ? '#2563eb' : pct >= 50 ? '#7c3aed' : '#94a3b8';
+    return `<tr>
+      <td style="font-weight:600;white-space:nowrap">${name}</td>
+      ${cells}
+      <td style="text-align:center;font-weight:700;color:${barColor}">${total}<span style="font-weight:400;font-size:.75rem;color:var(--tl);margin-left:.25rem">/ ${seasons.length}</span></td>
+      <td style="min-width:80px">
+        <div style="background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden">
+          <div style="background:${barColor};height:100%;width:${pct}%;border-radius:4px;transition:width .3s"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // 시즌별 참여 인원 합계 행
+  const colCounts = seasons.map(s => {
+    const cnt = s.members.filter(m => m.name.trim() && participated(m)).length;
+    return `<td style="text-align:center;font-weight:700;font-size:.8rem;color:var(--ac)">${cnt}명</td>`;
+  }).join('');
+
+  document.getElementById('member_content').innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="m-table" style="min-width:600px">
+        <thead><tr>
+          <th style="min-width:80px">이름</th>
+          ${thSeasons}
+          <th style="text-align:center">참여 횟수</th>
+          <th style="min-width:80px">참여율</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr style="background:rgba(37,99,235,.04)">
+          <td style="font-weight:700;font-size:.8rem;color:var(--tl)">시즌 참여 인원</td>
+          ${colCounts}
+          <td colspan="2"></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <p style="margin-top:1rem;font-size:.78rem;color:var(--tl)">O = 참여 · - = 등록됐으나 미참여 · · = 해당 시즌 미등록</p>
+  `;
 }
 
 function deleteSeason(i) {
