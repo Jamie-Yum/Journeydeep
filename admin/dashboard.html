@@ -523,25 +523,39 @@ tr:hover td{background:rgba(37,99,235,.03)}
   <div id="panel-gallery" class="panel">
     <div class="page-header">
       <div class="page-title">갤러리 관리</div>
-      <div class="page-sub">홈화면 "함께한 순간들" 마퀴에 표시될 사진을 관리해요</div>
+      <div class="page-sub">홈화면 "함께한 순간들" 마퀴에 표시될 사진을 시즌별로 관리해요</div>
     </div>
     <div class="card">
       <div class="card-title">사진 추가</div>
-      <div style="display:flex;flex-direction:column;gap:1rem">
-        <div class="img-upload-area" onclick="document.getElementById('gl_file').click()" id="gl_drop_zone">
+      <div style="display:flex;flex-direction:column;gap:.85rem">
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:160px">
+            <label class="form-label">시즌 선택 *</label>
+            <select class="form-input" id="gl_season_sel" onchange="glOnSeasonSel()">
+              <option value="">시즌 선택...</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:160px" id="gl_season_custom_wrap" style="display:none">
+            <label class="form-label">시즌 직접 입력</label>
+            <input class="form-input" id="gl_season_custom" placeholder="예: 시즌9">
+          </div>
+        </div>
+        <div class="img-upload-area" onclick="glCheckSeasonAndUpload()" id="gl_drop_zone" style="margin-top:.25rem">
           <input type="file" id="gl_file" accept="image/*" multiple style="display:none" onchange="glUploadFiles(this.files);this.value=''">
           <div style="font-size:2rem;margin-bottom:.75rem">📸</div>
           <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 사진을 드래그해서 업로드</div>
-          <div style="font-size:.82rem;color:var(--tl)">여러 장 동시 업로드 가능 · JPG, PNG, WEBP 지원</div>
+          <div style="font-size:.82rem;color:var(--tl)">시즌 선택 후 · 여러 장 동시 업로드 가능</div>
         </div>
         <div id="gl_upload_status" style="display:none;font-size:.88rem;font-weight:600;color:var(--ac)"></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
         <div class="card-title" style="margin:0">등록된 사진 <span id="gl_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></div>
         <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
       </div>
+      <!-- 시즌 탭 필터 -->
+      <div id="gl_season_tabs" style="display:flex;gap:0;border-bottom:1px solid var(--be);margin-bottom:1.25rem;overflow-x:auto;padding-bottom:0"></div>
       <div id="gl_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">
         <div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>
       </div>
@@ -1496,47 +1510,115 @@ async function uploadImages(files) {
 }
 
 // ── GALLERY ────────────────────────────────────────────────
+let _glAllPhotos = [], _glSeasonFilter = '전체';
+
 async function loadGallery() {
   const grid = document.getElementById('gl_grid');
   const countEl = document.getElementById('gl_count');
   grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>';
 
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,sort_order,visible&order=sort_order.asc,created_at.asc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,sort_order,visible&order=season.desc,sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
-  const rows = await res.json() || [];
-  if (countEl) countEl.textContent = `(${rows.length}장)`;
+  _glAllPhotos = await res.json() || [];
+
+  // 시즌 탭 구성
+  const seasons = ['전체', ...[...new Set(_glAllPhotos.map(r => r.season || '미분류'))].sort().reverse()];
+  glRenderSeasonTabs(seasons);
+  glRenderUploadSeasonSel(seasons.filter(s => s !== '전체'));
+  glRenderGrid();
+  if (countEl) countEl.textContent = `(총 ${_glAllPhotos.length}장)`;
+}
+
+function glRenderSeasonTabs(seasons) {
+  const tabs = document.getElementById('gl_season_tabs');
+  tabs.innerHTML = seasons.map(s => `
+    <button onclick="glSetSeason('${s}')" class="gl-stab" data-s="${s}"
+      style="background:none;border:none;border-bottom:2px solid ${s===_glSeasonFilter?'var(--ac)':'transparent'};
+      color:${s===_glSeasonFilter?'var(--ac)':'var(--tl)'};font-weight:${s===_glSeasonFilter?'700':'400'};
+      font-size:.85rem;padding:.4rem .9rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>
+  `).join('');
+}
+
+function glSetSeason(s) {
+  _glSeasonFilter = s;
+  document.querySelectorAll('.gl-stab').forEach(el => {
+    const on = el.dataset.s === s;
+    el.style.borderBottomColor = on ? 'var(--ac)' : 'transparent';
+    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
+    el.style.fontWeight = on ? '700' : '400';
+  });
+  glRenderGrid();
+}
+
+function glRenderGrid() {
+  const grid = document.getElementById('gl_grid');
+  const rows = _glSeasonFilter === '전체'
+    ? _glAllPhotos
+    : _glAllPhotos.filter(r => (r.season || '미분류') === _glSeasonFilter);
 
   if (!rows.length) {
-    grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">등록된 사진이 없어요.</p>';
+    grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">이 시즌에 등록된 사진이 없어요.</p>';
     return;
   }
 
   grid.innerHTML = rows.map(r => `
     <div style="position:relative;border-radius:12px;overflow:hidden;background:var(--be);aspect-ratio:3/4;cursor:pointer;border:2px solid ${r.visible?'transparent':'var(--danger)'}">
-      <img src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;display:block">
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
+      <img src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
       <div style="position:absolute;bottom:0;left:0;right:0;padding:.6rem .7rem;opacity:0;transition:opacity .2s" class="gl-hover-overlay">
-        ${r.caption ? `<div style="font-size:.72rem;color:#fff;font-weight:600;margin-bottom:.35rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
+        ${r.caption ? `<div style="font-size:.7rem;color:#fff;font-weight:600;margin-bottom:.3rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
         <div style="display:flex;gap:.3rem">
-          <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,'\\\'')}')" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
-          <button onclick="glToggleVisible('${r.id}',${r.visible})" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'숨기기':'보이기'}</button>
-          <button onclick="glDelete('${r.id}')" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
+          <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,"\\'")}','${(r.season||'').replace(/'/g,"\\'")}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
+          <button onclick="glToggleVisible('${r.id}',${r.visible});event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'숨기기':'보이기'}</button>
+          <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
         </div>
       </div>
-      <div style="position:absolute;top:.5rem;right:.5rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:10px">${r.visible?'노출':'숨김'}</div>
+      <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}</div>
+      <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'노출':'숨김'}</div>
     </div>
   `).join('');
 
-  // 호버 오버레이 토글
   grid.querySelectorAll('[style*="position:relative"]').forEach(card => {
     card.addEventListener('mouseenter', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '1'));
     card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
   });
 }
 
+function glRenderUploadSeasonSel(existingSeasons) {
+  const sel = document.getElementById('gl_season_sel');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">시즌 선택...</option>'
+    + existingSeasons.map(s => `<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('')
+    + '<option value="__new__">+ 새 시즌 직접 입력</option>';
+}
+
+function glOnSeasonSel() {
+  const sel = document.getElementById('gl_season_sel');
+  const wrap = document.getElementById('gl_season_custom_wrap');
+  wrap.style.display = sel.value === '__new__' ? 'flex' : 'none';
+}
+
+function glGetSelectedSeason() {
+  const sel = document.getElementById('gl_season_sel');
+  if (sel.value === '__new__') {
+    return (document.getElementById('gl_season_custom')?.value || '').trim();
+  }
+  return sel.value;
+}
+
+function glCheckSeasonAndUpload() {
+  const season = glGetSelectedSeason();
+  if (!season) { toast('먼저 시즌을 선택해 주세요.', true); return; }
+  document.getElementById('gl_file').click();
+}
+
 async function glUploadFiles(files) {
   if (!files || !files.length) return;
+  const season = glGetSelectedSeason();
+  if (!season) { toast('시즌을 먼저 선택해 주세요.', true); return; }
+
   const status = document.getElementById('gl_upload_status');
   status.style.display = 'block';
   const total = files.length;
@@ -1544,24 +1626,25 @@ async function glUploadFiles(files) {
 
   for (const file of Array.from(files)) {
     status.textContent = `업로드 중... (${done+1}/${total})`;
-    const fname = 'gallery/' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + file.name.split('.').pop();
+    const ext = file.name.split('.').pop();
+    const fname = `gallery/${season}_${Date.now()}_${Math.random().toString(36).slice(2,5)}.${ext}`;
     const uploaded = await uploadBlob(file, fname);
     if (uploaded && uploaded.ok) {
       const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
       await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
         method: 'POST',
         headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ image_url: url, sort_order: 0 })
+        body: JSON.stringify({ image_url: url, season, sort_order: 0 })
       });
     }
     done++;
   }
-  status.textContent = `✓ ${done}장 업로드 완료!`;
+  status.textContent = `✓ ${season} 사진 ${done}장 업로드 완료!`;
   setTimeout(() => { status.style.display = 'none'; }, 2500);
   loadGallery();
 }
 
-async function glEditCaption(id, current) {
+async function glEditCaption(id, current, season) {
   const cap = prompt('캡션 입력 (비워두면 삭제):', current);
   if (cap === null) return;
   await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
