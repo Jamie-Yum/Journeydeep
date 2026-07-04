@@ -1895,14 +1895,12 @@ function glRenderGrid() {
           </div>
         </div>
         <button onclick="glToggleFav('${r.id}',${!!r.favorited});event.stopPropagation()"
-          style="position:absolute;bottom:.5rem;right:.5rem;background:none;border:none;font-size:1.1rem;cursor:pointer;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));opacity:0;transition:opacity .2s" class="gl-hover-overlay gl-fav-btn">
+          style="position:absolute;bottom:.5rem;right:.5rem;background:none;border:none;font-size:1.2rem;cursor:pointer;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.7));color:${r.favorited?'#f59e0b':'#fff'};opacity:${r.favorited?'1':'0'};transition:opacity .2s" class="gl-hover-overlay gl-fav-btn">
           ${r.favorited ? '★' : '☆'}
         </button>
-        </div>
         <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
       `}
       <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'공개':'비공개'}</div>
-      ${r.favorited && !_glSelectMode ? `<div style="position:absolute;bottom:.5rem;right:.5rem;font-size:1rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))">★</div>` : ''}
     </div>`;
   }).join('');
 
