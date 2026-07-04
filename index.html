@@ -100,6 +100,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-marquee-outer{overflow:hidden;margin-top:2.5rem;width:100%;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .book-marquee-track{display:flex;gap:1rem;width:max-content;animation:bk-scroll 40s linear infinite;align-items:flex-end;padding-bottom:.25rem}
 .book-marquee-track:hover{animation-play-state:paused}
+.book-marquee-track--rev{animation-direction:reverse}
 @keyframes bk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .book-card-v{flex:none;width:180px;height:280px;border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
 .book-card-v:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 24px 48px rgba(0,0,0,.22)}
@@ -190,7 +191,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     </li>
     <li class="nav-li has-dropdown">
       <a href="#trace" class="nav-link-item"><span class="nav-link-main">Trace</span></a>
-      <div class="nav-dropdown"><a href="archive/books.html" class="nav-dd-item">Book List</a></div>
+      <div class="nav-dropdown">
+        <a href="archive/gallery.html" class="nav-dd-item">Gallery</a>
+        <div class="nav-dd-divider"></div>
+        <a href="archive/books.html" class="nav-dd-item">Book List</a>
+      </div>
     </li>
   </ul>
   <div style="display:flex;align-items:center;gap:.75rem">
@@ -263,17 +268,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     </div>
   </div>
 </div>
-</div></section><section class="section gallery" id="gallery"><div class="section-container"><div class="section-eyebrow reveal">Moments</div><h2 class="section-title reveal">함께한 순간들</h2></div><div class="book-marquee-outer" style="margin-top:2rem"><div class="book-marquee-track" id="gallery-marquee-track"><!-- JS로 채워짐 --></div></div></section><section class="section booklist" id="booklist"><div class="section-container">
-<div class="section-eyebrow reveal">Book List</div>
-<h2 class="section-title reveal">함께 읽은 책들</h2>
-<p class="section-desc reveal" style="max-width:540px">시즌마다 4~5권의 책을 함께 읽고 토론합니다.</p>
-<div class="book-marquee-outer">
-  <div class="book-marquee-track" id="book-marquee-track">
-    <!-- JS로 채워짐 -->
+</div></section><section class="section" id="gallery-books" style="background:var(--bg);padding-bottom:0">
+<div class="section-container">
+  <div class="section-eyebrow reveal">Moments</div>
+  <h2 class="section-title reveal">함께한 순간들</h2>
+</div>
+<div style="margin-top:2rem;overflow:hidden">
+  <div class="book-marquee-outer" style="margin-bottom:.75rem"><div class="book-marquee-track" id="gallery-marquee-track"><!-- JS로 채워짐 --></div></div>
+  <div class="book-marquee-outer"><div class="book-marquee-track book-marquee-track--rev" id="gallery-marquee-track2"><!-- JS로 채워짐 --></div></div>
+</div>
+<div class="section-container" style="margin-top:3.5rem">
+  <div class="section-eyebrow reveal">Book List</div>
+  <h2 class="section-title reveal">함께 읽은 책들</h2>
+  <p class="section-desc reveal" style="max-width:540px">시즌마다 4~5권의 책을 함께 읽고 토론합니다.</p>
+</div>
+<div style="margin-top:1.5rem">
+  <div class="book-marquee-outer">
+    <div class="book-marquee-track" id="book-marquee-track"><!-- JS로 채워짐 --></div>
   </div>
 </div>
-<div style="text-align:center;margin-top:2.5rem"><a href="archive/books.html" style="color:var(--ac);font-size:.88rem;text-decoration:none;font-weight:500">전체 도서 목록 보기 (33권) →</a></div>
-</div></section><section class="section" id="journeys" style="background:var(--bg)">
+<div style="text-align:center;padding:2rem 0 3rem"><a href="archive/books.html" style="color:var(--ac);font-size:.88rem;text-decoration:none;font-weight:500">전체 도서 목록 보기 (33권) →</a></div>
+</section><section class="section" id="journeys" style="background:var(--bg)">
 <div class="section-container">
 <div class="section-eyebrow reveal">Journeys · Programs</div>
 <h2 class="section-title reveal">함께 걸어가는 여정들</h2>
@@ -403,12 +418,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
         +(p.caption?'<div class="bk-label"><h4 style="font-size:.85rem">'+p.caption+'</h4></div>':'')
         +'</div>';
     }
-    var cards=photos.map(makePhoto).join('');
+    var mid=Math.ceil(photos.length/2);
+    var row1=photos.slice(0,mid),row2=photos.slice(mid);
+    if(!row2.length)row2=photos.slice().reverse();
+    function makeRow(arr,times){var c=arr.map(makePhoto).join('');var h='';for(var i=0;i<times;i++)h+=c;return h;}
     var times=photos.length<8?3:2;
-    var html='';for(var i=0;i<times;i++)html+=cards;
-    gt.innerHTML=html;
-    var dur=Math.max(25,photos.length*5)+'s';
+    var dur=Math.max(25,photos.length*4)+'s';
+    gt.innerHTML=makeRow(row1,times);
     gt.style.animationDuration=dur;
+    var gt2=document.getElementById('gallery-marquee-track2');
+    if(gt2){gt2.innerHTML=makeRow(row2,times);gt2.style.animationDuration=dur;}
   }).catch(function(){});
 })();
 </script>
