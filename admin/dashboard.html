@@ -942,6 +942,8 @@ function editProgram(p) {
 async function saveProgram() {
   const data = pgFormData();
   if (!data.title) { toast('제목을 입력해 주세요.', true); return; }
+  const numMatch = (data.badge || '').match(/\d+/);
+  if (numMatch) data.season_number = parseInt(numMatch[0]);
   const ok = _editingProgramId
     ? await sbPatch('JD_programs', _editingProgramId, data)
     : await sbPost('JD_programs', { ...data, visible: true });
