@@ -1754,8 +1754,9 @@ async function uploadImages(files) {
   let i = 0;
   const processNext = async () => {
     if (i >= arr.length) { loadImages(); return; }
-    const file = arr[i++];
-    openCropModal(await heicToJpeg(file), async blob => {
+    const rawFile = arr[i++];
+    const file = await heicToJpeg(rawFile);
+    openCropModal(file, async blob => {
       const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
       toast(`업로드 중... (${i}/${arr.length})`);
       const res = await uploadBlob(blob, fname);
