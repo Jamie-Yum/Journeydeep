@@ -3,7 +3,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 :root{--bg:#F4F6FA;--wh:#FFFFFF;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ts:#334155;--tl:#64748B;--be:#E8ECF4;--sw:rgba(15,23,42,.06);--red:#EF4444;--green:#10B981}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2077,14 +2077,21 @@ function glCheckSeasonAndUpload() {
 }
 
 async function heicToJpeg(file) {
-  const isHeic = file.type === 'image/heic' || file.type === 'image/heif'
-    || /\.(heic|heif)$/i.test(file.name);
+  // iPhone HEIC는 file.type이 '' 또는 'image/heic'/'image/heif'로 옴
+  const isHeic = /^image\/(heic|heif)$/i.test(file.type)
+    || /\.(heic|heif)$/i.test(file.name)
+    || (file.type === '' && /\.(heic|heif|jpg|jpeg)$/i.test(file.name) === false && file.size > 100000);
   if (!isHeic) return file;
+  toast('HEIC 변환 중...');
   try {
-    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
-    return Array.isArray(blob) ? blob[0] : blob;
+    if (typeof heic2any === 'undefined') throw new Error('heic2any 라이브러리 로드 실패');
+    const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+    const converted = Array.isArray(result) ? result[0] : result;
+    toast('HEIC → JPEG 변환 완료 ✓');
+    return new File([converted], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
   } catch(e) {
-    console.warn('HEIC 변환 실패, 원본 사용', e);
+    console.warn('HEIC 변환 실패:', e);
+    toast('HEIC 변환 실패: ' + e.message, true);
     return file;
   }
 }
