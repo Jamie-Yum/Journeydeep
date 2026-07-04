@@ -56,6 +56,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:4rem}
 .value-card{padding:2.5rem 2rem;border-radius:0;background:transparent;border:none;border-top:1.5px solid rgba(255,255,255,.2);transition:all .4s;position:relative}
 .value-card:hover{background:rgba(255,255,255,.08)}
+@media(max-width:900px){.values-grid{grid-template-columns:repeat(3,1fr)!important;gap:1rem;margin-top:2rem}.value-card{padding:1.25rem 1rem}}
+@media(max-width:600px){.about-big-title{font-size:2.2rem!important;margin-bottom:1rem}.about-editorial{gap:1.5rem!important}.about-right .values-grid{gap:.6rem;margin-top:1.5rem}.value-card{padding:1rem .75rem}.value-card h3{font-size:.88rem;margin-bottom:.35rem}.value-card p{font-size:.78rem;line-height:1.65}.about-right>div:first-child{gap:1rem!important;margin-bottom:1.5rem!important}.about-right>div:first-child p{font-size:.88rem!important;line-height:1.7!important}}
 .value-icon{width:44px;height:44px;border-radius:0;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
 .value-card h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:.6rem;letter-spacing:-.01em}.value-card p{font-size:.9rem;color:rgba(255,255,255,.65);line-height:1.85}
 .season-banner{background:linear-gradient(135deg,#0F172A,#1E3A8A,#1D4ED8);position:relative;overflow:hidden;text-align:center}
