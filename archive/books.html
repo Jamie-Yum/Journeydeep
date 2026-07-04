@@ -245,6 +245,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <div class="bl-body">
   <div class="bl-tabs" id="blTabs"></div>
   <div class="book-grid-full" id="bookGrid"><p style="text-align:center;padding:3rem;color:#999">⏳ 도서 목록을 불러오는 중...</p></div>
+  <div id="recSection" style="display:none;margin-top:4rem;border-top:1px solid rgba(100,116,139,.25);padding-top:3rem">
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:.75rem;font-weight:700;color:var(--ac);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem">추천받은 책</div>
+      <p id="rec-count" style="font-size:.9rem;color:var(--tl)"></p>
+    </div>
+    <div class="book-grid-full" id="recGrid"></div>
+  </div>
 </div><footer class="footer"><div style="display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto"><p>© 2022–2026 조니딥 JourneyDeep. 조직문화 니즈를 딥하게.</p><a href="../admin/dashboard.html" class="jd-admin-btn" title="관리자" style="font-size:.7rem;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.25);text-decoration:none;padding:.35rem .75rem;border:1px solid rgba(255,255,255,.1);transition:all .2s">관리</a></div></footer><script>const nav=document.getElementById('nav');nav.classList.add('scrolled');window.addEventListener('scroll',()=>{nav&&(window.scrollY>50?nav.classList.add('scrolled'):nav.classList.add('scrolled'))});function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('navLinks')?.classList.remove('open')}));
 document.addEventListener('click',function(e){
@@ -330,30 +337,50 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
   function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
-  fetch(SU+'/rest/v1/JD_books?select=title,author,category,emoji,cover_url,date&order=sort_order.asc,id.asc',{
+  function makeCard(b, labelOverride) {
+    var key = labelOverride || b.category || '기타';
+    var dateStr = b.date ? b.date.replace(/-/g,'.').substring(2) : '';
+    var coverEl = b.cover_url
+      ? '<img src="'+b.cover_url+'" style="width:100%;height:100%;object-fit:cover">'
+      : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:linear-gradient(135deg,rgba(100,116,139,.5),rgba(37,99,235,.3))">'+(b.emoji||'📘')+'</div>';
+    return '<div class="book-card-full reveal" data-season="'+key+'"><div class="bcf-cover">'+coverEl+'</div><div class="bcf-info"><span class="bcf-season">'+esc(key)+(dateStr?' · '+dateStr:'')+'</span><h3>'+esc(b.title)+'</h3>'+(b.author?'<p class="bcf-author">'+esc(b.author)+'</p>':'')+'</div></div>';
+  }
+  fetch(SU+'/rest/v1/JD_books?select=title,author,category,emoji,cover_url,date,is_recommended&order=sort_order.asc,id.asc',{
     headers:{'apikey':SK,'Authorization':'Bearer '+SK}
   })
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(books){
+    var together = books.filter(function(b){return !b.is_recommended;});
+    var recommended = books.filter(function(b){return !!b.is_recommended;});
+
+    // 헤더 카운트: 함께 읽은 책만
     var count=document.getElementById('bl-count');
-    if(count)count.textContent='시즌 1부터 지금까지, 조니딥이 함께 읽어온 '+books.length+'권의 책들입니다.';
+    if(count)count.textContent='시즌 1부터 지금까지, 조니딥이 함께 읽어온 '+together.length+'권의 책들입니다.';
+
+    // 시즌 탭 (함께 읽은 책 기준)
     var seasons=[];
-    books.forEach(function(b){var k=b.category||'기타';if(seasons.indexOf(k)===-1)seasons.push(k);});
+    together.forEach(function(b){var k=b.category||'기타';if(seasons.indexOf(k)===-1)seasons.push(k);});
     var tabsEl=document.getElementById('blTabs');
     if(tabsEl)tabsEl.innerHTML=['전체'].concat(seasons).map(function(t,i){
       return '<button class="book-tab'+(i===0?' active':'')+'" onclick="bookFilter(this,\''+t+'\')">'+t+'</button>';
     }).join('');
+
+    // 함께 읽은 책 그리드
     var grid=document.getElementById('bookGrid');
-    grid.innerHTML=books.map(function(b){
-      var key=b.category||'기타';
-      var dateStr=b.date?b.date.replace(/-/g,'.').substring(2):'';
-      var coverEl=b.cover_url
-        ?'<img src="'+b.cover_url+'" style="width:100%;height:100%;object-fit:cover">'
-        :'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:linear-gradient(135deg,rgba(100,116,139,.5),rgba(37,99,235,.3))">'+(b.emoji||'📘')+'</div>';
-      return '<div class="book-card-full reveal" data-season="'+key+'"><div class="bcf-cover">'+coverEl+'</div><div class="bcf-info"><span class="bcf-season">'+esc(key)+(dateStr?' · '+dateStr:'')+'</span><h3>'+esc(b.title)+'</h3>'+(b.author?'<p class="bcf-author">'+esc(b.author)+'</p>':'')+'</div></div>';
-    }).join('');
+    grid.innerHTML=together.map(function(b){return makeCard(b);}).join('');
+
+    // 추천받은 책 섹션
+    if(recommended.length){
+      var recSec=document.getElementById('recSection');
+      var recGrid=document.getElementById('recGrid');
+      var recCount=document.getElementById('rec-count');
+      if(recCount)recCount.textContent='멤버들에게 추천받은 '+recommended.length+'권의 책들입니다.';
+      recGrid.innerHTML=recommended.map(function(b){return makeCard(b,'추천받은 책');}).join('');
+      recSec.style.display='';
+    }
+
     var obs2=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting)en.target.classList.add('visible')});},{threshold:0.05});
-    document.querySelectorAll('#bookGrid .reveal').forEach(function(el){obs2.observe(el);});
+    document.querySelectorAll('#bookGrid .reveal, #recGrid .reveal').forEach(function(el){obs2.observe(el);});
   }).catch(function(e){
     var grid=document.getElementById('bookGrid');
     if(grid)grid.innerHTML='<p style="color:#e55;text-align:center;padding:3rem">도서 목록을 불러오지 못했습니다: '+e.message+'</p>';
