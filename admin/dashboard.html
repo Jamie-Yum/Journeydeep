@@ -3,6 +3,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 :root{--bg:#F4F6FA;--wh:#FFFFFF;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ts:#334155;--tl:#64748B;--be:#E8ECF4;--sw:rgba(15,23,42,.06);--red:#EF4444;--green:#10B981}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1754,7 +1755,7 @@ async function uploadImages(files) {
   const processNext = () => {
     if (i >= arr.length) { loadImages(); return; }
     const file = arr[i++];
-    openCropModal(file, async blob => {
+    openCropModal(await heicToJpeg(file), async blob => {
       const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
       toast(`업로드 중... (${i}/${arr.length})`);
       const res = await uploadBlob(blob, fname);
@@ -2075,7 +2076,21 @@ function glCheckSeasonAndUpload() {
   document.getElementById('gl_file').click();
 }
 
-function glCompressImage(file, maxW = 1600, quality = 0.82) {
+async function heicToJpeg(file) {
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif'
+    || /\.(heic|heif)$/i.test(file.name);
+  if (!isHeic) return file;
+  try {
+    const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+    return Array.isArray(blob) ? blob[0] : blob;
+  } catch(e) {
+    console.warn('HEIC 변환 실패, 원본 사용', e);
+    return file;
+  }
+}
+
+async function glCompressImage(file, maxW = 1600, quality = 0.82) {
+  file = await heicToJpeg(file);
   return new Promise(resolve => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -2590,9 +2605,10 @@ function bkRemoveCover() {
   if (ph) ph.style.display = '';
 }
 
-function bkCoverSelected(input) {
+async function bkCoverSelected(input) {
   if (!input.files[0]) return;
-  openCropModal(input.files[0], croppedFile => {
+  const file = await heicToJpeg(input.files[0]);
+  openCropModal(file, croppedFile => {
     openResizeModal(croppedFile, async blob => {
       _bkCoverBlob = blob;
       const url = URL.createObjectURL(blob);
@@ -3312,7 +3328,8 @@ async function loadHomepagePhotos() {
   });
 }
 
-function inlineUpload(file, targetId, previewId) {
+async function inlineUpload(file, targetId, previewId) {
+  file = await heicToJpeg(file);
   openCropModal(file, async blob => {
     const fname = 'content/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
     toast('업로드 중...');
@@ -3334,8 +3351,9 @@ function hpPreview(src) {
 }
 
 async function replaceHomePhoto(input, key) {
-  const file = input.files[0];
+  let file = input.files[0];
   if (!file) return;
+  file = await heicToJpeg(file);
   openCropModal(file, async blob => {
     toast('업로드 중...');
     const path = `homepage/${key}_${Date.now()}.jpg`;
