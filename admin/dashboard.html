@@ -531,6 +531,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-sub">시즌별 회원 출석 및 정산을 관리해요. 셀을 클릭하면 바로 수정할 수 있어요.</div>
     </div>
     <div class="m-tabs" id="member_tabs"></div>
+    <div class="m-tabs" id="member_season_tabs" style="border-top:1px solid var(--be);margin-top:0;padding-top:.5rem;display:none"></div>
     <div id="member_content"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
   </div>
 
@@ -2225,18 +2226,39 @@ async function saveMembersData(toast=true) {
 
 function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
+  const seasonTabs = document.getElementById('member_season_tabs');
   const summaryActive = currentSeasonIdx === 'summary';
   const feesActive = currentSeasonIdx === 'fees';
+  const depositActive = typeof currentSeasonIdx === 'number';
+
+  // 상단 탭: 종합 현황 | 회비 관리 | 디파짓 관리
   tabs.innerHTML =
     `<button class="m-tab ${summaryActive?'active':''}" onclick="switchToSummary()" style="font-weight:700">종합 현황</button>` +
     `<button class="m-tab ${feesActive?'active':''}" onclick="switchToFees()" style="font-weight:700">회비 관리</button>` +
-    membersData.seasons.map((s, i) =>
-      `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
-        ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
-        <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
-      </button>`
-    ).join('') +
-    `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+    `<button class="m-tab ${depositActive?'active':''}" onclick="switchToDeposit()" style="font-weight:700">디파짓 관리</button>`;
+
+  // 시즌 서브탭: 디파짓 관리 선택 시만 표시
+  if (depositActive) {
+    seasonTabs.style.display = '';
+    seasonTabs.innerHTML =
+      membersData.seasons.map((s, i) =>
+        `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
+          ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
+          <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
+        </button>`
+      ).join('') +
+      `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+  } else {
+    seasonTabs.style.display = 'none';
+    seasonTabs.innerHTML = '';
+  }
+}
+
+function switchToDeposit() {
+  currentSeasonIdx = membersData.seasons.length ? 0 : 'summary';
+  if (currentSeasonIdx === 'summary') { switchToSummary(); return; }
+  renderMemberTabs();
+  renderMemberSeason(currentSeasonIdx);
 }
 
 function switchToSummary() {
