@@ -113,6 +113,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-card-v .bk-label h4{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;line-height:1.35;margin:0 0 .15rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .book-card-v .bk-label .bk-author{font-size:.65rem;opacity:.65;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 @media(max-width:600px){.book-card-v{width:140px;height:220px;border-radius:12px}}
+.gl-card-v{flex:none;height:280px;width:auto;border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
+.gl-card-v:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 20px 44px rgba(0,0,0,.28)}
+.gl-card-v img{height:100%;width:auto;display:block;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.gl-card-v:hover img{transform:scale(1.05)}
+.gl-card-v .bk-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 50%);pointer-events:none}
+.gl-card-v .bk-label{position:absolute;bottom:0;left:0;right:0;padding:.7rem .9rem;color:#fff;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;line-height:1.3}
+@media(max-width:600px){.gl-card-v{height:200px}}
 .history{background:var(--wh)}.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}@media(max-width:768px){.history-grid{grid-template-columns:1fr;gap:3rem}}.timeline{margin-top:2rem;position:relative;padding-left:2.5rem}
 .timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--ac),var(--sa),transparent)}
 .timeline-item{position:relative;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(100,116,139,.15)}.timeline-item:last-child{border-bottom:none}
@@ -412,10 +419,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     if(!Array.isArray(photos)||!photos.length)return;
     var gt=document.getElementById('gallery-marquee-track');if(!gt)return;
     function makePhoto(p){
-      return '<div class="book-card-v" style="aspect-ratio:3/4;height:auto;width:200px">'
+      return '<div class="gl-card-v">'
         +'<img src="'+p.image_url+'" alt="'+(p.caption||'')+'" loading="lazy">'
         +'<div class="bk-overlay"></div>'
-        +(p.caption?'<div class="bk-label"><h4 style="font-size:.85rem">'+p.caption+'</h4></div>':'')
+        +(p.caption?'<div class="bk-label">'+p.caption+'</div>':'')
         +'</div>';
     }
     var mid=Math.ceil(photos.length/2);
