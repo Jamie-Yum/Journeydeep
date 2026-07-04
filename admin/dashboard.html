@@ -1100,7 +1100,7 @@ async function prLoadSeasons() {
     const parsed = JSON.parse(mData[0].value);
     _prPrograms = _prPrograms.map(p => ({
       ...p,
-      members: (parsed.seasons.find(s => s.name.replace(/\s/g,'') === p.badge.replace(/\s/g,'').replace('SEASON','시즌')) || {}).members || []
+      members: (parsed.seasons.find(s => s.name.replace(/\s/g,'') === p.badge.replace(/\s/g,'')) || {}).members || []
     }));
   }
 
@@ -1117,11 +1117,12 @@ function prOnSeasonChange() {
   // 회차 셀렉트
   const sessSel = document.getElementById('pr_session');
   sessSel.innerHTML = '<option value="">회차 선택...</option>';
-  if (prog && prog.sessions) {
-    prog.sessions.forEach(ss => {
-      sessSel.innerHTML += `<option value="${ss.n}">${ss.n}${ss.d ? ' ('+ss.d+')' : ''}</option>`;
-    });
-  }
+  const sessions = (prog && prog.sessions && prog.sessions.length)
+    ? prog.sessions
+    : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' }));
+  sessions.forEach(ss => {
+    sessSel.innerHTML += `<option value="${ss.n}">${ss.n}${ss.d ? ' ('+ss.d+')' : ''}</option>`;
+  });
 
   // 발제자 셀렉트 (시즌 멤버)
   const authSel = document.getElementById('pr_author');
