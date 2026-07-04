@@ -551,7 +551,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
               <option value="">시즌 선택...</option>
             </select>
           </div>
-          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:160px" id="gl_season_custom_wrap" style="display:none">
+          <div style="display:none;flex-direction:column;gap:.3rem;flex:1;min-width:160px" id="gl_season_custom_wrap">
             <label class="form-label">시즌 직접 입력</label>
             <input class="form-input" id="gl_season_custom" placeholder="예: 시즌9">
           </div>
@@ -1538,10 +1538,18 @@ async function loadGallery() {
   });
   _glAllPhotos = await res.json() || [];
 
-  // 시즌 탭 구성
-  const seasons = ['전체', ...[...new Set(_glAllPhotos.map(r => r.season || '미분류'))].sort().reverse()];
-  glRenderSeasonTabs(seasons);
-  glRenderUploadSeasonSel(seasons.filter(s => s !== '전체'));
+  // 갤러리 시즌 + 프로그램 시즌 합산
+  const galSeasons = [...new Set(_glAllPhotos.map(r => r.season || '미분류'))];
+  let pgSeasons = [];
+  try {
+    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge&order=created_at.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const pgData = await pgRes.json();
+    pgSeasons = (pgData || []).map(p => p.badge).filter(Boolean);
+  } catch(e) {}
+  const allSeasons = [...new Set([...galSeasons, ...pgSeasons])].sort().reverse();
+
+  glRenderSeasonTabs(['전체', ...allSeasons]);
+  glRenderUploadSeasonSel(allSeasons);
   glRenderGrid();
   if (countEl) countEl.textContent = `(총 ${_glAllPhotos.length}장)`;
 }
@@ -1614,6 +1622,7 @@ function glOnSeasonSel() {
   const sel = document.getElementById('gl_season_sel');
   const wrap = document.getElementById('gl_season_custom_wrap');
   wrap.style.display = sel.value === '__new__' ? 'flex' : 'none';
+  wrap.style.flexDirection = 'column';
 }
 
 function glGetSelectedSeason() {
@@ -1667,11 +1676,17 @@ async function glUploadFiles(files) {
     const uploaded = await uploadBlob(blob, fname);
     if (uploaded && uploaded.ok) {
       const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
-      await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
+      const dbRes = await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
         method: 'POST',
         headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
         body: JSON.stringify({ image_url: url, season, sort_order: 0, visible: true })
       });
+      if (!dbRes.ok) {
+        const errTxt = await dbRes.text().catch(() => '');
+        toast(`DB 저장 실패: ${dbRes.status} ${errTxt}`, true);
+      }
+    } else {
+      toast(`Storage 업로드 실패: ${uploaded?._err||'unknown'}`, true);
     }
     done++;
   }
