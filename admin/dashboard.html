@@ -1752,7 +1752,7 @@ async function uploadImages(files) {
   const arr = Array.from(files);
   if (!arr.length) return;
   let i = 0;
-  const processNext = () => {
+  const processNext = async () => {
     if (i >= arr.length) { loadImages(); return; }
     const file = arr[i++];
     openCropModal(await heicToJpeg(file), async blob => {
