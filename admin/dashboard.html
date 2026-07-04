@@ -104,12 +104,16 @@ canvas.resize-preview{max-height:200px}
 /* Books layout */
 .bk-layout{display:flex;flex-direction:column;gap:24px}
 .bk-form-card{width:100%}
-.bk-form-grid{display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;gap:12px 16px;align-items:end}
-.bk-form-grid-row2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:12px 16px;align-items:end;margin-top:8px}
+.bk-form-body{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start}
+.bk-form-fields{display:flex;flex-direction:column;gap:10px}
+.bk-form-row{display:grid;gap:12px;align-items:end}
+.bk-form-row-1{grid-template-columns:2fr 1fr 1fr 1fr}
+.bk-form-row-2{grid-template-columns:1fr 80px auto 1fr auto auto;align-items:center}
 .bk-list-wrap{width:100%}
 @media(max-width:700px){
-  .bk-form-grid{grid-template-columns:auto 1fr 1fr!important}
-  .bk-form-grid-row2{grid-template-columns:1fr 1fr auto auto!important}
+  .bk-form-body{grid-template-columns:70px 1fr}
+  .bk-form-row-1{grid-template-columns:1fr 1fr}
+  .bk-form-row-2{grid-template-columns:1fr 1fr auto auto}
 }
 
 /* Toast */
@@ -450,55 +454,61 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="card-header"><span id="bk_form_title">새 책 추가</span></div>
         <div class="card-body">
           <input type="hidden" id="bk_id">
-          <!-- 1행: 표지 / 제목 / 저자 / 시즌 / 회차 -->
-          <div class="bk-form-grid">
-            <div>
-              <label class="form-label">표지</label>
-              <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
-                <img id="bk_cover_preview" src="" alt="" style="width:56px;height:76px;object-fit:cover;border-radius:4px;border:1px solid var(--border);display:none;">
-                <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:.2rem .5rem" onclick="document.getElementById('bk_cover_file').click()">선택</button>
-                <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger);font-size:.72rem;padding:.2rem .5rem">제거</button>
-                <input type="file" id="bk_cover_file" accept="image/*" style="display:none" onchange="bkCoverSelected(this)">
+          <div class="bk-form-body">
+            <!-- 표지 컬럼 -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:18px">
+              <div style="width:72px;height:96px;border-radius:6px;border:1px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface2);flex-shrink:0">
+                <img id="bk_cover_preview" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+                <span id="bk_cover_placeholder" style="font-size:.7rem;color:var(--tl);text-align:center;padding:4px">표지</span>
+              </div>
+              <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:.25rem .6rem;width:100%" onclick="document.getElementById('bk_cover_file').click()">선택</button>
+              <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger);font-size:.72rem;padding:.25rem .6rem;width:100%">제거</button>
+              <input type="file" id="bk_cover_file" accept="image/*" style="display:none" onchange="bkCoverSelected(this)">
+            </div>
+            <!-- 필드 컬럼 -->
+            <div class="bk-form-fields">
+              <!-- 1행: 제목 / 저자 / 시즌 / 회차 -->
+              <div class="bk-form-row bk-form-row-1">
+                <div>
+                  <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
+                  <input class="form-input" id="bk_title" placeholder="책 제목">
+                </div>
+                <div>
+                  <label class="form-label">저자</label>
+                  <input class="form-input" id="bk_author" placeholder="저자명">
+                </div>
+                <div>
+                  <label class="form-label">시즌</label>
+                  <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
+                    <option value="">시즌 선택...</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label">회차</label>
+                  <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
+                    <option value="">회차 선택...</option>
+                  </select>
+                </div>
+              </div>
+              <!-- 2행: 날짜 / 순서 / 추천 / spacer / 저장 / 초기화 -->
+              <div class="bk-form-row bk-form-row-2">
+                <div>
+                  <label class="form-label">날짜</label>
+                  <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
+                </div>
+                <div>
+                  <label class="form-label">순서</label>
+                  <input class="form-input" id="bk_order" type="number" value="0">
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem">
+                  <input type="checkbox" id="bk_recommended" style="width:15px;height:15px;accent-color:var(--ac);flex-shrink:0">
+                  <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer;white-space:nowrap">추천 도서</label>
+                </div>
+                <div></div>
+                <button class="btn btn-primary" onclick="saveBook()">저장</button>
+                <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
               </div>
             </div>
-            <div>
-              <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
-              <input class="form-input" id="bk_title" placeholder="책 제목">
-            </div>
-            <div>
-              <label class="form-label">저자</label>
-              <input class="form-input" id="bk_author" placeholder="저자명">
-            </div>
-            <div>
-              <label class="form-label">시즌</label>
-              <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
-                <option value="">시즌 선택...</option>
-              </select>
-            </div>
-            <div>
-              <label class="form-label">회차</label>
-              <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
-                <option value="">회차 선택...</option>
-              </select>
-            </div>
-          </div>
-          <!-- 2행: 날짜 / 순서 / 추천 체크 / 버튼들 -->
-          <div class="bk-form-grid-row2">
-            <div>
-              <label class="form-label">날짜</label>
-              <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
-            </div>
-            <div>
-              <label class="form-label">순서</label>
-              <input class="form-input" id="bk_order" type="number" value="0">
-            </div>
-            <div style="display:flex;align-items:center;gap:.4rem;padding-bottom:2px">
-              <input type="checkbox" id="bk_recommended" style="width:15px;height:15px;accent-color:var(--ac);flex-shrink:0">
-              <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer;white-space:nowrap">추천 도서</label>
-            </div>
-            <div></div>
-            <button class="btn btn-primary" onclick="saveBook()">저장</button>
-            <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
           </div>
         </div>
       </div>
@@ -1954,6 +1964,8 @@ function bkSelectFromSearch(idx) {
   if (_bkCoverUrl) {
     prev.src = _bkCoverUrl; prev.style.display = 'block';
     document.getElementById('bk_cover_remove').style.display = 'inline-flex';
+    const ph = document.getElementById('bk_cover_placeholder');
+    if (ph) ph.style.display = 'none';
   }
   document.getElementById('bk_form_title').textContent = '선택한 책 추가';
   // 폼으로 스크롤
@@ -2078,7 +2090,7 @@ function editBook(b) {
   _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
   const prev = document.getElementById('bk_cover_preview');
   const rm = document.getElementById('bk_cover_remove');
-  if (_bkCoverUrl) { prev.src = _bkCoverUrl; prev.style.display = 'block'; rm.style.display = ''; }
+  if (_bkCoverUrl) { prev.src = _bkCoverUrl; prev.style.display = 'block'; rm.style.display = ''; const ph=document.getElementById('bk_cover_placeholder'); if(ph) ph.style.display='none'; }
   else { prev.src = ''; prev.style.display = 'none'; rm.style.display = 'none'; }
   document.getElementById('bk_form_title').textContent = '책 수정';
 }
@@ -2107,6 +2119,8 @@ function bkClearForm() {
   const prev = document.getElementById('bk_cover_preview');
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('bk_cover_remove').style.display = 'none';
+  const ph = document.getElementById('bk_cover_placeholder');
+  if (ph) ph.style.display = '';
   document.getElementById('bk_form_title').textContent = '새 책 추가';
 }
 
@@ -2116,6 +2130,8 @@ function bkRemoveCover() {
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('bk_cover_remove').style.display = 'none';
   document.getElementById('bk_cover_file').value = '';
+  const ph = document.getElementById('bk_cover_placeholder');
+  if (ph) ph.style.display = '';
 }
 
 function bkCoverSelected(input) {
@@ -2127,6 +2143,8 @@ function bkCoverSelected(input) {
       const prev = document.getElementById('bk_cover_preview');
       prev.src = url; prev.style.display = 'block';
       document.getElementById('bk_cover_remove').style.display = '';
+      const ph = document.getElementById('bk_cover_placeholder');
+      if (ph) ph.style.display = 'none';
     });
   });
   input.value = '';
