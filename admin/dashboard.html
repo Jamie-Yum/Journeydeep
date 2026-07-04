@@ -623,7 +623,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
       </div>
       <!-- 시즌 탭 필터 -->
-      <div id="gl_season_tabs" style="display:flex;gap:0;border-bottom:1px solid var(--be);margin-bottom:1.25rem;overflow-x:auto;padding-bottom:0"></div>
+      <div id="gl_season_tabs" style="display:flex;gap:0;border-bottom:1px solid var(--be);overflow-x:auto;padding-bottom:0"></div>
+      <!-- 회차 서브탭 -->
+      <div id="gl_session_tabs" style="display:none;gap:0;border-bottom:1px solid var(--be);margin-bottom:1.25rem;overflow-x:auto;padding-bottom:0;padding-top:.1rem;background:var(--surface2)"></div>
       <div id="gl_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">
         <div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>
       </div>
@@ -1665,7 +1667,7 @@ async function uploadImages(files) {
 }
 
 // ── GALLERY ────────────────────────────────────────────────
-let _glAllPhotos = [], _glSeasonFilter = '전체';
+let _glAllPhotos = [], _glSeasonFilter = '전체', _glSessionFilter = '전체', _glPrograms = [];
 
 async function loadGallery() {
   const grid = document.getElementById('gl_grid');
@@ -1677,15 +1679,19 @@ async function loadGallery() {
   });
   _glAllPhotos = await res.json() || [];
 
+  // 프로그램 목록(sessions 포함) 캐시
+  try {
+    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions,season_number&order=season_number.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    _glPrograms = (await pgRes.json()) || [];
+  } catch(e) { _glPrograms = []; }
+
   // 갤러리 시즌 + 프로그램 시즌 합산
   const galSeasons = [...new Set(_glAllPhotos.map(r => r.season || '미분류'))];
-  let pgSeasons = [];
-  try {
-    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge&order=season_number.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-    const pgData = await pgRes.json();
-    pgSeasons = (pgData || []).map(p => p.badge).filter(Boolean);
-  } catch(e) {}
-  const allSeasons = [...new Set([...galSeasons, ...pgSeasons])].sort().reverse();
+  const pgSeasons = _glPrograms.map(p => p.badge).filter(Boolean);
+  const allSeasons = [...new Set([...galSeasons, ...pgSeasons])].sort((a,b) => {
+    const na = parseInt((a.match(/\d+/) || [0])[0]), nb = parseInt((b.match(/\d+/) || [0])[0]);
+    return nb - na;
+  });
 
   glRenderSeasonTabs(['전체', ...allSeasons]);
   glRenderUploadSeasonSel(allSeasons);
@@ -1705,7 +1711,41 @@ function glRenderSeasonTabs(seasons) {
 
 function glSetSeason(s) {
   _glSeasonFilter = s;
+  _glSessionFilter = '전체';
   document.querySelectorAll('.gl-stab').forEach(el => {
+    const on = el.dataset.s === s;
+    el.style.borderBottomColor = on ? 'var(--ac)' : 'transparent';
+    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
+    el.style.fontWeight = on ? '700' : '400';
+  });
+  glRenderSessionTabs(s);
+  glRenderGrid();
+}
+
+function glRenderSessionTabs(season) {
+  const wrap = document.getElementById('gl_session_tabs');
+  if (season === '전체') { wrap.style.display = 'none'; return; }
+  const prog = _glPrograms.find(p => p.badge === season);
+  const sessions = (prog && prog.sessions && prog.sessions.length)
+    ? prog.sessions.map(s => s.n)
+    : [];
+  // 갤러리에 실제 존재하는 회차도 포함
+  const galSessions = [...new Set(_glAllPhotos.filter(r => (r.season||'미분류') === season && r.session).map(r => r.session))];
+  const allSessions = [...new Set([...sessions, ...galSessions])];
+  if (!allSessions.length) { wrap.style.display = 'none'; return; }
+
+  wrap.style.display = 'flex';
+  wrap.innerHTML = ['전체', ...allSessions].map(s => `
+    <button onclick="glSetSession('${s}')" class="gl-sestab" data-s="${s}"
+      style="background:none;border:none;border-bottom:2px solid ${s===_glSessionFilter?'var(--ac)':'transparent'};
+      color:${s===_glSessionFilter?'var(--ac)':'var(--tl)'};font-weight:${s===_glSessionFilter?'700':'400'};
+      font-size:.82rem;padding:.35rem .8rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>
+  `).join('');
+}
+
+function glSetSession(s) {
+  _glSessionFilter = s;
+  document.querySelectorAll('.gl-sestab').forEach(el => {
     const on = el.dataset.s === s;
     el.style.borderBottomColor = on ? 'var(--ac)' : 'transparent';
     el.style.color = on ? 'var(--ac)' : 'var(--tl)';
@@ -1716,9 +1756,12 @@ function glSetSeason(s) {
 
 function glRenderGrid() {
   const grid = document.getElementById('gl_grid');
-  const rows = _glSeasonFilter === '전체'
+  let rows = _glSeasonFilter === '전체'
     ? _glAllPhotos
     : _glAllPhotos.filter(r => (r.season || '미분류') === _glSeasonFilter);
+  if (_glSeasonFilter !== '전체' && _glSessionFilter !== '전체') {
+    rows = rows.filter(r => r.session === _glSessionFilter);
+  }
 
   if (!rows.length) {
     grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">이 시즌에 등록된 사진이 없어요.</p>';
