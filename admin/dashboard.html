@@ -1669,7 +1669,7 @@ async function glUploadFiles(files) {
       await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
         method: 'POST',
         headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ image_url: url, season, sort_order: 0 })
+        body: JSON.stringify({ image_url: url, season, sort_order: 0, visible: true })
       });
     }
     done++;
