@@ -95,19 +95,21 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-card.hidden{display:none}
 .book-cover{width:48px;height:64px;border-radius:0;background:linear-gradient(135deg,var(--sa),var(--ac));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
 .book-info h4{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--dk);margin-bottom:.2rem}.book-info .book-author{font-size:.75rem;color:var(--ac);margin-bottom:.15rem}.book-info p{font-size:.75rem;color:var(--tl)}
-.book-marquee-outer{overflow:hidden;margin-top:2.5rem;width:100%;cursor:default;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.book-marquee-track{display:flex;gap:1.25rem;width:max-content;animation:bk-scroll 40s linear infinite}
+.book-marquee-outer{overflow:hidden;margin-top:2.5rem;width:100%;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.book-marquee-track{display:flex;gap:1rem;width:max-content;animation:bk-scroll 40s linear infinite;align-items:flex-end;padding-bottom:.25rem}
 .book-marquee-track:hover{animation-play-state:paused}
 @keyframes bk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.book-card-v{flex:none;width:140px;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.35);overflow:hidden;transition:all .35s}
-.book-card-v:hover{transform:translateY(-4px);box-shadow:0 16px 36px var(--sw)}
-.book-cover-v{width:100%;aspect-ratio:2/3;overflow:hidden;background:var(--be);position:relative}
-.book-cover-v img{width:100%;height:100%;object-fit:cover;display:block}
-.book-info-v{padding:.7rem .8rem}
-.book-season-tag{font-size:.6rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-bottom:.25rem;opacity:.85}
-.book-info-v h4{font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:var(--dk);line-height:1.4;margin-bottom:.15rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.book-author-v{font-size:.68rem;color:var(--tl);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-@media(max-width:600px){.book-card-v{width:110px}}
+.book-card-v{flex:none;width:180px;height:280px;border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
+.book-card-v:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 24px 48px rgba(0,0,0,.22)}
+.book-card-v img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.book-card-v:hover img{transform:scale(1.06)}
+.book-card-v .bk-no-img{width:100%;height:100%;background:linear-gradient(145deg,#1e3a8a,#3b82f6);display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;font-size:.78rem;font-weight:600;color:#fff;line-height:1.4}
+.book-card-v .bk-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.18) 50%,transparent 100%);pointer-events:none}
+.book-card-v .bk-label{position:absolute;bottom:0;left:0;right:0;padding:.9rem 1rem;color:#fff}
+.book-card-v .bk-label .bk-season{font-size:.58rem;font-weight:700;letter-spacing:.1em;opacity:.75;text-transform:uppercase;margin-bottom:.2rem}
+.book-card-v .bk-label h4{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;line-height:1.35;margin:0 0 .15rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.book-card-v .bk-label .bk-author{font-size:.65rem;opacity:.65;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+@media(max-width:600px){.book-card-v{width:140px;height:220px;border-radius:12px}}
 .history{background:var(--wh)}.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}@media(max-width:768px){.history-grid{grid-template-columns:1fr;gap:3rem}}.timeline{margin-top:2rem;position:relative;padding-left:2.5rem}
 .timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--ac),var(--sa),transparent)}
 .timeline-item{position:relative;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(100,116,139,.15)}.timeline-item:last-child{border-bottom:none}
@@ -366,16 +368,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     var track=document.getElementById('book-marquee-track');
     if(!track)return;
     function makeCard(b){
+      var inner = b.cover_url
+        ? '<img src="'+b.cover_url+'" alt="'+b.title+'" loading="lazy">'
+        : '<div class="bk-no-img">'+b.title+'</div>';
       return '<div class="book-card-v">'
-        +'<div class="book-cover-v">'
-        +(b.cover_url?'<img src="'+b.cover_url+'" alt="'+b.title+'" loading="lazy">'
-          :'<div style="width:100%;height:100%;background:var(--be);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--tl);padding:.5rem;text-align:center">'+b.title+'</div>')
-        +'</div>'
-        +'<div class="book-info-v">'
-        +(b.category?'<p class="book-season-tag">'+b.category+'</p>':'')
-        +'<h4>'+b.title+'</h4>'
-        +(b.author?'<p class="book-author-v">'+b.author+'</p>':'')
-        +'</div></div>';
+        + inner
+        + '<div class="bk-overlay"></div>'
+        + '<div class="bk-label">'
+        + (b.category ? '<div class="bk-season">'+b.category+'</div>' : '')
+        + '<h4>'+b.title+'</h4>'
+        + (b.author ? '<div class="bk-author">'+b.author+'</div>' : '')
+        + '</div></div>';
     }
     // 책이 적으면 3배 복제해 끊김 없이 루프
     var cards=books.map(makeCard).join('');
