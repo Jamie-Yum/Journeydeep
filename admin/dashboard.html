@@ -102,13 +102,14 @@ canvas.resize-preview{max-height:200px}
 .resize-input:focus{border-color:var(--ac)}
 
 /* Books layout */
-.bk-layout{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
-.bk-form-card{flex:0 0 300px}
-.bk-list-wrap{flex:1;min-width:240px}
+.bk-layout{display:flex;flex-direction:column;gap:24px}
+.bk-form-card{width:100%}
+.bk-form-grid{display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;gap:12px 16px;align-items:end}
+.bk-form-grid-row2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:12px 16px;align-items:end;margin-top:8px}
+.bk-list-wrap{width:100%}
 @media(max-width:700px){
-  .bk-layout{flex-direction:column}
-  .bk-form-card{flex:none;width:100%;order:-1}
-  .bk-list-wrap{width:100%}
+  .bk-form-grid{grid-template-columns:auto 1fr 1fr!important}
+  .bk-form-grid-row2{grid-template-columns:1fr 1fr auto auto!important}
 }
 
 /* Toast */
@@ -447,52 +448,55 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <!-- 폼 -->
       <div class="card bk-form-card">
         <div class="card-header"><span id="bk_form_title">새 책 추가</span></div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card-body">
           <input type="hidden" id="bk_id">
-          <div>
-            <label class="form-label">표지 이미지</label>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <img id="bk_cover_preview" src="" alt="" style="width:60px;height:80px;object-fit:cover;border-radius:4px;border:1px solid var(--border);display:none;">
-              <div style="display:flex;flex-direction:column;gap:6px;">
-                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bk_cover_file').click()">이미지 선택</button>
-                <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger)">이미지 제거</button>
+          <!-- 1행: 표지 / 제목 / 저자 / 시즌 / 회차 -->
+          <div class="bk-form-grid">
+            <div>
+              <label class="form-label">표지</label>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+                <img id="bk_cover_preview" src="" alt="" style="width:56px;height:76px;object-fit:cover;border-radius:4px;border:1px solid var(--border);display:none;">
+                <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:.2rem .5rem" onclick="document.getElementById('bk_cover_file').click()">선택</button>
+                <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger);font-size:.72rem;padding:.2rem .5rem">제거</button>
+                <input type="file" id="bk_cover_file" accept="image/*" style="display:none" onchange="bkCoverSelected(this)">
               </div>
-              <input type="file" id="bk_cover_file" accept="image/*" style="display:none" onchange="bkCoverSelected(this)">
+            </div>
+            <div>
+              <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
+              <input class="form-input" id="bk_title" placeholder="책 제목">
+            </div>
+            <div>
+              <label class="form-label">저자</label>
+              <input class="form-input" id="bk_author" placeholder="저자명">
+            </div>
+            <div>
+              <label class="form-label">시즌</label>
+              <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
+                <option value="">시즌 선택...</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">회차</label>
+              <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
+                <option value="">회차 선택...</option>
+              </select>
             </div>
           </div>
-          <div>
-            <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
-            <input class="form-input" id="bk_title" placeholder="책 제목">
-          </div>
-          <div>
-            <label class="form-label">저자</label>
-            <input class="form-input" id="bk_author" placeholder="저자명">
-          </div>
-          <div>
-            <label class="form-label">시즌</label>
-            <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
-              <option value="">시즌 선택...</option>
-            </select>
-          </div>
-          <div>
-            <label class="form-label">회차</label>
-            <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
-              <option value="">회차 선택...</option>
-            </select>
-          </div>
-          <div>
-            <label class="form-label">날짜</label>
-            <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
-          </div>
-          <div>
-            <label class="form-label">순서</label>
-            <input class="form-input" id="bk_order" type="number" value="0">
-          </div>
-          <div style="display:flex;align-items:center;gap:.5rem;padding-top:.25rem">
-            <input type="checkbox" id="bk_recommended" style="width:16px;height:16px;accent-color:var(--ac)">
-            <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer">추천 도서 아카이빙</label>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:4px;">
+          <!-- 2행: 날짜 / 순서 / 추천 체크 / 버튼들 -->
+          <div class="bk-form-grid-row2">
+            <div>
+              <label class="form-label">날짜</label>
+              <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
+            </div>
+            <div>
+              <label class="form-label">순서</label>
+              <input class="form-input" id="bk_order" type="number" value="0">
+            </div>
+            <div style="display:flex;align-items:center;gap:.4rem;padding-bottom:2px">
+              <input type="checkbox" id="bk_recommended" style="width:15px;height:15px;accent-color:var(--ac);flex-shrink:0">
+              <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer;white-space:nowrap">추천 도서</label>
+            </div>
+            <div></div>
             <button class="btn btn-primary" onclick="saveBook()">저장</button>
             <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
           </div>
