@@ -502,6 +502,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="bk-list-wrap">
         <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:1rem;padding-bottom:0">
           <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">전체</button>
+          <button class="bk-tab-btn" data-f="journeydeep" onclick="setBkFilter('journeydeep')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">조니딥</button>
           <button class="bk-tab-btn" data-f="recommended" onclick="setBkFilter('recommended')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">추천 도서</button>
         </div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
@@ -2012,14 +2013,16 @@ function bkOnSessionChange() {
   if (date) document.getElementById('bk_date').value = date;
 }
 
-let _bkFilter = 'all'; // 'all' | 'recommended'
+let _bkFilter = 'all'; // 'all' | 'journeydeep' | 'recommended'
 let _bkAllData = [];
 
 function renderBookList() {
   const list = document.getElementById('bk_list');
   const data = _bkFilter === 'recommended'
     ? _bkAllData.filter(b => b.is_recommended)
-    : _bkAllData;
+    : _bkFilter === 'journeydeep'
+      ? _bkAllData.filter(b => b.category && !b.is_recommended)
+      : _bkAllData;
   if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
   list.innerHTML = data.map(b => `
     <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
