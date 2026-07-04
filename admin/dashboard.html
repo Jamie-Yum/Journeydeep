@@ -620,7 +620,21 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
         <div class="card-title" style="margin:0">등록된 사진 <span id="gl_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></div>
-        <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn btn-ghost btn-sm" id="gl_select_btn" onclick="glToggleSelectMode()">선택</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
+        </div>
+      </div>
+      <!-- 일괄 작업 툴바 -->
+      <div id="gl_bulk_bar" style="display:none;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.6rem .8rem;background:var(--surface2);border-radius:8px;margin-bottom:.75rem">
+        <span id="gl_sel_count" style="font-size:.83rem;font-weight:600;color:var(--ts);white-space:nowrap">0장 선택</span>
+        <button class="btn btn-ghost btn-sm" onclick="glSelectAll()">전체 선택</button>
+        <button class="btn btn-ghost btn-sm" onclick="glDeselectAll()">선택 해제</button>
+        <div style="width:1px;height:1.2rem;background:var(--be);margin:0 .2rem"></div>
+        <button class="btn btn-ghost btn-sm" onclick="glBulkSetVisible(true)">공개</button>
+        <button class="btn btn-ghost btn-sm" onclick="glBulkSetVisible(false)">비공개</button>
+        <button class="btn btn-ghost btn-sm" onclick="glBulkMove()" style="color:var(--ac);font-weight:600">이동</button>
+        <button class="btn btn-ghost btn-sm" onclick="glBulkDelete()" style="color:var(--danger)">삭제</button>
       </div>
       <!-- 시즌 탭 필터 -->
       <div id="gl_season_tabs" style="display:flex;gap:0;border-bottom:1px solid var(--be);overflow-x:auto;padding-bottom:0"></div>
@@ -638,6 +652,31 @@ tr:hover td{background:rgba(37,99,235,.03)}
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- Gallery Move Modal -->
+<div id="gl_move_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:2rem" onclick="if(event.target===this)document.getElementById('gl_move_modal').style.display='none'">
+  <div style="background:#fff;border-radius:12px;padding:1.5rem;min-width:280px;max-width:360px;width:100%">
+    <div style="font-weight:700;font-size:1rem;margin-bottom:1rem">사진 이동</div>
+    <div style="display:flex;flex-direction:column;gap:.6rem">
+      <div>
+        <label class="form-label">시즌</label>
+        <select class="form-input" id="gl_move_season" onchange="glMoveSeasonChange()">
+          <option value="">시즌 선택...</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">회차 <span style="font-weight:400;color:var(--tl)">(선택 안 해도 됨)</span></label>
+        <select class="form-input" id="gl_move_session">
+          <option value="">선택 안 함</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:1.25rem">
+      <button class="btn btn-primary" style="flex:1" onclick="glBulkMoveConfirm()">이동</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('gl_move_modal').style.display='none'">취소</button>
+    </div>
+  </div>
+</div>
 
 <!-- Detail Modal -->
 <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center;padding:2rem">
@@ -1728,6 +1767,7 @@ async function uploadImages(files) {
 
 // ── GALLERY ────────────────────────────────────────────────
 let _glAllPhotos = [], _glSeasonFilter = '전체', _glSessionFilter = '전체', _glPrograms = [];
+let _glSelectMode = false, _glSelected = new Set();
 
 async function loadGallery() {
   const grid = document.getElementById('gl_grid');
@@ -1828,27 +1868,138 @@ function glRenderGrid() {
     return;
   }
 
-  grid.innerHTML = rows.map(r => `
-    <div style="position:relative;border-radius:12px;overflow:hidden;background:var(--be);aspect-ratio:3/4;cursor:pointer;border:2px solid ${r.visible?'transparent':'var(--danger)'}">
+  grid.innerHTML = rows.map(r => {
+    const sel = _glSelected.has(r.id);
+    return `
+    <div data-id="${r.id}" onclick="glCardClick('${r.id}',event)"
+      style="position:relative;border-radius:12px;overflow:hidden;background:var(--be);aspect-ratio:3/4;cursor:pointer;
+      border:2px solid ${sel?'var(--ac)':r.visible?'transparent':'var(--danger)'};
+      box-shadow:${sel?'0 0 0 2px var(--ac)':'none'};transition:box-shadow .15s">
       <img src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
-      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:.6rem .7rem;opacity:0;transition:opacity .2s" class="gl-hover-overlay">
-        ${r.caption ? `<div style="font-size:.7rem;color:#fff;font-weight:600;margin-bottom:.3rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
-        <div style="display:flex;gap:.3rem">
-          <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,"\\'")}','${(r.season||'').replace(/'/g,"\\'")}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
-          <button onclick="glToggleVisible('${r.id}',${r.visible});event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'숨기기':'보이기'}</button>
-          <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
+      ${_glSelectMode ? `
+        <div style="position:absolute;inset:0;background:${sel?'rgba(37,99,235,.18)':'transparent'};transition:background .15s;pointer-events:none"></div>
+        <div style="position:absolute;top:.5rem;left:.5rem;width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:${sel?'var(--ac)':'rgba(0,0,0,.3)'};display:flex;align-items:center;justify-content:center;pointer-events:none">
+          ${sel?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>':''}
         </div>
-      </div>
-      <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
-      <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'노출':'숨김'}</div>
-    </div>
-  `).join('');
+      ` : `
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:.6rem .7rem;opacity:0;transition:opacity .2s" class="gl-hover-overlay">
+          ${r.caption ? `<div style="font-size:.7rem;color:#fff;font-weight:600;margin-bottom:.3rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
+          <div style="display:flex;gap:.3rem">
+            <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,"\\'")}','${(r.season||'').replace(/'/g,"\\'")}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
+            <button onclick="glToggleVisible('${r.id}',${r.visible});event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'비공개':'공개'}</button>
+            <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
+          </div>
+        </div>
+        <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
+      `}
+      <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'공개':'비공개'}</div>
+    </div>`;
+  }).join('');
 
-  grid.querySelectorAll('[style*="position:relative"]').forEach(card => {
-    card.addEventListener('mouseenter', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '1'));
-    card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
-  });
+  if (!_glSelectMode) {
+    grid.querySelectorAll('[data-id]').forEach(card => {
+      card.addEventListener('mouseenter', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '1'));
+      card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
+    });
+  }
+}
+
+function glToggleSelectMode() {
+  _glSelectMode = !_glSelectMode;
+  _glSelected.clear();
+  const btn = document.getElementById('gl_select_btn');
+  const bar = document.getElementById('gl_bulk_bar');
+  btn.textContent = _glSelectMode ? '선택 취소' : '선택';
+  btn.style.background = _glSelectMode ? 'var(--ac)' : '';
+  btn.style.color = _glSelectMode ? '#fff' : '';
+  bar.style.display = _glSelectMode ? 'flex' : 'none';
+  glRenderGrid();
+}
+
+function glCardClick(id, e) {
+  if (_glSelectMode) { e.stopPropagation(); glToggleSelect(id); }
+}
+
+function glToggleSelect(id) {
+  _glSelected.has(id) ? _glSelected.delete(id) : _glSelected.add(id);
+  document.getElementById('gl_sel_count').textContent = `${_glSelected.size}장 선택`;
+  glRenderGrid();
+}
+
+function glSelectAll() {
+  const grid = document.getElementById('gl_grid');
+  grid.querySelectorAll('[data-id]').forEach(c => _glSelected.add(c.dataset.id));
+  document.getElementById('gl_sel_count').textContent = `${_glSelected.size}장 선택`;
+  glRenderGrid();
+}
+
+function glDeselectAll() {
+  _glSelected.clear();
+  document.getElementById('gl_sel_count').textContent = `0장 선택`;
+  glRenderGrid();
+}
+
+async function glBulkSetVisible(visible) {
+  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
+  await Promise.all([..._glSelected].map(id =>
+    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+      method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ visible })
+    })
+  ));
+  toast(`${_glSelected.size}장 ${visible ? '공개' : '비공개'} 처리됐어요 ✓`);
+  _glSelected.clear();
+  loadGallery();
+}
+
+async function glBulkDelete() {
+  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
+  if (!confirm(`선택한 ${_glSelected.size}장을 삭제할까요?`)) return;
+  await Promise.all([..._glSelected].map(id =>
+    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+      method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    })
+  ));
+  toast(`${_glSelected.size}장 삭제됐어요`);
+  _glSelected.clear();
+  loadGallery();
+}
+
+function glBulkMove() {
+  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
+  const modal = document.getElementById('gl_move_modal');
+  const seasonSel = document.getElementById('gl_move_season');
+  seasonSel.innerHTML = '<option value="">시즌 선택...</option>'
+    + _glPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
+  document.getElementById('gl_move_session').innerHTML = '<option value="">선택 안 함</option>';
+  modal.style.display = 'flex';
+}
+
+async function glMoveSeasonChange() {
+  const badge = document.getElementById('gl_move_season').value;
+  const sessionSel = document.getElementById('gl_move_session');
+  sessionSel.innerHTML = '<option value="">선택 안 함</option>';
+  const prog = _glPrograms.find(p => p.badge === badge);
+  const sessions = prog && prog.sessions && prog.sessions.length
+    ? prog.sessions : [1,2,3,4,5].map(n => ({n:`${n}회차`}));
+  sessions.forEach(s => sessionSel.innerHTML += `<option value="${s.n}">${s.n}</option>`);
+}
+
+async function glBulkMoveConfirm() {
+  const season = document.getElementById('gl_move_season').value;
+  if (!season) { toast('시즌을 선택해 주세요.', true); return; }
+  const session = document.getElementById('gl_move_session').value || null;
+  await Promise.all([..._glSelected].map(id =>
+    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+      method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ season, session })
+    })
+  ));
+  document.getElementById('gl_move_modal').style.display = 'none';
+  toast(`${_glSelected.size}장 이동됐어요 ✓`);
+  _glSelected.clear();
+  loadGallery();
 }
 
 function glRenderUploadSeasonSel(existingSeasons) {
