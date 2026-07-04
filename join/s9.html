@@ -351,7 +351,7 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
 
 // 프로그램에서 form_fields + 참가비 로드
 (function() {
-  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields&order=created_at.desc&limit=1&visible=eq.true', {
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields&order=season_number.desc&limit=1&visible=eq.true', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (!Array.isArray(data) || !data.length) return;

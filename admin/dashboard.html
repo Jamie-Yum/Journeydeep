@@ -917,7 +917,7 @@ async function saveProgram() {
 }
 
 async function loadPrograms() {
-  const data = await sbGet('JD_programs');
+  const data = await sbGet('JD_programs', '&order=season_number.desc');
   const el = document.getElementById('pg_list');
   if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 프로그램이 없어요.</div>'; return; }
   el.innerHTML = '<div class="item-list">' + data.map(p => `
@@ -1086,7 +1086,7 @@ let _prPrograms = []; // { badge, sessions:[], members:[] }
 
 async function prLoadSeasons() {
   // JD_programs에서 시즌 목록
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=created_at.desc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=season_number.desc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _prPrograms = await res.json() || [];
@@ -1651,7 +1651,7 @@ async function loadGallery() {
   const galSeasons = [...new Set(_glAllPhotos.map(r => r.season || '미분류'))];
   let pgSeasons = [];
   try {
-    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge&order=created_at.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge&order=season_number.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
     const pgData = await pgRes.json();
     pgSeasons = (pgData || []).map(p => p.badge).filter(Boolean);
   } catch(e) {}
@@ -2103,7 +2103,7 @@ let _bkCoverBlob = null, _bkCoverUrl = null;
 let _bkPrograms = []; // 시즌별 프로그램 캐시
 
 async function loadBkSeasons() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=created_at.desc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=season_number.desc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _bkPrograms = (await res.json()) || [];
