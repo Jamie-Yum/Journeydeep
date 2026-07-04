@@ -1938,7 +1938,7 @@ async function loadImages() {
   const data = await res.json();
   const grid = document.getElementById('img_grid');
   if (!data || !data.length) { grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">업로드된 이미지가 없어요.</div>'; return; }
-  grid.innerHTML = data.filter(f => f.name).map(f => {
+  grid.innerHTML = data.filter(f => f.name && f.id).map(f => {
     const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${f.name}`;
     return `<div class="img-card">
       <img src="${url}" loading="lazy">
