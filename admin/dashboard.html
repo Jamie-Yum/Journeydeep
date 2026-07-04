@@ -304,10 +304,26 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="card">
       <div class="card-title">새 발제문 추가</div>
       <div class="form-grid">
-        <div class="field"><label>시즌</label><input id="pr_season" placeholder="예: 시즌 9"></div>
-        <div class="field"><label>회차</label><input id="pr_session" placeholder="예: 3회차"></div>
-        <div class="field"><label>도서 제목</label><input id="pr_book" placeholder="예: 익숙한 것과의 결별"></div>
-        <div class="field"><label>발제자</label><input id="pr_author" placeholder="이름"></div>
+        <div class="field"><label>시즌</label>
+          <select id="pr_season" class="form-input" onchange="prOnSeasonChange()">
+            <option value="">시즌 선택...</option>
+          </select>
+        </div>
+        <div class="field"><label>회차</label>
+          <select id="pr_session" class="form-input" onchange="prOnSessionChange()">
+            <option value="">회차 선택...</option>
+          </select>
+        </div>
+        <div class="field"><label>도서 제목</label>
+          <select id="pr_book" class="form-input">
+            <option value="">도서 선택...</option>
+          </select>
+        </div>
+        <div class="field"><label>발제자</label>
+          <select id="pr_author" class="form-input">
+            <option value="">발제자 선택...</option>
+          </select>
+        </div>
         <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
         <div class="field field-full">
           <label>첨부 파일 / 이미지</label>
@@ -772,6 +788,7 @@ function showPanel(id) {
   event.currentTarget.classList.add('active');
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
   if (id === 'gallery') { loadGallery(); }
+  if (id === 'proposals') { prLoadSeasons(); }
 }
 
 // Supabase helpers
@@ -1064,19 +1081,110 @@ async function fmSaveFields() {
 let _editingProposalId = null;
 const PR_FIELDS = ['pr_season','pr_session','pr_book','pr_author','pr_content','pr_file'];
 
+// ── 발제문 드롭다운 연동 ──────────────────────────────────────
+let _prPrograms = []; // { badge, sessions:[], members:[] }
+
+async function prLoadSeasons() {
+  // JD_programs에서 시즌 목록
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=created_at.desc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  _prPrograms = await res.json() || [];
+
+  // 멤버 데이터도 로드
+  const mRes = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?select=value&key=eq.members_v1`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const mData = await mRes.json();
+  if (mData && mData[0]) {
+    const parsed = JSON.parse(mData[0].value);
+    _prPrograms = _prPrograms.map(p => ({
+      ...p,
+      members: (parsed.seasons.find(s => s.name.replace(/\s/g,'') === p.badge.replace(/\s/g,'').replace('SEASON','시즌')) || {}).members || []
+    }));
+  }
+
+  const sel = document.getElementById('pr_season');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">시즌 선택...</option>'
+    + _prPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
+}
+
+function prOnSeasonChange() {
+  const badge = document.getElementById('pr_season').value;
+  const prog = _prPrograms.find(p => p.badge === badge);
+
+  // 회차 셀렉트
+  const sessSel = document.getElementById('pr_session');
+  sessSel.innerHTML = '<option value="">회차 선택...</option>';
+  if (prog && prog.sessions) {
+    prog.sessions.forEach(ss => {
+      sessSel.innerHTML += `<option value="${ss.n}">${ss.n}${ss.d ? ' ('+ss.d+')' : ''}</option>`;
+    });
+  }
+
+  // 발제자 셀렉트 (시즌 멤버)
+  const authSel = document.getElementById('pr_author');
+  authSel.innerHTML = '<option value="">발제자 선택...</option>';
+  if (prog && prog.members) {
+    prog.members.filter(m => m.name).forEach(m => {
+      authSel.innerHTML += `<option value="${m.name}">${m.name}</option>`;
+    });
+  }
+
+  // 도서 초기화
+  document.getElementById('pr_book').innerHTML = '<option value="">도서 선택...</option>';
+}
+
+async function prOnSessionChange() {
+  const badge = document.getElementById('pr_season').value;
+  const session = document.getElementById('pr_session').value;
+  const bookSel = document.getElementById('pr_book');
+  bookSel.innerHTML = '<option value="">불러오는 중...</option>';
+
+  const res = await fetch(
+    `${SUPA_URL}/rest/v1/JD_books?select=title&category=eq.${encodeURIComponent(badge)}&is_recommended=eq.false&order=sort_order.asc`,
+    { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
+  );
+  const books = await res.json() || [];
+  bookSel.innerHTML = '<option value="">도서 선택...</option>'
+    + books.map(b => `<option value="${b.title}">${b.title}</option>`).join('');
+  if (!books.length) bookSel.innerHTML += '<option value="" disabled>등록된 도서 없음</option>';
+}
+
 function prClearForm() {
-  PR_FIELDS.forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pr_season').value = '';
+  document.getElementById('pr_session').innerHTML = '<option value="">회차 선택...</option>';
+  document.getElementById('pr_book').innerHTML = '<option value="">도서 선택...</option>';
+  document.getElementById('pr_author').innerHTML = '<option value="">발제자 선택...</option>';
+  document.getElementById('pr_content').value = '';
+  document.getElementById('pr_file').value = '';
   _editingProposalId = null;
   document.getElementById('pr_save_btn').textContent = '저장하기';
   document.getElementById('pr_cancel_btn').style.display = 'none';
   document.getElementById('pr_form_status').textContent = '';
 }
 
+function prSetOption(selId, val) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  // 옵션이 없으면 추가
+  if (val && ![...sel.options].some(o => o.value === val)) {
+    sel.innerHTML += `<option value="${val}">${val}</option>`;
+  }
+  sel.value = val || '';
+}
+
 function editProposal(p) {
-  document.getElementById('pr_season').value = p.season || '';
-  document.getElementById('pr_session').value = p.session_number || '';
-  document.getElementById('pr_book').value = p.book_title || '';
-  document.getElementById('pr_author').value = p.author_name || '';
+  prSetOption('pr_season', p.season);
+  prOnSeasonChange();
+  setTimeout(() => {
+    prSetOption('pr_session', p.session_number);
+    prOnSessionChange().then(() => {
+      prSetOption('pr_book', p.book_title);
+    });
+    prSetOption('pr_author', p.author_name);
+  }, 300);
   document.getElementById('pr_content').value = p.content || '';
   document.getElementById('pr_file').value = p.file_url || '';
   _editingProposalId = p.id;
