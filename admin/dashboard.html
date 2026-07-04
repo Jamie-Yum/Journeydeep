@@ -1805,21 +1805,29 @@ async function loadGallery() {
 
 function glRenderSeasonTabs(seasons) {
   const tabs = document.getElementById('gl_season_tabs');
-  tabs.innerHTML = seasons.map(s => `
-    <button onclick="glSetSeason('${s}')" class="gl-stab" data-s="${s}"
-      style="background:none;border:none;border-bottom:2px solid ${s===_glSeasonFilter?'var(--ac)':'transparent'};
-      color:${s===_glSeasonFilter?'var(--ac)':'var(--tl)'};font-weight:${s===_glSeasonFilter?'700':'400'};
-      font-size:.85rem;padding:.4rem .9rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>
-  `).join('');
+  const allTabs = [...seasons, '★ 즐겨찾기'];
+  tabs.innerHTML = allTabs.map(s => {
+    const isActive = s === _glSeasonFilter;
+    const isFav = s === '★ 즐겨찾기';
+    return `<button onclick="glSetSeason('${s}')" class="gl-stab" data-s="${s}"
+      style="background:none;border:none;border-bottom:2px solid ${isActive?(isFav?'#f59e0b':'var(--ac)'):'transparent'};
+      color:${isActive?(isFav?'#f59e0b':'var(--ac)'):(isFav?'#d97706':'var(--tl)')};font-weight:${isActive?'700':'400'};
+      font-size:.85rem;padding:.4rem .9rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>`;
+  }).join('');
 }
 
 function glSetSeason(s) {
   _glSeasonFilter = s;
   _glSessionFilter = '전체';
+  _glFavOnly = (s === '★ 즐겨찾기');
+  // 즐겨찾기 버튼 아이콘 동기화
+  const favBtn = document.getElementById('gl_fav_btn');
+  if (favBtn) { favBtn.textContent = _glFavOnly ? '★' : '☆'; favBtn.style.color = _glFavOnly ? '#f59e0b' : ''; }
   document.querySelectorAll('.gl-stab').forEach(el => {
     const on = el.dataset.s === s;
-    el.style.borderBottomColor = on ? 'var(--ac)' : 'transparent';
-    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
+    const isFav = el.dataset.s === '★ 즐겨찾기';
+    el.style.borderBottomColor = on ? (isFav ? '#f59e0b' : 'var(--ac)') : 'transparent';
+    el.style.color = on ? (isFav ? '#f59e0b' : 'var(--ac)') : (isFav ? '#d97706' : 'var(--tl)');
     el.style.fontWeight = on ? '700' : '400';
   });
   glRenderSessionTabs(s);
@@ -1860,10 +1868,11 @@ function glSetSession(s) {
 
 function glRenderGrid() {
   const grid = document.getElementById('gl_grid');
-  let rows = _glSeasonFilter === '전체'
+  const isFavTab = _glSeasonFilter === '★ 즐겨찾기';
+  let rows = (isFavTab || _glSeasonFilter === '전체')
     ? _glAllPhotos
     : _glAllPhotos.filter(r => (r.season || '미분류') === _glSeasonFilter);
-  if (_glSeasonFilter !== '전체' && _glSessionFilter !== '전체') {
+  if (!isFavTab && _glSeasonFilter !== '전체' && _glSessionFilter !== '전체') {
     rows = rows.filter(r => r.session === _glSessionFilter);
   }
   if (_glFavOnly) rows = rows.filter(r => r.favorited);
@@ -1917,12 +1926,12 @@ function glRenderGrid() {
 }
 
 function glToggleFavOnly() {
-  _glFavOnly = !_glFavOnly;
-  const btn = document.getElementById('gl_fav_btn');
-  btn.textContent = _glFavOnly ? '★' : '☆';
-  btn.style.color = _glFavOnly ? '#f59e0b' : '';
-  btn.style.background = _glFavOnly ? '#fef3c720' : '';
-  glRenderGrid();
+  // 버튼 클릭 시 즐겨찾기 탭으로 이동 (또는 전체로 복귀)
+  if (_glSeasonFilter === '★ 즐겨찾기') {
+    glSetSeason('전체');
+  } else {
+    glSetSeason('★ 즐겨찾기');
+  }
 }
 
 async function glToggleFav(id, current) {
