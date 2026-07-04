@@ -201,7 +201,8 @@ tr:hover td{background:rgba(37,99,235,.03)}
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
-    <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
+    <div class="nav-item" onclick="showPanel('gallery')"><span class="nav-icon">🖼️</span><span class="nav-label">갤러리</span></div>
+    <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">📂</span><span class="nav-label">이미지</span></div>
     <div class="nav-item" onclick="showPanel('programs')"><span class="nav-icon">📋</span><span class="nav-label">프로그램</span></div>
     <div class="nav-item" onclick="showPanel('proposals')"><span class="nav-icon">📝</span><span class="nav-label">발제문</span></div>
     <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
@@ -518,6 +519,35 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div id="member_content"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
   </div>
 
+  <!-- 갤러리 -->
+  <div id="panel-gallery" class="panel">
+    <div class="page-header">
+      <div class="page-title">갤러리 관리</div>
+      <div class="page-sub">홈화면 "함께한 순간들" 마퀴에 표시될 사진을 관리해요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">사진 추가</div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="img-upload-area" onclick="document.getElementById('gl_file').click()" id="gl_drop_zone">
+          <input type="file" id="gl_file" accept="image/*" multiple style="display:none" onchange="glUploadFiles(this.files);this.value=''">
+          <div style="font-size:2rem;margin-bottom:.75rem">📸</div>
+          <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 사진을 드래그해서 업로드</div>
+          <div style="font-size:.82rem;color:var(--tl)">여러 장 동시 업로드 가능 · JPG, PNG, WEBP 지원</div>
+        </div>
+        <div id="gl_upload_status" style="display:none;font-size:.88rem;font-weight:600;color:var(--ac)"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div class="card-title" style="margin:0">등록된 사진 <span id="gl_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
+      </div>
+      <div id="gl_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">
+        <div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+
   <div id="panel-images" class="panel">
     <div class="page-header">
       <div class="page-title">이미지 관리</div>
@@ -711,6 +741,7 @@ function showPanel(id) {
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
+  if (id === 'gallery') { loadGallery(); }
 }
 
 // Supabase helpers
@@ -1464,6 +1495,104 @@ async function uploadImages(files) {
   processNext();
 }
 
+// ── GALLERY ────────────────────────────────────────────────
+async function loadGallery() {
+  const grid = document.getElementById('gl_grid');
+  const countEl = document.getElementById('gl_count');
+  grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>';
+
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,sort_order,visible&order=sort_order.asc,created_at.asc`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const rows = await res.json() || [];
+  if (countEl) countEl.textContent = `(${rows.length}장)`;
+
+  if (!rows.length) {
+    grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">등록된 사진이 없어요.</p>';
+    return;
+  }
+
+  grid.innerHTML = rows.map(r => `
+    <div style="position:relative;border-radius:12px;overflow:hidden;background:var(--be);aspect-ratio:3/4;cursor:pointer;border:2px solid ${r.visible?'transparent':'var(--danger)'}">
+      <img src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;display:block">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:.6rem .7rem;opacity:0;transition:opacity .2s" class="gl-hover-overlay">
+        ${r.caption ? `<div style="font-size:.72rem;color:#fff;font-weight:600;margin-bottom:.35rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
+        <div style="display:flex;gap:.3rem">
+          <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,'\\\'')}')" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
+          <button onclick="glToggleVisible('${r.id}',${r.visible})" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'숨기기':'보이기'}</button>
+          <button onclick="glDelete('${r.id}')" style="flex:1;font-size:.7rem;padding:.25rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
+        </div>
+      </div>
+      <div style="position:absolute;top:.5rem;right:.5rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:10px">${r.visible?'노출':'숨김'}</div>
+    </div>
+  `).join('');
+
+  // 호버 오버레이 토글
+  grid.querySelectorAll('[style*="position:relative"]').forEach(card => {
+    card.addEventListener('mouseenter', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '1'));
+    card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
+  });
+}
+
+async function glUploadFiles(files) {
+  if (!files || !files.length) return;
+  const status = document.getElementById('gl_upload_status');
+  status.style.display = 'block';
+  const total = files.length;
+  let done = 0;
+
+  for (const file of Array.from(files)) {
+    status.textContent = `업로드 중... (${done+1}/${total})`;
+    const fname = 'gallery/' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + file.name.split('.').pop();
+    const uploaded = await uploadBlob(file, fname);
+    if (uploaded && uploaded.ok) {
+      const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
+      await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
+        method: 'POST',
+        headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ image_url: url, sort_order: 0 })
+      });
+    }
+    done++;
+  }
+  status.textContent = `✓ ${done}장 업로드 완료!`;
+  setTimeout(() => { status.style.display = 'none'; }, 2500);
+  loadGallery();
+}
+
+async function glEditCaption(id, current) {
+  const cap = prompt('캡션 입력 (비워두면 삭제):', current);
+  if (cap === null) return;
+  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ caption: cap || null })
+  });
+  toast('캡션 저장됐어요 ✓');
+  loadGallery();
+}
+
+async function glToggleVisible(id, current) {
+  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ visible: !current })
+  });
+  toast(!current ? '홈화면에 표시돼요 ✓' : '숨겼어요');
+  loadGallery();
+}
+
+async function glDelete(id) {
+  if (!confirm('이 사진을 삭제할까요?')) return;
+  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  toast('삭제됐어요');
+  loadGallery();
+}
+
 async function loadImages() {
   const res = await fetch(`${SUPA_URL}/storage/v1/object/list/jd-images`, {
     method: 'POST',
@@ -1504,6 +1633,11 @@ const dropZone = document.getElementById('dropZone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--ac)'; });
 dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
 dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.borderColor = ''; uploadImages(e.dataTransfer.files); });
+
+const glDropZone = document.getElementById('gl_drop_zone');
+glDropZone.addEventListener('dragover', e => { e.preventDefault(); glDropZone.style.borderColor = 'var(--ac)'; });
+glDropZone.addEventListener('dragleave', () => { glDropZone.style.borderColor = ''; });
+glDropZone.addEventListener('drop', e => { e.preventDefault(); glDropZone.style.borderColor = ''; glUploadFiles(e.dataTransfer.files); });
 
 // Generic delete
 async function deleteItem(table, id, reload) {

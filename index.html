@@ -261,7 +261,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     </div>
   </div>
 </div>
-</div></section><section class="section gallery" id="gallery"><div class="section-container"><div class="section-eyebrow reveal">Moments</div><h2 class="section-title reveal">함께한 순간들</h2></div><div class="gallery-insta-wrap"><script src="https://w.behold.so/widget.js" type="module"></script><behold-widget feed-id="dMAKQZ9YDk7jz1iFizyQ" style="width:100%;display:block"></behold-widget></div></section><section class="section booklist" id="booklist"><div class="section-container">
+</div></section><section class="section gallery" id="gallery"><div class="section-container"><div class="section-eyebrow reveal">Moments</div><h2 class="section-title reveal">함께한 순간들</h2></div><div class="book-marquee-outer" style="margin-top:2rem"><div class="book-marquee-track" id="gallery-marquee-track"><!-- JS로 채워짐 --></div></div></section><section class="section booklist" id="booklist"><div class="section-container">
 <div class="section-eyebrow reveal">Book List</div>
 <h2 class="section-title reveal">함께 읽은 책들</h2>
 <p class="section-desc reveal" style="max-width:540px">시즌마다 4~5권의 책을 함께 읽고 토론합니다.</p>
@@ -388,6 +388,25 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     // 속도: 책 수에 비례 (1권당 4초)
     var dur=Math.max(20,books.length*4)+'s';
     track.style.animationDuration=dur;
+  }).catch(function(){});
+  // 갤러리 마퀴: JD_gallery에서 로딩
+  fetch(SU+'/rest/v1/JD_gallery?select=image_url,caption&order=sort_order.asc,created_at.asc&visible=eq.true',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  .then(function(r){return r.json();}).then(function(photos){
+    if(!Array.isArray(photos)||!photos.length)return;
+    var gt=document.getElementById('gallery-marquee-track');if(!gt)return;
+    function makePhoto(p){
+      return '<div class="book-card-v" style="aspect-ratio:3/4;height:auto;width:200px">'
+        +'<img src="'+p.image_url+'" alt="'+(p.caption||'')+'" loading="lazy">'
+        +'<div class="bk-overlay"></div>'
+        +(p.caption?'<div class="bk-label"><h4 style="font-size:.85rem">'+p.caption+'</h4></div>':'')
+        +'</div>';
+    }
+    var cards=photos.map(makePhoto).join('');
+    var times=photos.length<8?3:2;
+    var html='';for(var i=0;i<times;i++)html+=cards;
+    gt.innerHTML=html;
+    var dur=Math.max(25,photos.length*5)+'s';
+    gt.style.animationDuration=dur;
   }).catch(function(){});
 })();
 </script>
