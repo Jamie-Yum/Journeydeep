@@ -951,6 +951,14 @@ async function saveProgram() {
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
+async function duplicateProgram(p) {
+  const { id, created_at, ...copy } = p;
+  copy.title = copy.title + ' (복사본)';
+  const ok = await sbPost('JD_programs', { ...copy, visible: true });
+  if (ok) { toast('복제됐어요 ✓'); loadPrograms(); }
+  else toast('복제 중 오류가 발생했어요.', true);
+}
+
 async function loadPrograms() {
   const data = await sbGet('JD_programs', '&order=season_number.desc');
   const el = document.getElementById('pg_list');
@@ -966,6 +974,7 @@ async function loadPrograms() {
         ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
         <button class="btn btn-ghost btn-sm" onclick='editProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
         <button class="btn btn-ghost btn-sm" onclick='openFormEditor(${JSON.stringify(p).replace(/'/g,"&#39;")})'>설문 편집</button>
+        <button class="btn btn-ghost btn-sm" onclick='duplicateProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>복제</button>
         <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
     </div>`).join('') + '</div>';
