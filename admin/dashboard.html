@@ -1773,7 +1773,8 @@ async function glUploadFiles(files) {
     const blob = await glCompressImage(file);
     const savedKB = Math.round((file.size - blob.size) / 1024);
     status.textContent = `업로드 중... (${done+1}/${total})${savedKB > 0 ? ' ▼'+savedKB+'KB 절약' : ''}`;
-    const fname = `gallery/${season}_${Date.now()}_${Math.random().toString(36).slice(2,5)}.jpg`;
+    const safeSeason = season.replace(/시즌/g, 's').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const fname = `gallery/${safeSeason}_${Date.now()}_${Math.random().toString(36).slice(2,5)}.jpg`;
     const uploaded = await uploadBlob(blob, fname);
     if (uploaded && uploaded.ok) {
       const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
