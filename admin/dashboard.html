@@ -581,6 +581,12 @@ tr:hover td{background:rgba(37,99,235,.03)}
               <option value="">시즌 선택...</option>
             </select>
           </div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px" id="gl_session_sel_wrap">
+            <label class="form-label">회차 선택</label>
+            <select class="form-input" id="gl_session_sel">
+              <option value="">회차 선택...</option>
+            </select>
+          </div>
           <div style="display:none;flex-direction:column;gap:.3rem;flex:1;min-width:160px" id="gl_season_custom_wrap">
             <label class="form-label">시즌 직접 입력</label>
             <input class="form-input" id="gl_season_custom" placeholder="예: 시즌9">
@@ -1634,7 +1640,7 @@ async function loadGallery() {
   const countEl = document.getElementById('gl_count');
   grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>';
 
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,sort_order,visible&order=season.desc,sort_order.asc,created_at.asc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,session,sort_order,visible&order=season.desc,sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _glAllPhotos = await res.json() || [];
@@ -1699,7 +1705,7 @@ function glRenderGrid() {
           <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
         </div>
       </div>
-      <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}</div>
+      <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
       <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'노출':'숨김'}</div>
     </div>
   `).join('');
@@ -1719,11 +1725,27 @@ function glRenderUploadSeasonSel(existingSeasons) {
     + '<option value="__new__">+ 새 시즌 직접 입력</option>';
 }
 
-function glOnSeasonSel() {
+async function glOnSeasonSel() {
   const sel = document.getElementById('gl_season_sel');
   const wrap = document.getElementById('gl_season_custom_wrap');
   wrap.style.display = sel.value === '__new__' ? 'flex' : 'none';
   wrap.style.flexDirection = 'column';
+
+  const sessionSel = document.getElementById('gl_session_sel');
+  sessionSel.innerHTML = '<option value="">회차 선택...</option>';
+  if (!sel.value || sel.value === '__new__') return;
+
+  // JD_programs에서 해당 시즌 sessions 가져오기
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.${encodeURIComponent(sel.value)}&select=sessions`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const data = await res.json();
+    const sessions = (data && data[0] && Array.isArray(data[0].sessions) && data[0].sessions.length)
+      ? data[0].sessions.map((s, i) => s.label || `${i+1}회차`)
+      : ['1회차','2회차','3회차','4회차','5회차'];
+    sessionSel.innerHTML = '<option value="">회차 선택...</option>' + sessions.map(s => `<option value="${s}">${s}</option>`).join('');
+  } catch(e) {
+    sessionSel.innerHTML = '<option value="">회차 선택...</option>' + ['1회차','2회차','3회차','4회차','5회차'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
 }
 
 function glGetSelectedSeason() {
@@ -1762,6 +1784,7 @@ async function glUploadFiles(files) {
   if (!files || !files.length) return;
   const season = glGetSelectedSeason();
   if (!season) { toast('시즌을 먼저 선택해 주세요.', true); return; }
+  const session = document.getElementById('gl_session_sel')?.value || null;
 
   const status = document.getElementById('gl_upload_status');
   status.style.display = 'block';
@@ -1781,7 +1804,7 @@ async function glUploadFiles(files) {
       const dbRes = await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
         method: 'POST',
         headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ image_url: url, season, sort_order: 0, visible: true })
+        body: JSON.stringify({ image_url: url, season, session: session || null, sort_order: 0, visible: true })
       });
       if (!dbRes.ok) {
         const errTxt = await dbRes.text().catch(() => '');
