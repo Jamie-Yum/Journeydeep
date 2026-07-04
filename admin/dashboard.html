@@ -243,9 +243,25 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
         <div class="field field-full">
-          <label>회차별 일정 <span style="font-weight:400;color:var(--tl)">(책 등록 시 날짜 자동 연동)</span></label>
-          <div id="pg_sessions_wrap" style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.4rem"></div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="pgAddSession()">+ 회차 추가</button>
+          <label>프로그램 유형</label>
+          <div style="display:flex;gap:1rem;margin-bottom:.75rem">
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:600">
+              <input type="radio" name="pg_type" value="bookclub" checked onchange="pgToggleType('bookclub')" style="accent-color:var(--ac)"> 회차제
+            </label>
+            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:600">
+              <input type="radio" name="pg_type" value="event" onchange="pgToggleType('event')" style="accent-color:var(--ac)"> 일시적
+            </label>
+          </div>
+          <div id="pg_sessions_section">
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;flex-wrap:wrap">
+              <label style="font-size:.83rem;color:var(--tl);white-space:nowrap">차수 수</label>
+              <input type="number" id="pg_session_count" class="form-input" min="1" max="20" value="5" style="width:70px;flex:none">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="pgAutoGenerateSessions()">자동 생성</button>
+              <span style="font-size:.78rem;color:var(--tl)">또는 직접 추가</span>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="pgAddSession()">+ 행 추가</button>
+            </div>
+            <div id="pg_sessions_wrap" style="display:flex;flex-direction:column;gap:.4rem"></div>
+          </div>
         </div>
         <div class="field field-full">
           <label>히어로 배경 이미지 <span style="font-weight:400;color:var(--tl)">(프로그램 페이지 상단 배경)</span></label>
@@ -832,6 +848,16 @@ function toast(msg, err=false) {
 let _editingProgramId = null;
 const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
+function pgToggleType(type) {
+  document.getElementById('pg_sessions_section').style.display = type === 'event' ? 'none' : '';
+}
+
+function pgAutoGenerateSessions() {
+  const count = parseInt(document.getElementById('pg_session_count').value) || 5;
+  document.getElementById('pg_sessions_wrap').innerHTML = '';
+  for (let i = 1; i <= count; i++) pgAddSession(`${i}회차`, '');
+}
+
 function pgAddSession(n='', d='') {
   const wrap = document.getElementById('pg_sessions_wrap');
   const row = document.createElement('div');
@@ -856,6 +882,7 @@ function pgLoadSessions(sessions) {
 }
 
 function pgFormData() {
+  const type = document.querySelector('input[name="pg_type"]:checked')?.value || 'bookclub';
   return {
     title: document.getElementById('pg_title').value.trim(),
     badge: document.getElementById('pg_badge').value,
@@ -869,13 +896,16 @@ function pgFormData() {
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
     image_url: document.getElementById('pg_image').value,
-    sessions: pgGetSessions(),
+    type,
+    sessions: type === 'event' ? [] : pgGetSessions(),
   };
 }
 
 function pgClearForm() {
   PG_FIELDS.forEach(id => document.getElementById(id).value = '');
   document.getElementById('pg_sessions_wrap').innerHTML = '';
+  document.querySelector('input[name="pg_type"][value="bookclub"]').checked = true;
+  pgToggleType('bookclub');
   _editingProgramId = null;
   document.getElementById('pg_save_btn').textContent = '저장하기';
   document.getElementById('pg_cancel_btn').style.display = 'none';
@@ -895,6 +925,9 @@ function editProgram(p) {
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
   document.getElementById('pg_image').value = p.image_url || '';
+  const pgType = p.type || 'bookclub';
+  document.querySelector(`input[name="pg_type"][value="${pgType}"]`).checked = true;
+  pgToggleType(pgType);
   pgLoadSessions(p.sessions);
   const pgPrev = document.getElementById('pg_image_preview'); if(pgPrev){pgPrev.src=p.image_url||'';pgPrev.style.display=p.image_url?'block':'none';}
   _editingProgramId = p.id;
@@ -1084,7 +1117,7 @@ let _prPrograms = []; // { badge, sessions:[], members:[] }
 
 async function prLoadSeasons() {
   // JD_programs에서 시즌 목록
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=season_number.desc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,type,sessions&order=season_number.desc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _prPrograms = await res.json() || [];
@@ -1115,9 +1148,8 @@ function prOnSeasonChange() {
   // 회차 셀렉트
   const sessSel = document.getElementById('pr_session');
   sessSel.innerHTML = '<option value="">회차 선택...</option>';
-  const sessions = (prog && prog.sessions && prog.sessions.length)
-    ? prog.sessions
-    : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' }));
+  const sessions = prog && prog.type === 'event' ? [] :
+    (prog && prog.sessions && prog.sessions.length ? prog.sessions : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' })));
   sessions.forEach(ss => {
     sessSel.innerHTML += `<option value="${ss.n}">${ss.n}${ss.d ? ' ('+ss.d+')' : ''}</option>`;
   });
@@ -1737,11 +1769,11 @@ async function glOnSeasonSel() {
 
   // JD_programs에서 해당 시즌 sessions 가져오기
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.${encodeURIComponent(sel.value)}&select=sessions`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.${encodeURIComponent(sel.value)}&select=type,sessions`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
     const data = await res.json();
-    const sessions = (data && data[0] && Array.isArray(data[0].sessions) && data[0].sessions.length)
-      ? data[0].sessions.map((s, i) => s.label || `${i+1}회차`)
-      : ['1회차','2회차','3회차','4회차','5회차'];
+    const prog = data && data[0];
+    const sessions = prog && prog.type === 'event' ? [] :
+      (prog && prog.sessions && prog.sessions.length ? prog.sessions.map(s => s.n) : ['1회차','2회차','3회차','4회차','5회차']);
     sessionSel.innerHTML = '<option value="">회차 선택...</option>' + sessions.map(s => `<option value="${s}">${s}</option>`).join('');
   } catch(e) {
     sessionSel.innerHTML = '<option value="">회차 선택...</option>' + ['1회차','2회차','3회차','4회차','5회차'].map(s => `<option value="${s}">${s}</option>`).join('');
@@ -2119,7 +2151,7 @@ let _bkCoverBlob = null, _bkCoverUrl = null;
 let _bkPrograms = []; // 시즌별 프로그램 캐시
 
 async function loadBkSeasons() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=season_number.desc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,type,sessions&order=season_number.desc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _bkPrograms = (await res.json()) || [];
@@ -2156,8 +2188,10 @@ function bkOnSeasonChange() {
   }
 
   const prog = _bkPrograms.find(p => p.badge === val);
-  if (!prog || !prog.sessions || !prog.sessions.length) return;
-  prog.sessions.forEach(s => {
+  if (!prog) return;
+  const sessions = prog.type === 'event' ? [] :
+    (prog.sessions && prog.sessions.length ? prog.sessions : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' })));
+  sessions.forEach(s => {
     if (!s.n) return;
     const opt = document.createElement('option');
     opt.value = s.d || ''; opt.textContent = s.n + (s.d ? '  (' + s.d + ')' : '');
