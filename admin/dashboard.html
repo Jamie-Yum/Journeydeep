@@ -205,9 +205,8 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="sidebar-logo-sub">관리자 대시보드</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
-    <div class="nav-item" onclick="showPanel('gallery')"><span class="nav-icon">🖼️</span><span class="nav-label">갤러리</span></div>
-    <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">📂</span><span class="nav-label">이미지</span></div>
+    <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🖼️</span><span class="nav-label">미디어 관리</span></div>
+    <div class="nav-item" onclick="showPanel('gallery')"><span class="nav-icon">📸</span><span class="nav-label">갤러리</span></div>
     <div class="nav-item" onclick="showPanel('programs')"><span class="nav-icon">📋</span><span class="nav-label">프로그램</span></div>
     <div class="nav-item" onclick="showPanel('proposals')"><span class="nav-icon">📝</span><span class="nav-label">발제문</span></div>
     <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
@@ -424,12 +423,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
   </div>
 
-  <!-- 이미지 -->
-  <!-- 홈화면 사진 -->
+  <!-- 미디어 관리 -->
   <div id="panel-homepage" class="panel active">
     <div class="page-header">
-      <div class="page-title">홈화면 사진</div>
-      <div class="page-sub">홈페이지에 표시되는 사진을 관리해요</div>
+      <div class="page-title">미디어 관리</div>
+      <div class="page-sub">홈화면 사진과 이미지 리소스를 관리해요</div>
     </div>
     <div class="card">
       <div class="card-title">모바일 히어로 높이</div>
@@ -444,6 +442,22 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="card-title">사진 교체</div>
       <p style="font-size:.85rem;color:var(--tl);margin-bottom:1.5rem">사진을 클릭하거나 새 파일을 선택하면 바로 업로드되고 홈화면에 반영돼요.</p>
       <div id="hp_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.25rem"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">이미지 업로드 <span style="font-size:.8rem;font-weight:400;color:var(--tl)">— URL 복사해서 사용</span></div>
+      <div class="img-upload-area" onclick="document.getElementById('imgInput').click()" id="dropZone">
+        <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)">
+        <div style="font-size:2rem;margin-bottom:.75rem">📁</div>
+        <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 이미지를 드래그해서 업로드</div>
+        <div style="font-size:.82rem;color:var(--tl)">JPG, PNG, GIF, WEBP 지원</div>
+      </div>
+      <div id="upload_progress" style="display:none;margin-top:1rem">
+        <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
+      </div>
+      <div style="margin-top:1.25rem">
+        <div style="font-size:.88rem;font-weight:600;color:var(--ts);margin-bottom:.75rem">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
+        <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
+      </div>
     </div>
   </div>
 
@@ -594,28 +608,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
   </div>
 
-  <div id="panel-images" class="panel">
-    <div class="page-header">
-      <div class="page-title">이미지 관리</div>
-      <div class="page-sub">이미지를 업로드하고 URL을 복사해서 사용해요</div>
-    </div>
-    <div class="card">
-      <div class="card-title">이미지 업로드</div>
-      <div class="img-upload-area" onclick="document.getElementById('imgInput').click()" id="dropZone">
-        <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)">
-        <div style="font-size:2rem;margin-bottom:.75rem">📁</div>
-        <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 이미지를 드래그해서 업로드</div>
-        <div style="font-size:.82rem;color:var(--tl)">JPG, PNG, GIF, WEBP 지원</div>
-      </div>
-      <div id="upload_progress" style="display:none;margin-top:1rem">
-        <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
-      <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
-    </div>
-  </div>
 
 </main>
 </div>
