@@ -239,7 +239,13 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>시작일</label><input id="pg_start" placeholder="예: 2026.08.08"></div>
         <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
         <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
-        <div class="field"><label>참가비</label><input id="pg_fee" placeholder="예: 150,000원"></div>
+        <div class="field"><label>모임 시간</label><input id="pg_meeting_time" placeholder="예: 09:30~12:00 (2시간 30분)"></div>
+        <div class="field"><label>참가비</label>
+          <div style="display:flex;flex-direction:column;gap:.4rem">
+            <div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.78rem;color:var(--tl);width:60px;flex-shrink:0">신규회원</span><input id="pg_fee_new" placeholder="예: 135,000원" style="flex:1"></div>
+            <div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.78rem;color:var(--tl);width:60px;flex-shrink:0">기존회원</span><input id="pg_fee_old" placeholder="예: 115,000원" style="flex:1"></div>
+          </div>
+        </div>
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
@@ -561,10 +567,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <!-- 목록 -->
       <div class="bk-list-wrap">
-        <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:1rem;padding-bottom:0">
+        <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:.6rem;padding-bottom:0">
           <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">시즌별</button>
           <button class="bk-tab-btn" data-f="recommended" onclick="setBkFilter('recommended')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">추천 도서</button>
         </div>
+        <div id="bk_season_chips" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem"></div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
     </div>
@@ -934,7 +941,8 @@ function pgFormData() {
     date_start: document.getElementById('pg_start').value,
     date_end: document.getElementById('pg_end').value,
     venue: document.getElementById('pg_venue').value,
-    fee: document.getElementById('pg_fee').value,
+    meeting_time: document.getElementById('pg_meeting_time').value.trim(),
+    fee: (()=>{ const n=document.getElementById('pg_fee_new').value.trim(), o=document.getElementById('pg_fee_old').value.trim(); const parts=[]; if(n) parts.push('신규회원 : '+n); if(o) parts.push('기존회원 : '+o); return parts.join('\n'); })(),
     capacity: document.getElementById('pg_capacity').value,
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
@@ -963,7 +971,8 @@ function editProgram(p) {
   document.getElementById('pg_start').value = p.date_start || '';
   document.getElementById('pg_end').value = p.date_end || '';
   document.getElementById('pg_venue').value = p.venue || '';
-  document.getElementById('pg_fee').value = p.fee || '';
+  document.getElementById('pg_meeting_time').value = p.meeting_time || '';
+  (()=>{ const fee=p.fee||''; const nLine=fee.split('\n').find(l=>l.includes('신규')); const oLine=fee.split('\n').find(l=>l.includes('기존')); document.getElementById('pg_fee_new').value=nLine?nLine.replace(/신규회원\s*:\s*/,''):''; document.getElementById('pg_fee_old').value=oLine?oLine.replace(/기존회원\s*:\s*/,''):''; })();
   document.getElementById('pg_capacity').value = p.capacity || '';
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
@@ -2602,14 +2611,35 @@ function bkOnSessionChange() {
 }
 
 let _bkFilter = 'all'; // 'all' | 'recommended'
+let _bkSeasonFilter = null; // null = 전체, 또는 특정 시즌 이름
 let _bkAllData = [];
+
+function renderSeasonChips() {
+  const wrap = document.getElementById('bk_season_chips');
+  if (!wrap) return;
+  if (_bkFilter === 'recommended') { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  const seasons = [...new Set(_bkAllData.filter(b => !b.is_recommended && b.category).map(b => b.category))]
+    .sort((a, b) => parseInt(b.match(/\d+/)||[0]) - parseInt(a.match(/\d+/)||[0]));
+  const chip = (label, active, onclick) =>
+    `<button onclick="${onclick}" style="background:${active?'var(--ac)':'transparent'};color:${active?'#fff':'var(--tl)'};border:1px solid ${active?'var(--ac)':'var(--be)'};border-radius:4px;font-size:.76rem;font-weight:${active?'700':'500'};padding:.25rem .7rem;cursor:pointer;">${label}</button>`;
+  wrap.innerHTML = chip('전체', !_bkSeasonFilter, "setBkSeasonFilter(null)")
+    + seasons.map(s => chip(s, _bkSeasonFilter === s, `setBkSeasonFilter('${s}')`)).join('');
+}
+
+function setBkSeasonFilter(season) {
+  _bkSeasonFilter = season;
+  renderSeasonChips();
+  renderBookList();
+}
 
 function renderBookList() {
   const list = document.getElementById('bk_list');
   const isRec = _bkFilter === 'recommended';
-  const data = isRec
+  let data = isRec
     ? _bkAllData.filter(b => b.is_recommended)
     : _bkAllData.filter(b => !b.is_recommended && b.category);
+  if (!isRec && _bkSeasonFilter) data = data.filter(b => b.category === _bkSeasonFilter);
 
   if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
 
@@ -2681,11 +2711,13 @@ function bookCard(b) {
 
 function setBkFilter(f) {
   _bkFilter = f;
+  _bkSeasonFilter = null;
   document.querySelectorAll('.bk-tab-btn').forEach(el => {
     el.style.fontWeight = el.dataset.f === f ? '700' : '400';
     el.style.borderBottom = el.dataset.f === f ? '2px solid var(--ac)' : '2px solid transparent';
     el.style.color = el.dataset.f === f ? 'var(--ac)' : 'var(--tl)';
   });
+  renderSeasonChips();
   renderBookList();
 }
 
@@ -2694,6 +2726,7 @@ async function loadBooks() {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   _bkAllData = await res.json() || [];
+  renderSeasonChips();
   renderBookList();
 }
 
