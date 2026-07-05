@@ -2634,7 +2634,7 @@ function bookCard(b) {
   return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;" onclick='editBook(${bj})'>
     ${cover}
     <div style="flex:1;min-width:0;">
-      <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.title}</div>
+      <div style="font-weight:600;font-size:13px;line-height:1.4;">${b.title}</div>
       <div style="font-size:11px;color:var(--tl);margin-top:1px;">${b.author || ''}</div>
       <div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;">
         ${b.session ? `<span style="font-size:10px;color:var(--ac);font-weight:700">${b.session}</span>` : ''}
