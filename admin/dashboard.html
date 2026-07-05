@@ -1570,16 +1570,42 @@ function showAppDetail(idx) {
       <div style="font-size:.75rem;font-weight:700;color:var(--tl);margin-bottom:.3rem;letter-spacing:.04em;text-transform:uppercase">${k}</div>
       <div style="font-size:.92rem;color:var(--dk);line-height:1.7">${v||'—'}</div>
     </div>`).join('');
+  const seasonOptions = [...document.getElementById('app_filter').options]
+    .filter(o => o.value)
+    .map(o => `<option value="${o.value}" ${o.value === a.season ? 'selected' : ''}>${o.text}</option>`)
+    .join('');
   document.getElementById('modal_content').innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem">
       <div style="display:flex;align-items:center;gap:.6rem">
-        <span class="badge badge-blue">${seasonLabel(a.season)}</span>
+        <span class="badge badge-blue" id="app_detail_badge">${seasonLabel(a.season)}</span>
         <span style="font-size:.78rem;color:var(--tl)">${date}</span>
       </div>
-      <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteApplication(${a.id}, ${idx}, true)">삭제</button>
+      <div style="display:flex;align-items:center;gap:.4rem">
+        <select id="app_move_sel" style="font-size:.8rem;padding:.3rem .6rem;border:1px solid var(--be);border-radius:4px;background:var(--bg);color:var(--tp)">${seasonOptions}</select>
+        <button class="btn btn-ghost btn-sm" onclick="moveApplication(${a.id})">이동</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteApplication(${a.id}, ${idx}, true)">삭제</button>
+      </div>
     </div>
     ${rows}`;
   document.getElementById('modal').style.display = 'flex';
+}
+
+async function moveApplication(id) {
+  const sel = document.getElementById('app_move_sel');
+  const newSeason = sel && sel.value;
+  if (!newSeason) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ season: newSeason })
+  });
+  if (res.ok) {
+    toast('이동 완료!');
+    document.getElementById('app_detail_badge').textContent = seasonLabel(newSeason);
+    await loadApplications();
+  } else {
+    toast('이동 실패. 다시 시도해주세요.', true);
+  }
 }
 
 async function deleteApplication(id, idx, fromModal) {
