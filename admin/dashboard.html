@@ -562,8 +562,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <!-- 목록 -->
       <div class="bk-list-wrap">
         <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:1rem;padding-bottom:0">
-          <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">전체</button>
-          <button class="bk-tab-btn" data-f="journeydeep" onclick="setBkFilter('journeydeep')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">조니딥</button>
+          <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">시즌별</button>
           <button class="bk-tab-btn" data-f="recommended" onclick="setBkFilter('recommended')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">추천 도서</button>
         </div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
@@ -2563,45 +2562,87 @@ function bkOnSeasonChange() {
   sessions.forEach(s => {
     if (!s.n) return;
     const opt = document.createElement('option');
-    opt.value = s.d || ''; opt.textContent = s.n + (s.d ? '  (' + s.d + ')' : '');
+    opt.value = s.n; opt.dataset.date = s.d || ''; opt.textContent = s.n + (s.d ? '  (' + s.d + ')' : '');
     sessionSel.appendChild(opt);
   });
 }
 
 function bkOnSessionChange() {
-  const date = document.getElementById('bk_session_sel').value;
+  const sel = document.getElementById('bk_session_sel');
+  const opt = sel.options[sel.selectedIndex];
+  const date = opt ? (opt.dataset.date || '') : '';
   if (date) document.getElementById('bk_date').value = date;
 }
 
-let _bkFilter = 'all'; // 'all' | 'journeydeep' | 'recommended'
+let _bkFilter = 'all'; // 'all' | 'recommended'
 let _bkAllData = [];
 
 function renderBookList() {
   const list = document.getElementById('bk_list');
-  const data = _bkFilter === 'recommended'
+  const isRec = _bkFilter === 'recommended';
+  const data = isRec
     ? _bkAllData.filter(b => b.is_recommended)
-    : _bkFilter === 'journeydeep'
-      ? _bkAllData.filter(b => b.category && !b.is_recommended)
-      : _bkAllData;
+    : _bkAllData.filter(b => !b.is_recommended && b.category);
+
   if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
-  list.innerHTML = data.map(b => `
-    <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
-      ${b.cover_url && b.cover_url.startsWith('http')
-        ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
-        : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
-      <div style="padding:7px 9px 4px;">
-        <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.title}</div>
-        ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">
-          ${b.category ? `<span style="font-size:10px;color:var(--ac);font-weight:600">${b.category}</span>` : ''}
-          ${b.is_recommended ? `<span style="font-size:10px;background:#f59e0b20;color:#d97706;font-weight:600;padding:1px 5px;border-radius:3px">추천</span>` : ''}
+
+  if (isRec) {
+    list.style.display = 'grid';
+    list.innerHTML = data.map(b => bookCard(b)).join('');
+    return;
+  }
+
+  // 시즌별 그룹핑 (시즌 번호 내림차순)
+  const groups = {};
+  data.forEach(b => { const k = b.category || '기타'; if (!groups[k]) groups[k] = []; groups[k].push(b); });
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    const na = parseInt(a.match(/\d+/) || [0]), nb = parseInt(b.match(/\d+/) || [0]);
+    return nb - na;
+  });
+
+  list.style.display = 'block';
+  list.innerHTML = sortedKeys.map(season => {
+    const books = groups[season];
+    const sessionGroups = {};
+    books.forEach(b => { const k = b.session || '미분류'; if (!sessionGroups[k]) sessionGroups[k] = []; sessionGroups[k].push(b); });
+    const sessionKeys = Object.keys(sessionGroups).sort((a, b) => {
+      const na = parseInt(a.match(/\d+/) || [0]), nb = parseInt(b.match(/\d+/) || [0]);
+      return na - nb;
+    });
+    const booksHtml = sessionKeys.map(sess => `
+      <div style="margin-bottom:.75rem">
+        ${sess !== '미분류' ? `<div style="font-size:.72rem;font-weight:700;color:var(--tl);letter-spacing:.06em;margin-bottom:.5rem;padding-left:2px">${sess}</div>` : ''}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px">
+          ${sessionGroups[sess].map(b => bookCard(b)).join('')}
         </div>
+      </div>`).join('');
+    return `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.82rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--be)">${season} · ${books.length}권</div>
+        ${booksHtml}
+      </div>`;
+  }).join('');
+}
+
+function bookCard(b) {
+  const bj = JSON.stringify(b).replace(/'/g,"&#39;");
+  return `<div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${bj})'>
+    ${b.cover_url && b.cover_url.startsWith('http')
+      ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
+      : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
+    <div style="padding:7px 9px 4px;">
+      <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.title}</div>
+      ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;">
+        ${b.session ? `<span style="font-size:10px;color:var(--ac);font-weight:600">${b.session}</span>` : ''}
+        ${b.is_recommended ? `<span style="font-size:10px;background:#f59e0b20;color:#d97706;font-weight:600;padding:1px 5px;border-radius:3px">추천</span>` : ''}
       </div>
-      <div style="padding:0 6px 6px;display:flex;gap:3px;">
-        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
-        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
-      </div>
-    </div>`).join('');
+    </div>
+    <div style="padding:0 6px 6px;display:flex;gap:3px;">
+      <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${bj})'>수정</button>
+      <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
+    </div>
+  </div>`;
 }
 
 function setBkFilter(f) {
@@ -2628,6 +2669,21 @@ function editBook(b) {
   document.getElementById('bk_author').value = b.author || '';
   document.getElementById('bk_category').value = b.category || '';
   document.getElementById('bk_date').value = b.date || '';
+  // session 복원
+  if (b.category) {
+    bkOnSeasonChange();
+    setTimeout(() => {
+      const sessionSel = document.getElementById('bk_session_sel');
+      if (sessionSel && b.session) {
+        for (let i = 0; i < sessionSel.options.length; i++) {
+          if (sessionSel.options[i].value === b.session) {
+            sessionSel.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }, 0);
+  }
   document.getElementById('bk_recommended').checked = !!b.is_recommended;
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   _bkCoverBlob = null;
@@ -2710,6 +2766,7 @@ async function saveBook() {
     title,
     author: document.getElementById('bk_author').value.trim() || null,
     category: document.getElementById('bk_category').value.trim() || null,
+    session: document.getElementById('bk_session_sel').value.trim() || null,
     date: document.getElementById('bk_date').value.trim() || null,
     is_recommended: document.getElementById('bk_recommended').checked,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,

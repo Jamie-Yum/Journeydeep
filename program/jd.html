@@ -241,7 +241,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </div></section><section class="section" id="season-books" style="background:var(--bg)"><div class="section-container">
 <div class="section-eyebrow reveal">Contents</div>
 <h2 class="section-title reveal">시즌 9 일정 · 총 5회차</h2>
-<div style="display:flex;flex-direction:column;gap:1.25rem;margin-top:3rem;max-width:760px">
+<div id="s9_schedule" style="display:flex;flex-direction:column;gap:1.25rem;margin-top:3rem;max-width:760px">
 <div class="reveal" style="display:grid;grid-template-columns:60px 1fr;gap:1.5rem;align-items:center;padding:1.5rem 1.75rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.4)">
   <div style="text-align:center"><div style="font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;color:var(--ac)">1회차</div><div style="font-size:.72rem;color:var(--tl);font-weight:600;margin-top:.3rem">08/08</div></div>
   <div><div style="font-size:.78rem;font-weight:600;color:var(--tl);margin-bottom:.3rem">도서 공개 예정</div><div style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--dk)">세부 내용은 추후 안내됩니다.</div></div>
@@ -414,6 +414,28 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
     if(p.capacity){var el2=document.getElementById('s9_capacity');if(el2)el2.textContent=p.capacity;}
     if(p.venue){var el3=document.getElementById('s9_venue');if(el3)el3.textContent=p.venue;}
     if(p.image_url){var hero=document.getElementById('s9_hero');if(hero)hero.style.backgroundImage='url('+p.image_url+')';}
+  }).catch(function(){});
+
+  // 시즌9 일정+책 동적 로딩
+  Promise.all([
+    fetch(SU+'/rest/v1/JD_programs?badge=eq.시즌%209&select=sessions&limit=1',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}),
+    fetch(SU+'/rest/v1/JD_books?category=eq.시즌9&is_recommended=eq.false&select=title,author,cover_url,session,sort_order&order=sort_order.asc',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();})
+  ]).then(function(results){
+    var progs=results[0], books=results[1];
+    var wrap=document.getElementById('s9_schedule');
+    if(!wrap)return;
+    var prog=progs&&progs[0];
+    if(!prog||!prog.sessions||!prog.sessions.length)return;
+    var sessions=prog.sessions;
+    wrap.style.display='flex';
+    wrap.innerHTML=sessions.map(function(s){
+      var sessionBooks=Array.isArray(books)?books.filter(function(b){return b.session===s.n;}):[];
+      var dateStr=s.d?s.d.replace(/-/g,'.').substring(2):'';
+      var booksHtml=sessionBooks.length
+        ?sessionBooks.map(function(b){return '<div style="display:flex;align-items:center;gap:.75rem;margin-top:.75rem;padding:.75rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.25)">'+(b.cover_url?'<img src="'+b.cover_url+'" style="width:36px;height:48px;object-fit:cover;border-radius:3px;flex-shrink:0">':`<div style="width:36px;height:48px;background:var(--be);border-radius:3px;flex-shrink:0"></div>`)+'<div><div style="font-size:.88rem;font-weight:600;color:var(--dk)">'+b.title+'</div>'+(b.author?'<div style="font-size:.75rem;color:var(--tl)">'+b.author+'</div>':'')+'</div></div>';}).join('')
+        :'<div style="font-size:.82rem;color:var(--tl);margin-top:.5rem">도서 공개 예정</div>';
+      return '<div class="reveal" style="display:grid;grid-template-columns:60px 1fr;gap:1.5rem;align-items:start;padding:1.5rem 1.75rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.4)"><div style="text-align:center;padding-top:4px"><div style="font-family:\'DM Sans\',sans-serif;font-size:.85rem;font-weight:700;color:var(--ac)">'+s.n+'</div>'+(dateStr?'<div style="font-size:.72rem;color:var(--tl);font-weight:600;margin-top:.3rem">'+dateStr+'</div>':'')+'</div><div>'+booksHtml+'</div></div>';
+    }).join('');
   }).catch(function(){});
 })();
 </script>
