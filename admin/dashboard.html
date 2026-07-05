@@ -310,7 +310,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <button class="btn btn-ghost btn-sm" onclick="fmAddField('radio')">+ 라디오</button>
         <button class="btn btn-ghost btn-sm" onclick="fmAddField('checkbox')">+ 체크박스</button>
       </div>
-      <div style="display:flex;gap:.75rem;margin-top:1.25rem">
+      <div style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:6px;border:1px solid var(--be)">
+        <div style="font-size:.8rem;font-weight:700;color:var(--tl);margin-bottom:.5rem">제출 완료 메시지</div>
+        <textarea id="fm_success_msg" rows="3" placeholder="신청이 완료되었습니다.&#10;의미있는 시간 되도록 잘 만들겠습니다 :)" oninput="fmUpdateSuccessMsg()" style="width:100%;resize:vertical;font-size:.88rem;padding:.6rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp);line-height:1.7"></textarea>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1rem">
         <button class="btn btn-primary" onclick="fmSaveFields()">저장</button>
         <button class="btn btn-ghost" onclick="fmResetToDefault()">현재 기본값으로 초기화</button>
       </div>
@@ -1144,6 +1148,8 @@ function openFormEditor(p) {
     : JSON.parse(JSON.stringify(FM_DEFAULT));
   if (!_fmFields.member) _fmFields.member = JSON.parse(JSON.stringify(FM_DEFAULT.member));
   if (!_fmFields.guest)  _fmFields.guest  = JSON.parse(JSON.stringify(FM_DEFAULT.guest));
+  if (!_fmFields.member_success) _fmFields.member_success = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
+  if (!_fmFields.guest_success)  _fmFields.guest_success  = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
   document.getElementById('form-editor-title').textContent = `설문 편집 — ${p.badge || p.title || ''}`;
   const sec = document.getElementById('form-editor-section');
   sec.style.display = 'block';
@@ -1164,7 +1170,14 @@ function fmSetTab(tab) {
     el.style.borderBottom = on ? '2px solid var(--ac)' : '2px solid transparent';
     el.style.color = on ? 'var(--ac)' : 'var(--tl)';
   });
+  const ta = document.getElementById('fm_success_msg');
+  if (ta) ta.value = _fmFields[tab + '_success'] || '';
   fmRenderFieldList();
+}
+
+function fmUpdateSuccessMsg() {
+  const ta = document.getElementById('fm_success_msg');
+  if (ta) _fmFields[_fmTab + '_success'] = ta.value;
 }
 
 const FM_TYPE_LABEL = {text:'텍스트', textarea:'장문', radio:'라디오', checkbox:'체크박스'};

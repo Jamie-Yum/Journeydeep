@@ -234,6 +234,8 @@ function switchTab(tab, btn) {
 
 // ── 동적 폼 렌더링 ──────────────────────────────────────────
 var _memberFields = [], _guestFields = [], _activeSeason = '';
+var _memberSuccessMsg = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
+var _guestSuccessMsg  = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
 
 var FM_DEFAULT = {
   member: [
@@ -349,18 +351,21 @@ function validateFields(fields, prefix) {
   return true;
 }
 
-function submitToSupabase(season, data, formEl, successEl, btnEl) {
+function submitToSupabase(season, data, formEl, successEl, btnEl, successMsg) {
   btnEl.disabled = true; btnEl.textContent = '제출 중...';
   var payload = { season: season, fields: JSON.stringify(data), submitted_at: new Date().toISOString() };
   fetch(SUPA_URL + '/rest/v1/JD_applications', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'return=minimal' },
     body: JSON.stringify(payload)
-  }).then(function(){ onDone(formEl, successEl); }).catch(function(){ onDone(formEl, successEl); });
+  }).then(function(){ onDone(formEl, successEl, successMsg); }).catch(function(){ onDone(formEl, successEl, successMsg); });
 }
 
-function onDone(formEl, successEl) {
-  showSubmitPopup('신청 완료!', '신청이 완료되었습니다. 의미있는 시간 되도록 잘 만들겠습니다 :)', '🎉');
+function onDone(formEl, successEl, successMsg) {
+  var msg = successMsg || _memberSuccessMsg;
+  showSubmitPopup('신청 완료!', msg.replace(/\n/g,' '), '🎉');
+  var msgEl = successEl.querySelector('p');
+  if (msgEl) msgEl.innerHTML = msg.replace(/\n/g,'<br>');
   setTimeout(function(){ formEl.style.display = 'none'; successEl.style.display = 'block'; }, 2800);
 }
 
@@ -368,14 +373,14 @@ document.getElementById('memberForm').addEventListener('submit', function(e) {
   e.preventDefault();
   if (!validateFields(_memberFields, 'm')) return;
   var data = collectFields(_memberFields, 'm');
-  submitToSupabase(_activeSeason + '-member', data, this, document.getElementById('memberSuccess'), this.querySelector('button[type="submit"]'));
+  submitToSupabase(_activeSeason + '-member', data, this, document.getElementById('memberSuccess'), this.querySelector('button[type="submit"]'), _memberSuccessMsg);
 });
 
 document.getElementById('guestForm').addEventListener('submit', function(e) {
   e.preventDefault();
   if (!validateFields(_guestFields, 'g')) return;
   var data = collectFields(_guestFields, 'g');
-  submitToSupabase(_activeSeason + '-guest', data, this, document.getElementById('guestSuccess'), this.querySelector('button[type="submit"]'));
+  submitToSupabase(_activeSeason + '-guest', data, this, document.getElementById('guestSuccess'), this.querySelector('button[type="submit"]'), _guestSuccessMsg);
 });
 
 // 프로그램 + 도서 로드
@@ -410,6 +415,8 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     var ff = p.form_fields || {};
     _memberFields = (ff.member && ff.member.length) ? ff.member : FM_DEFAULT.member;
     _guestFields  = (ff.guest  && ff.guest.length)  ? ff.guest  : FM_DEFAULT.guest;
+    if (ff.member_success) _memberSuccessMsg = ff.member_success;
+    if (ff.guest_success)  _guestSuccessMsg  = ff.guest_success;
     renderFields(_memberFields, 'm-fields', 'm');
     renderFields(_guestFields,  'g-fields', 'g');
   }).catch(function() {
