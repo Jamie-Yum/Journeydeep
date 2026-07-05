@@ -2614,9 +2614,9 @@ function renderBookList() {
   if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
 
   if (isRec) {
-    list.style.display = 'flex';
-    list.style.flexDirection = 'column';
-    list.style.gap = '4px';
+    list.style.display = 'grid';
+    list.style.gridTemplateColumns = 'repeat(auto-fill, 150px)';
+    list.style.gap = '12px';
     list.innerHTML = data.map(b => bookCard(b)).join('');
     return;
   }
@@ -2643,7 +2643,7 @@ function renderBookList() {
       const nb = parseInt((b.session || '').match(/\d+/) || [999]);
       return na - nb;
     });
-    const booksHtml = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">${sortedBooks.map(b => bookCard(b)).join('')}</div>`;
+    const booksHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fill,150px);gap:12px">${sortedBooks.map(b => bookCard(b)).join('')}</div>`;
     return `
       <div style="margin-bottom:1.5rem">
         <div style="font-size:.82rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--be)">${season} · ${books.length}권</div>
