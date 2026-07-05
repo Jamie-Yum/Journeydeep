@@ -45,13 +45,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .apply-desc{font-size:.97rem;color:var(--ts);line-height:1.8;margin-bottom:2rem}
 
 /* Schedule strip */
-.schedule-strip{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2.5rem}
-.schedule-row{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:.75rem;padding:.6rem .9rem;background:var(--wh);border:1px solid rgba(37,99,235,.15)}
-.schedule-row-session{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;color:var(--ac)}
-.schedule-row-date{font-size:.82rem;color:var(--ts);font-weight:500}
-.schedule-row-book{display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--tl)}
-.schedule-row-book img{width:36px;height:50px;object-fit:cover;border-radius:2px;box-shadow:0 2px 6px rgba(0,0,0,.15);flex-shrink:0}
-.schedule-row-book-info{display:flex;flex-direction:column;gap:.1rem}
+.schedule-strip{display:flex;flex-direction:column;gap:.4rem;margin-bottom:2.5rem}
+.schedule-row{display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;background:var(--wh);border:1px solid rgba(37,99,235,.15);min-height:64px}
+.schedule-row-session{font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;color:var(--ac);width:52px;flex-shrink:0}
+.schedule-row-date{font-size:.82rem;color:var(--ts);font-weight:500;width:72px;flex-shrink:0;white-space:nowrap}
+.schedule-row-book{display:flex;align-items:center;gap:.65rem;flex:1;min-width:0}
+.schedule-row-book img{width:32px;height:46px;object-fit:cover;border-radius:2px;box-shadow:0 2px 6px rgba(0,0,0,.15);flex-shrink:0}
+.schedule-row-book-info{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.schedule-row-book-info .book-title{font-size:.85rem;font-weight:600;color:var(--dk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schedule-row-book-info .book-author{font-size:.75rem;color:var(--tl)}
 .schedule-note{font-size:.75rem;color:var(--tl);margin-top:.25rem}
 
 /* Tabs */
@@ -133,7 +135,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     </li>
     <li class="nav-li has-dropdown">
       <a href="../index.html#trace" class="nav-link-item"><span class="nav-link-main">Trace</span></a>
-      <div class="nav-dropdown"><a href="../archive/books.html" class="nav-dd-item">Book List</a></div>
+      <div class="nav-dropdown"><a href="../archive/gallery.html" class="nav-dd-item">Gallery</a><div class="nav-dd-divider"></div><a href="../archive/books.html" class="nav-dd-item">Book List</a></div>
     </li>
   </ul>
   <div style="display:flex;align-items:center;gap:.75rem">
@@ -313,7 +315,7 @@ function renderFields(fields, containerId, prefix) {
 function collectFields(fields, prefix) {
   var data = {};
   fields.forEach(function(f) {
-    if (f.type === 'text' || f.type === 'textarea') {
+    if (f.type === 'text' || f.type === 'tel' || f.type === 'email' || f.type === 'textarea') {
       var el = document.getElementById(prefix + '_' + f.id);
       data[f.label] = el ? el.value.trim() : '';
     } else if (f.type === 'radio') {
@@ -331,7 +333,7 @@ function validateFields(fields, prefix) {
   for (var i = 0; i < fields.length; i++) {
     var f = fields[i];
     if (!f.required) continue;
-    if (f.type === 'text' || f.type === 'textarea') {
+    if (f.type === 'text' || f.type === 'tel' || f.type === 'email' || f.type === 'textarea') {
       var el = document.getElementById(prefix + '_' + f.id);
       if (!el || !el.value.trim()) { alert((i+1) + '. ' + f.label + ' 항목을 입력해 주세요.'); if(el) el.focus(); return false; }
     } else if (f.type === 'radio') {
@@ -426,10 +428,10 @@ function renderSchedule(sessions, bookMap) {
     var bookStr = book
       ? '<div class="schedule-row-book">' +
           (book.cover_url ? '<img src="' + book.cover_url + '" alt="' + book.title + '" loading="lazy">' : '') +
-          '<div class="schedule-row-book-info"><span style="color:var(--dk);font-weight:600">『' + book.title + '』</span>' +
-          (book.author ? '<span style="font-size:.75rem;color:var(--tl)">' + book.author + '</span>' : '') +
+          '<div class="schedule-row-book-info"><span class="book-title">『' + book.title + '』</span>' +
+          (book.author ? '<span class="book-author">' + book.author + '</span>' : '') +
           '</div></div>'
-      : '<span style="color:var(--tl);font-size:.8rem">도서 공개 예정</span>';
+      : '<div class="schedule-row-book"><span style="color:var(--tl);font-size:.8rem">도서 공개 예정</span></div>';
     html += '<div class="schedule-row"><span class="schedule-row-session">' + s.n + '</span><span class="schedule-row-date">' + dateStr + '</span>' + bookStr + '</div>';
   });
   strip.innerHTML = html + '<span class="schedule-note">* 도서 및 세부 일정은 순차적으로 공개됩니다.</span>';
