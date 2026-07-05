@@ -149,14 +149,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <a href="../index.html" class="back-link">← 홈으로</a>
 
     <div style="margin-bottom:2rem">
-      <div class="apply-label">시즌 9</div>
-      <h1 class="apply-title">시즌 9 신청</h1>
-      <p class="apply-desc">조니딥에 신청해주신 여러분 반갑습니다.<br>함께 할 당신에 대해 알려주세요 🙋🏻‍♀️</p>
+      <div class="apply-label" id="apply-label">불러오는 중...</div>
+      <h1 class="apply-title" id="apply-title">신청</h1>
+      <p class="apply-desc" id="apply-desc"></p>
     </div>
 
     <!-- 시즌 9 일정 -->
     <div style="margin-bottom:2.5rem">
-      <div style="font-size:.78rem;font-weight:700;color:var(--tl);letter-spacing:.12em;text-transform:uppercase;font-family:'DM Sans',sans-serif;margin-bottom:.75rem">Season 9 일정</div>
+      <div id="schedule-label" style="font-size:.78rem;font-weight:700;color:var(--tl);letter-spacing:.12em;text-transform:uppercase;font-family:'DM Sans',sans-serif;margin-bottom:.75rem">일정</div>
       <div id="schedule-strip" class="schedule-strip">
         <span style="color:var(--tl);font-size:.85rem">일정을 불러오는 중...</span>
       </div>
@@ -385,12 +385,29 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
 
 // 프로그램 + 도서 로드
 (function() {
-  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields,sessions&is_current=eq.true&limit=1', {
+  var urlSeason = new URLSearchParams(location.search).get('season');
+  var pgFilter = urlSeason
+    ? 'badge=eq.' + encodeURIComponent(urlSeason)
+    : 'is_current=eq.true';
+
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields,sessions&' + pgFilter + '&limit=1', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (!Array.isArray(data) || !data.length) return;
     var p = data[0];
     _activeSeason = p.badge || 'season';
+
+    // 상단 문구 기본값 (form_fields에서 덮어씀)
+    var labelEl = document.getElementById('apply-label');
+    var titleEl = document.getElementById('apply-title');
+    var descEl  = document.getElementById('apply-desc');
+    var schedEl = document.getElementById('schedule-label');
+    if (labelEl) labelEl.textContent = _activeSeason;
+    if (titleEl) titleEl.textContent = _activeSeason + ' 신청';
+    if (descEl)  descEl.innerHTML = '조니딥에 신청해주신 여러분 반갑습니다.<br>함께 할 당신에 대해 알려주세요 🙋🏻‍♀️';
+    if (schedEl) schedEl.textContent = _activeSeason + ' 일정';
+    document.title = _activeSeason + ' 신청 — 조니딥';
+
     var mEl = document.getElementById('fee_member_display');
     var gEl = document.getElementById('fee_guest_display');
     if (mEl && p.fee_member) mEl.textContent = p.fee_member;
@@ -417,8 +434,8 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     _guestFields  = (ff.guest  && ff.guest.length)  ? ff.guest  : FM_DEFAULT.guest;
     if (ff.member_success) _memberSuccessMsg = ff.member_success;
     if (ff.guest_success)  _guestSuccessMsg  = ff.guest_success;
-    if (ff.header_title) { var ht = document.querySelector('.apply-title'); if (ht) ht.textContent = ff.header_title; }
-    if (ff.header_desc)  { var hd = document.querySelector('.apply-desc');  if (hd) hd.innerHTML = ff.header_desc.replace(/\n/g,'<br>'); }
+    if (ff.header_title) { var ht = document.getElementById('apply-title'); if (ht) ht.textContent = ff.header_title; }
+    if (ff.header_desc)  { var hd = document.getElementById('apply-desc');  if (hd) hd.innerHTML = ff.header_desc.replace(/\n/g,'<br>'); }
     renderFields(_memberFields, 'm-fields', 'm');
     renderFields(_guestFields,  'g-fields', 'g');
   }).catch(function() {
