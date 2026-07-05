@@ -45,8 +45,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .apply-desc{font-size:.97rem;color:var(--ts);line-height:1.8;margin-bottom:2rem}
 
 /* Schedule strip */
-.schedule-strip{display:flex;flex-direction:column;gap:.4rem;margin-bottom:2.5rem}
-.schedule-row{display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;background:var(--wh);border:1px solid rgba(37,99,235,.15);min-height:64px}
+.schedule-strip{display:flex;flex-direction:column;gap:2px;margin-bottom:2.5rem}
+.schedule-row{display:flex;align-items:center;gap:1rem;padding:.5rem 1rem;background:var(--wh);border:1px solid rgba(37,99,235,.15);min-height:52px}
 .schedule-row-session{font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;color:var(--ac);width:52px;flex-shrink:0}
 .schedule-row-date{font-size:.82rem;color:var(--ts);font-weight:500;width:72px;flex-shrink:0;white-space:nowrap}
 .schedule-row-book{display:flex;align-items:center;gap:.65rem;flex:1;min-width:0}
@@ -431,7 +431,7 @@ function renderSchedule(sessions, bookMap) {
           '<div class="schedule-row-book-info"><span class="book-title">『' + book.title + '』</span>' +
           (book.author ? '<span class="book-author">' + book.author + '</span>' : '') +
           '</div></div>'
-      : '<div class="schedule-row-book"><span style="color:var(--tl);font-size:.8rem">도서 공개 예정</span></div>';
+      : '<div class="schedule-row-book"><span style="color:var(--tl);font-size:.8rem">일정 기획 중</span></div>';
     html += '<div class="schedule-row"><span class="schedule-row-session">' + s.n + '</span><span class="schedule-row-date">' + dateStr + '</span>' + bookStr + '</div>';
   });
   strip.innerHTML = html + '<span class="schedule-note">* 도서 및 세부 일정은 순차적으로 공개됩니다.</span>';
