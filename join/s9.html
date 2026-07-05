@@ -45,9 +45,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .apply-desc{font-size:.97rem;color:var(--ts);line-height:1.8;margin-bottom:2rem}
 
 /* Schedule strip */
-.schedule-strip{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2.5rem}
-.schedule-chip{padding:.35rem .9rem;background:var(--wh);border:1px solid rgba(37,99,235,.2);border-radius:4px;font-size:.78rem;font-weight:600;color:var(--ac);font-family:'DM Sans',sans-serif;letter-spacing:.02em}
-.schedule-note{font-size:.75rem;color:var(--tl);margin-top:.5rem;width:100%}
+.schedule-strip{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2.5rem}
+.schedule-row{display:grid;grid-template-columns:70px 1fr 1fr;align-items:center;gap:.75rem;padding:.6rem .9rem;background:var(--wh);border:1px solid rgba(37,99,235,.15)}
+.schedule-row-session{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;color:var(--ac)}
+.schedule-row-date{font-size:.82rem;color:var(--ts);font-weight:500}
+.schedule-row-book{font-size:.8rem;color:var(--tl)}
+.schedule-note{font-size:.75rem;color:var(--tl);margin-top:.25rem}
 
 /* Tabs */
 .tab-bar{display:flex;border-bottom:2px solid rgba(100,116,139,.2);margin-bottom:2rem}
@@ -150,13 +153,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <!-- 시즌 9 일정 -->
     <div style="margin-bottom:2.5rem">
       <div style="font-size:.78rem;font-weight:700;color:var(--tl);letter-spacing:.12em;text-transform:uppercase;font-family:'DM Sans',sans-serif;margin-bottom:.75rem">Season 9 일정</div>
-      <div class="schedule-strip">
-        <span class="schedule-chip">8월 8일</span>
-        <span class="schedule-chip">9월 12일</span>
-        <span class="schedule-chip">10월 10일</span>
-        <span class="schedule-chip">11월 7일</span>
-        <span class="schedule-chip">12월 12일</span>
-        <span class="schedule-note">* 각 회차 도서 및 세부 일정은 순차적으로 공개됩니다.</span>
+      <div id="schedule-strip" class="schedule-strip">
+        <span style="color:var(--tl);font-size:.85rem">일정을 불러오는 중...</span>
       </div>
     </div>
 
@@ -269,6 +267,7 @@ function renderFields(fields, containerId, prefix) {
   fields.forEach(function(f, i) {
     var wrap = document.createElement('div');
     wrap.className = 'field-wrap';
+    wrap.dataset.fid = f.id;
     var lbl = document.createElement('label');
     lbl.className = 'field-label';
     lbl.innerHTML = (i + 1) + '. ' + f.label + (f.required ? '<span class="field-req">*</span>' : '');
@@ -375,9 +374,9 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
   submitToSupabase(_activeSeason + '-guest', data, this, document.getElementById('guestSuccess'), this.querySelector('button[type="submit"]'));
 });
 
-// 프로그램에서 form_fields + 참가비 로드
+// 프로그램 + 도서 로드
 (function() {
-  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields&order=season_number.desc&limit=1&visible=eq.true', {
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields,sessions&order=season_number.desc&limit=1&visible=eq.true', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (!Array.isArray(data) || !data.length) return;
@@ -387,6 +386,23 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     var gEl = document.getElementById('fee_guest_display');
     if (mEl && p.fee_member) mEl.textContent = p.fee_member;
     if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
+
+    var sessions = p.sessions || [];
+
+    // 도서 fetch 후 일정+설문 렌더
+    var encoded = encodeURIComponent(_activeSeason);
+    fetch(SUPA_URL + '/rest/v1/JD_books?select=title,author,session&category=eq.' + encoded + '&is_recommended=eq.false', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    }).then(function(r2) { return r2.json(); }).then(function(books) {
+      var bookMap = {};
+      (books || []).forEach(function(b) { if (b.session) bookMap[b.session] = b; });
+      renderSchedule(sessions, bookMap);
+      updateGuestSessionField(sessions, bookMap);
+    }).catch(function() {
+      renderSchedule(sessions, {});
+      updateGuestSessionField(sessions, {});
+    });
+
     var ff = p.form_fields || {};
     _memberFields = (ff.member && ff.member.length) ? ff.member : FM_DEFAULT.member;
     _guestFields  = (ff.guest  && ff.guest.length)  ? ff.guest  : FM_DEFAULT.guest;
@@ -397,6 +413,36 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     document.getElementById('g-fields').innerHTML = '<p style="color:var(--tl)">설문을 불러오지 못했어요. 새로고침 해주세요.</p>';
   });
 })();
+
+function renderSchedule(sessions, bookMap) {
+  var strip = document.getElementById('schedule-strip');
+  if (!sessions.length) { strip.innerHTML = '<span class="schedule-note">일정이 아직 등록되지 않았어요.</span>'; return; }
+  var html = '';
+  sessions.forEach(function(s) {
+    var dateStr = s.d ? s.d.replace(/(\d{4})-(\d{2})-(\d{2})/, function(_,y,m,d){ return m+'월 '+parseInt(d)+'일'; }) : '날짜 미정';
+    var book = bookMap[s.n];
+    var bookStr = book ? ('『' + book.title + '』') : '<span style="color:var(--tl)">도서 공개 예정</span>';
+    html += '<div class="schedule-row"><span class="schedule-row-session">' + s.n + '</span><span class="schedule-row-date">' + dateStr + '</span><span class="schedule-row-book">' + bookStr + '</span></div>';
+  });
+  strip.innerHTML = html + '<span class="schedule-note">* 도서 및 세부 일정은 순차적으로 공개됩니다.</span>';
+}
+
+function updateGuestSessionField(sessions, bookMap) {
+  // 게스트 설문에서 session 체크박스 옵션을 동적으로 교체
+  var field = document.querySelector('#g-fields [data-fid="session"] .check-group');
+  if (!field || !sessions.length) return;
+  field.innerHTML = '';
+  sessions.forEach(function(s) {
+    var dateStr = s.d ? s.d.replace(/(\d{4})-(\d{2})-(\d{2})/, function(_,y,m,d){ return m+'/'+parseInt(d); }) : '';
+    var book = bookMap[s.n];
+    var label = s.n + (dateStr ? ' (' + dateStr + ')' : '') + (book ? ' — 『' + book.title + '』' : '');
+    var lEl = document.createElement('label'); lEl.className = 'check-label';
+    var inp = document.createElement('input');
+    inp.type = 'checkbox'; inp.name = 'g_session'; inp.value = s.n;
+    lEl.appendChild(inp); lEl.appendChild(document.createTextNode(' ' + label));
+    field.appendChild(lEl);
+  });
+}
 
 // Nav scroll
 const nav = document.getElementById('nav');
