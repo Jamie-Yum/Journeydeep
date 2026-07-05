@@ -2625,7 +2625,12 @@ function renderBookList() {
       const na = parseInt(a.match(/\d+/) || [0]), nb = parseInt(b.match(/\d+/) || [0]);
       return na - nb;
     });
-    const booksHtml = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">${books.map(b => bookCard(b)).join('')}</div>`;
+    const sortedBooks = books.slice().sort((a, b) => {
+      const na = parseInt((a.session || '').match(/\d+/) || [999]);
+      const nb = parseInt((b.session || '').match(/\d+/) || [999]);
+      return na - nb;
+    });
+    const booksHtml = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">${sortedBooks.map(b => bookCard(b)).join('')}</div>`;
     return `
       <div style="margin-bottom:1.5rem">
         <div style="font-size:.82rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--be)">${season} · ${books.length}권</div>
@@ -2641,8 +2646,8 @@ function bookCard(b) {
   const sessObj = prog && b.session ? (prog.sessions || []).find(s => s.n === b.session) : null;
   const dateStr = sessObj && sessObj.d ? sessObj.d.replace(/(\d{4})-(\d{2})-(\d{2})/, (_,y,m,d) => `${m}/${parseInt(d)}`) : '';
   const cover = b.cover_url && b.cover_url.startsWith('http')
-    ? `<img src="${b.cover_url}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;border-radius:4px 4px 0 0;">`
-    : `<div style="width:100%;aspect-ratio:2/3;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tl);border-radius:4px 4px 0 0;">이미지 없음</div>`;
+    ? `<img src="${b.cover_url}" style="width:100%;height:120px;object-fit:cover;display:block;border-radius:4px 4px 0 0;">`
+    : `<div style="width:100%;height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tl);border-radius:4px 4px 0 0;">이미지 없음</div>`;
   return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;" onclick='editBook(${bj})'>
     ${cover}
     <div style="padding:8px 9px;flex:1;display:flex;flex-direction:column;gap:3px;">
