@@ -419,7 +419,7 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
   // 시즌9 일정+책 동적 로딩
   Promise.all([
     fetch(SU+'/rest/v1/JD_programs?badge=eq.시즌%209&select=sessions&limit=1',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}),
-    fetch(SU+'/rest/v1/JD_books?category=eq.시즌9&is_recommended=eq.false&select=title,author,cover_url,session,sort_order&order=sort_order.asc',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();})
+    fetch(SU+'/rest/v1/JD_books?category=eq.시즌%209&is_recommended=eq.false&select=title,author,cover_url,session,sort_order&order=sort_order.asc',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();})
   ]).then(function(results){
     var progs=results[0], books=results[1];
     var wrap=document.getElementById('s9_schedule');
@@ -427,15 +427,32 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
     var prog=progs&&progs[0];
     if(!prog||!prog.sessions||!prog.sessions.length)return;
     var sessions=prog.sessions;
+    var allBooks=Array.isArray(books)?books:[];
+    function makeBookItem(b){
+      return '<div style="display:flex;align-items:center;gap:.75rem;margin-top:.75rem;padding:.75rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.25)">'
+        +(b.cover_url?'<img src="'+b.cover_url+'" style="width:36px;height:48px;object-fit:cover;border-radius:3px;flex-shrink:0">':'<div style="width:36px;height:48px;background:var(--be);border-radius:3px;flex-shrink:0"></div>')
+        +'<div><div style="font-size:.88rem;font-weight:600;color:var(--dk)">'+b.title+'</div>'+(b.author?'<div style="font-size:.75rem;color:var(--tl)">'+b.author+'</div>':'')+'</div></div>';
+    }
+    // session 배정된 책들의 집합
+    var assignedIds=new Set(allBooks.filter(function(b){return b.session;}).map(function(b){return b.id;}));
+    // session=null인 책 (회차 미지정)
+    var unassigned=allBooks.filter(function(b){return !b.session;});
     wrap.style.display='flex';
-    wrap.innerHTML=sessions.map(function(s){
-      var sessionBooks=Array.isArray(books)?books.filter(function(b){return b.session===s.n;}):[];
+    var rowsHtml=sessions.map(function(s){
+      var sessionBooks=allBooks.filter(function(b){return b.session===s.n;});
       var dateStr=s.d?s.d.replace(/-/g,'.').substring(2):'';
       var booksHtml=sessionBooks.length
-        ?sessionBooks.map(function(b){return '<div style="display:flex;align-items:center;gap:.75rem;margin-top:.75rem;padding:.75rem;background:var(--bg);border-radius:0;border:1px solid rgba(100,116,139,.25)">'+(b.cover_url?'<img src="'+b.cover_url+'" style="width:36px;height:48px;object-fit:cover;border-radius:3px;flex-shrink:0">':`<div style="width:36px;height:48px;background:var(--be);border-radius:3px;flex-shrink:0"></div>`)+'<div><div style="font-size:.88rem;font-weight:600;color:var(--dk)">'+b.title+'</div>'+(b.author?'<div style="font-size:.75rem;color:var(--tl)">'+b.author+'</div>':'')+'</div></div>';}).join('')
+        ?sessionBooks.map(makeBookItem).join('')
         :'<div style="font-size:.82rem;color:var(--tl);margin-top:.5rem">도서 공개 예정</div>';
       return '<div class="reveal" style="display:grid;grid-template-columns:60px 1fr;gap:1.5rem;align-items:start;padding:1.5rem 1.75rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.4)"><div style="text-align:center;padding-top:4px"><div style="font-family:\'DM Sans\',sans-serif;font-size:.85rem;font-weight:700;color:var(--ac)">'+s.n+'</div>'+(dateStr?'<div style="font-size:.72rem;color:var(--tl);font-weight:600;margin-top:.3rem">'+dateStr+'</div>':'')+'</div><div>'+booksHtml+'</div></div>';
     }).join('');
+    // 회차 미지정 책이 있으면 하단에 추가
+    var unassignedHtml=unassigned.length
+      ?'<div class="reveal" style="padding:1.25rem 1.75rem;background:var(--wh);border-radius:0;border:1px solid rgba(100,116,139,.4)">'
+        +'<div style="font-size:.75rem;font-weight:700;color:var(--tl);letter-spacing:.06em;margin-bottom:.5rem">이번 시즌 도서</div>'
+        +unassigned.map(makeBookItem).join('')+'</div>'
+      :'';
+    wrap.innerHTML=rowsHtml+unassignedHtml;
   }).catch(function(){});
 })();
 </script>
