@@ -298,6 +298,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="card-title" id="form-editor-title" style="margin:0">설문 편집</div>
         <button class="btn btn-ghost btn-sm" onclick="fmClose()">✕ 닫기</button>
       </div>
+      <div style="margin-bottom:1.25rem;padding:1rem;background:var(--bg);border-radius:6px;border:1px solid var(--be)">
+        <div style="font-size:.8rem;font-weight:700;color:var(--tl);margin-bottom:.5rem">페이지 상단 문구</div>
+        <input id="fm_header_title" placeholder="예: 시즌 9 신청" oninput="_fmFields.header_title=this.value" style="width:100%;margin-bottom:.4rem;font-size:.88rem;padding:.5rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp)">
+        <textarea id="fm_header_desc" rows="2" placeholder="예: 조니딥에 신청해주신 여러분 반갑습니다.&#10;함께 할 당신에 대해 알려주세요 🙋🏻‍♀️" oninput="_fmFields.header_desc=this.value" style="width:100%;resize:vertical;font-size:.88rem;padding:.5rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp);line-height:1.7"></textarea>
+      </div>
       <div style="display:flex;gap:1rem;border-bottom:1px solid var(--be);margin-bottom:1.25rem;padding-bottom:0">
         <button class="fm-tab-btn" data-t="member" onclick="fmSetTab('member')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">정규 멤버</button>
         <button class="fm-tab-btn" data-t="guest" onclick="fmSetTab('guest')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">게스트</button>
@@ -1150,6 +1155,8 @@ function openFormEditor(p) {
   if (!_fmFields.guest)  _fmFields.guest  = JSON.parse(JSON.stringify(FM_DEFAULT.guest));
   if (!_fmFields.member_success) _fmFields.member_success = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
   if (!_fmFields.guest_success)  _fmFields.guest_success  = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
+  document.getElementById('fm_header_title').value = _fmFields.header_title || '';
+  document.getElementById('fm_header_desc').value  = _fmFields.header_desc  || '';
   document.getElementById('form-editor-title').textContent = `설문 편집 — ${p.badge || p.title || ''}`;
   const sec = document.getElementById('form-editor-section');
   sec.style.display = 'block';

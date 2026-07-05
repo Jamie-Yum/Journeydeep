@@ -417,6 +417,8 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     _guestFields  = (ff.guest  && ff.guest.length)  ? ff.guest  : FM_DEFAULT.guest;
     if (ff.member_success) _memberSuccessMsg = ff.member_success;
     if (ff.guest_success)  _guestSuccessMsg  = ff.guest_success;
+    if (ff.header_title) { var ht = document.querySelector('.apply-title'); if (ht) ht.textContent = ff.header_title; }
+    if (ff.header_desc)  { var hd = document.querySelector('.apply-desc');  if (hd) hd.innerHTML = ff.header_desc.replace(/\n/g,'<br>'); }
     renderFields(_memberFields, 'm-fields', 'm');
     renderFields(_guestFields,  'g-fields', 'g');
   }).catch(function() {
