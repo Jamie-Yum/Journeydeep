@@ -1048,26 +1048,36 @@ async function duplicateProgram(p) {
 }
 
 async function loadPrograms() {
-  const data = await sbGet('JD_programs', '&order=sort_order.desc');
+  const data = await sbGet('JD_programs', '&order=season_number.desc');
   const el = document.getElementById('pg_list');
   if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 프로그램이 없어요.</div>'; return; }
-  el.innerHTML = '<div class="item-list" id="pg_sortable">' + data.map(p => `
-    <div class="item-row" draggable="true" data-id="${p.id}" style="cursor:grab">
-      <div style="padding:.4rem .2rem;color:var(--tl);font-size:1rem;cursor:grab;user-select:none">⠿</div>
-      <div class="item-info">
-        <h4>${p.badge ? `<span style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-right:.5rem">${p.badge}</span>` : ''}${p.title}</h4>
-        <p>${p.date_start || ''}${p.date_end ? ' ~ ' + p.date_end : ''} ${p.venue ? '· ' + p.venue : ''}</p>
+  // 가장 최근 visible 시즌 = 현재 시즌
+  const current = data.find(p => p.visible);
+  el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' + data.map(p => {
+    const pj = JSON.stringify(p).replace(/'/g,"&#39;");
+    const isCurrent = current && p.id === current.id;
+    const sessCount = (p.sessions || []).length;
+    const dateStr = p.date_start ? `${p.date_start}${p.date_end ? ' ~ ' + p.date_end : ''}` : '';
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid ${isCurrent ? 'var(--ac)' : 'var(--border)'};border-radius:8px;${isCurrent ? 'box-shadow:0 0 0 1px var(--ac)20' : ''}">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;white-space:nowrap;background:${isCurrent ? 'var(--ac)' : 'rgba(37,99,235,.08)'};color:${isCurrent ? '#fff' : 'var(--ac)'};padding:2px 8px;border-radius:4px">${p.badge || '—'}</span>
+        <span style="font-weight:600;font-size:.9rem;color:var(--tp)">${p.title}</span>
+        ${isCurrent ? '<span style="font-size:.68rem;background:#10b98120;color:#059669;font-weight:700;padding:2px 7px;border-radius:10px">현재 시즌</span>' : ''}
+        ${!p.visible ? '<span style="font-size:.68rem;background:rgba(100,116,139,.12);color:var(--tl);font-weight:600;padding:2px 7px;border-radius:10px">비공개</span>' : ''}
       </div>
-      <div class="item-actions">
-        ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm">페이지 보기</a>` : ''}
-        ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
-        <button class="btn btn-ghost btn-sm" onclick='editProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
-        <button class="btn btn-ghost btn-sm" onclick='openFormEditor(${JSON.stringify(p).replace(/'/g,"&#39;")})'>설문 편집</button>
-        <button class="btn btn-ghost btn-sm" onclick='duplicateProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>복제</button>
-        <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap;">
+        ${dateStr ? `<span style="font-size:.75rem;color:var(--tl);white-space:nowrap">${dateStr}</span>` : ''}
+        ${sessCount ? `<span style="font-size:.75rem;color:var(--tl);white-space:nowrap">${sessCount}회차</span>` : ''}
+        <div style="width:1px;height:14px;background:var(--be);margin:0 2px"></div>
+        ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.75rem">페이지</a>` : ''}
+        ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.75rem">신청</a>` : ''}
+        <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.75rem" onclick='editProgram(${pj})'>수정</button>
+        <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.75rem" onclick='openFormEditor(${pj})'>설문</button>
+        <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.75rem;color:var(--danger)" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
-    </div>`).join('') + '</div>';
-  pgInitDrag();
+    </div>`;
+  }).join('') + '</div>';
 }
 
 // ── FORM EDITOR ────────────────────────────────────────────
