@@ -1555,7 +1555,7 @@ async function loadApplications() {
       <td style="font-weight:600">${name}</td>
       <td>${phone}</td>
       <td style="color:var(--tl)">${date}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button></td>
+      <td style="display:flex;gap:.4rem"><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick='deleteApplication(${a.id}, ${i})'>삭제</button></td>
     </tr>`;
   }).join('');
 }
@@ -1571,12 +1571,30 @@ function showAppDetail(idx) {
       <div style="font-size:.92rem;color:var(--dk);line-height:1.7">${v||'—'}</div>
     </div>`).join('');
   document.getElementById('modal_content').innerHTML = `
-    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem">
-      <span class="badge badge-blue">${seasonLabel(a.season)}</span>
-      <span style="font-size:.78rem;color:var(--tl)">${date}</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <span class="badge badge-blue">${seasonLabel(a.season)}</span>
+        <span style="font-size:.78rem;color:var(--tl)">${date}</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteApplication(${a.id}, ${idx}, true)">삭제</button>
     </div>
     ${rows}`;
   document.getElementById('modal').style.display = 'flex';
+}
+
+async function deleteApplication(id, idx, fromModal) {
+  if (!confirm('이 신청 내역을 삭제할까요? 되돌릴 수 없어요.')) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  if (res.ok) {
+    toast('삭제 완료!');
+    if (fromModal) document.getElementById('modal').style.display = 'none';
+    await loadApplications();
+  } else {
+    toast('삭제 실패. 다시 시도해주세요.', true);
+  }
 }
 
 function exportCSV() {
