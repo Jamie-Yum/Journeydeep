@@ -98,9 +98,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .book-cover{width:48px;height:64px;border-radius:0;background:linear-gradient(135deg,var(--sa),var(--ac));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
 .book-info h4{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--dk);margin-bottom:.2rem}.book-info .book-author{font-size:.75rem;color:var(--ac);margin-bottom:.15rem}.book-info p{font-size:.75rem;color:var(--tl)}
 .book-marquee-outer{overflow:hidden;margin-top:2.5rem;width:100%;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.book-marquee-track{display:flex;gap:1rem;width:max-content;animation:bk-scroll 40s linear infinite;align-items:flex-end;padding-bottom:.25rem}
+.book-marquee-track{display:flex;gap:1rem;width:max-content;animation:bk-scroll 40s linear infinite;align-items:flex-end;padding-bottom:.25rem;will-change:transform}
 .book-marquee-track:hover{animation-play-state:paused}
 .book-marquee-track--rev{animation-direction:reverse}
+@media(max-width:600px){#gallery-marquee-track2{display:none!important}}
 @keyframes bk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .book-card-v{flex:none;width:180px;height:280px;border-radius:16px;overflow:hidden;position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
 .book-card-v:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 24px 48px rgba(0,0,0,.22)}
@@ -413,28 +414,41 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     var dur=Math.max(20,books.length*4)+'s';
     track.style.animationDuration=dur;
   }).catch(function(){});
-  // 갤러리 마퀴: JD_gallery에서 로딩
-  fetch(SU+'/rest/v1/JD_gallery?select=image_url,caption&order=sort_order.asc,created_at.asc&visible=eq.true',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  // 갤러리 마퀴: 즐겨찾기 사진만 표시
+  var isMobile=window.innerWidth<=600;
+  // 모바일은 최대 20장, 데스크탑은 전체 즐겨찾기
+  var glLimit=isMobile?'&limit=20':'';
+  fetch(SU+'/rest/v1/JD_gallery?select=image_url,caption&order=sort_order.asc,created_at.asc&visible=eq.true&favorited=eq.true'+glLimit,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
   .then(function(r){return r.json();}).then(function(photos){
     if(!Array.isArray(photos)||!photos.length)return;
     var gt=document.getElementById('gallery-marquee-track');if(!gt)return;
+    var gt2=document.getElementById('gallery-marquee-track2');
     function makePhoto(p){
       return '<div class="gl-card-v">'
-        +'<img src="'+p.image_url+'" alt="'+(p.caption||'')+'" loading="lazy">'
+        +'<img src="'+p.image_url+'" alt="'+(p.caption||'')+'" loading="lazy" decoding="async">'
         +'<div class="bk-overlay"></div>'
         +(p.caption?'<div class="bk-label">'+p.caption+'</div>':'')
         +'</div>';
     }
-    var mid=Math.ceil(photos.length/2);
-    var row1=photos.slice(0,mid),row2=photos.slice(mid);
-    if(!row2.length)row2=photos.slice().reverse();
-    function makeRow(arr,times){var c=arr.map(makePhoto).join('');var h='';for(var i=0;i<times;i++)h+=c;return h;}
-    var times=photos.length<8?3:2;
-    var dur=Math.max(25,photos.length*4)+'s';
-    gt.innerHTML=makeRow(row1,times);
-    gt.style.animationDuration=dur;
-    var gt2=document.getElementById('gallery-marquee-track2');
-    if(gt2){gt2.innerHTML=makeRow(row2,times);gt2.style.animationDuration=dur;}
+    // 모바일: 1열만, 데스크탑: 2열
+    if(isMobile){
+      var times=photos.length<6?4:2;
+      var cards=photos.map(makePhoto).join('');
+      var html='';for(var i=0;i<times;i++)html+=cards;
+      gt.innerHTML=html;
+      gt.style.animationDuration=Math.max(20,photos.length*3)+'s';
+      if(gt2)gt2.style.display='none';
+    } else {
+      var mid=Math.ceil(photos.length/2);
+      var row1=photos.slice(0,mid),row2=photos.slice(mid);
+      if(!row2.length)row2=photos.slice().reverse();
+      function makeRow(arr,times){var c=arr.map(makePhoto).join('');var h='';for(var i=0;i<times;i++)h+=c;return h;}
+      var times2=photos.length<8?3:2;
+      var dur=Math.max(25,photos.length*4)+'s';
+      gt.innerHTML=makeRow(row1,times2);
+      gt.style.animationDuration=dur;
+      if(gt2){gt2.innerHTML=makeRow(row2,times2);gt2.style.animationDuration=dur;}
+    }
   }).catch(function(){});
 })();
 </script>
