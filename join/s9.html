@@ -233,6 +233,30 @@ function switchTab(tab, btn) {
 // ── 동적 폼 렌더링 ──────────────────────────────────────────
 var _memberFields = [], _guestFields = [], _activeSeason = '';
 
+var FM_DEFAULT = {
+  member: [
+    {id:'name',        type:'text',     label:'이름',                                                    required:true},
+    {id:'phone',       type:'tel',      label:'연락처',                                                  required:true},
+    {id:'email',       type:'email',    label:'이메일',                                                  required:true},
+    {id:'company',     type:'text',     label:'직장 / 소속',                                             required:false},
+    {id:'route',       type:'text',     label:'조니딥을 어떻게 알게 되셨나요?',                          required:false},
+    {id:'interests',   type:'textarea', label:'최근의 관심사 및 키워드는?',                               required:true},
+    {id:'job',         type:'textarea', label:'현재 어떤 업무를 하고 계세요?',                           required:true},
+    {id:'career_dream',type:'textarea', label:'커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?',           required:true},
+    {id:'org_culture', type:'textarea', label:"나에게 '조직문화&교육'이란?",                             required:true},
+    {id:'motivation',  type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',      required:true},
+  ],
+  guest: [
+    {id:'name',        type:'text',     label:'이름',                                                    required:true},
+    {id:'phone',       type:'tel',      label:'연락처',                                                  required:true},
+    {id:'email',       type:'email',    label:'이메일',                                                  required:true},
+    {id:'company',     type:'text',     label:'직장 / 소속',                                             required:false},
+    {id:'route',       type:'text',     label:'조니딥을 어떻게 알게 되셨나요?',                          required:false},
+    {id:'interests',   type:'textarea', label:'최근의 관심사 및 키워드는?',                               required:true},
+    {id:'motivation',  type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',      required:true},
+  ]
+};
+
 function renderFields(fields, containerId, prefix) {
   var c = document.getElementById(containerId);
   if (!fields || !fields.length) {
@@ -362,8 +386,8 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     if (mEl && p.fee_member) mEl.textContent = p.fee_member;
     if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
     var ff = p.form_fields || {};
-    _memberFields = ff.member || [];
-    _guestFields  = ff.guest  || [];
+    _memberFields = (ff.member && ff.member.length) ? ff.member : FM_DEFAULT.member;
+    _guestFields  = (ff.guest  && ff.guest.length)  ? ff.guest  : FM_DEFAULT.guest;
     renderFields(_memberFields, 'm-fields', 'm');
     renderFields(_guestFields,  'g-fields', 'g');
   }).catch(function() {
