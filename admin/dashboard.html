@@ -2667,7 +2667,17 @@ function editBook(b) {
   document.getElementById('bk_id').value = b.id;
   document.getElementById('bk_title').value = b.title || '';
   document.getElementById('bk_author').value = b.author || '';
-  document.getElementById('bk_category').value = b.category || '';
+  const catSel = document.getElementById('bk_category');
+  catSel.value = b.category || '';
+  // 공백 차이("시즌8" vs "시즌 8") 대비 fuzzy 매칭
+  if (catSel.value !== (b.category || '') || !catSel.value) {
+    const norm = (s) => (s||'').replace(/\s/g,'').toLowerCase();
+    for (let i = 0; i < catSel.options.length; i++) {
+      if (norm(catSel.options[i].value) === norm(b.category)) {
+        catSel.selectedIndex = i; break;
+      }
+    }
+  }
   document.getElementById('bk_date').value = b.date || '';
   // session 복원
   if (b.category) {
