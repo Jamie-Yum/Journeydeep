@@ -272,9 +272,9 @@ function renderFields(fields, containerId, prefix) {
     lbl.innerHTML = (i + 1) + '. ' + f.label + (f.required ? '<span class="field-req">*</span>' : '');
     wrap.appendChild(lbl);
 
-    if (f.type === 'text') {
+    if (f.type === 'text' || f.type === 'tel' || f.type === 'email') {
       var inp = document.createElement('input');
-      inp.type = 'text'; inp.id = prefix + '_' + f.id;
+      inp.type = f.type; inp.id = prefix + '_' + f.id;
       inp.className = 'field-input'; inp.placeholder = '입력해 주세요';
       wrap.appendChild(inp);
     } else if (f.type === 'textarea') {
