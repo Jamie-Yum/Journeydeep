@@ -3,7 +3,6 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <style>
 :root{--bg:#F4F6FA;--wh:#FFFFFF;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ts:#334155;--tl:#64748B;--be:#E8ECF4;--sw:rgba(15,23,42,.06);--red:#EF4444;--green:#10B981}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -103,18 +102,13 @@ canvas.resize-preview{max-height:200px}
 .resize-input:focus{border-color:var(--ac)}
 
 /* Books layout */
-.bk-layout{display:flex;flex-direction:column;gap:24px}
-.bk-form-card{width:100%}
-.bk-form-body{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:start}
-.bk-form-fields{display:flex;flex-direction:column;gap:10px}
-.bk-form-row{display:grid;gap:12px;align-items:end}
-.bk-form-row-1{grid-template-columns:2fr 1fr 1fr 1fr}
-.bk-form-row-2{grid-template-columns:1fr 80px auto 1fr auto auto;align-items:center}
-.bk-list-wrap{width:100%}
+.bk-layout{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.bk-form-card{flex:0 0 300px}
+.bk-list-wrap{flex:1;min-width:240px}
 @media(max-width:700px){
-  .bk-form-body{grid-template-columns:70px 1fr}
-  .bk-form-row-1{grid-template-columns:1fr 1fr}
-  .bk-form-row-2{grid-template-columns:1fr 1fr auto auto}
+  .bk-layout{flex-direction:column}
+  .bk-form-card{flex:none;width:100%;order:-1}
+  .bk-list-wrap{width:100%}
 }
 
 /* Toast */
@@ -147,6 +141,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
 .rich-editor{width:100%;min-height:200px;padding:.75rem;border:1px solid rgba(100,116,139,.3);outline:none;font-family:'Pretendard',sans-serif;font-size:.9rem;line-height:1.8;color:var(--dk)}
 
 @media(max-width:768px){
+  /* Sidebar → top nav bar */
   .sidebar{width:100%;min-height:unset;height:auto;flex-direction:row;flex-wrap:wrap;position:fixed;top:0;left:0;right:0;bottom:auto;z-index:100;overflow-x:auto}
   .sidebar-logo{padding:.6rem 1rem;border-bottom:none;border-right:1px solid rgba(255,255,255,.08)}
   .sidebar-logo-sub{display:none}
@@ -156,8 +151,26 @@ tr:hover td{background:rgba(37,99,235,.03)}
   .nav-item.active{border-left:none;border-bottom:3px solid var(--ac)}
   .nav-icon{font-size:.9rem}
   .sidebar-footer{display:none}
-  .main{margin-left:0;margin-top:56px;padding:1.25rem}
+  .main{margin-left:0;margin-top:56px;padding:1rem}
   .form-grid,.form-grid-3{grid-template-columns:1fr}
+
+  /* List items: stack vertically on mobile */
+  .item-row{flex-direction:column;align-items:flex-start;gap:.6rem;padding:.85rem 1rem}
+  .item-actions{flex-wrap:wrap;width:100%}
+  .item-actions .btn,.item-actions a.btn{flex:1;min-width:60px;text-align:center}
+
+  /* Page header */
+  .page-header{margin-bottom:1.25rem}
+  .page-title{font-size:1.15rem}
+
+  /* Cards: full width on mobile */
+  .card{border-radius:0}
+
+  /* Form panel layout: form on top, list below */
+  .panel > .card:first-of-type{margin-bottom:1rem}
+
+  /* Hide less-important columns in applications table */
+  .app-col-hide{display:none}
 }
 
 /* Member management */
@@ -206,8 +219,8 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="sidebar-logo-sub">관리자 대시보드</div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🖼️</span><span class="nav-label">미디어 관리</span></div>
-    <div class="nav-item" onclick="showPanel('gallery')"><span class="nav-icon">📸</span><span class="nav-label">갤러리</span></div>
+    <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🏠</span><span class="nav-label">홈화면 사진</span></div>
+    <div class="nav-item" onclick="showPanel('images')"><span class="nav-icon">🖼️</span><span class="nav-label">이미지</span></div>
     <div class="nav-item" onclick="showPanel('programs')"><span class="nav-icon">📋</span><span class="nav-label">프로그램</span></div>
     <div class="nav-item" onclick="showPanel('proposals')"><span class="nav-icon">📝</span><span class="nav-label">발제문</span></div>
     <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
@@ -239,37 +252,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>시작일</label><input id="pg_start" placeholder="예: 2026.08.08"></div>
         <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
         <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
-        <div class="field"><label>모임 시간</label><input id="pg_meeting_time" placeholder="예: 09:30~12:00 (2시간 30분)"></div>
-        <div class="field"><label>참가비</label>
-          <div style="display:flex;flex-direction:column;gap:.4rem">
-            <div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.78rem;color:var(--tl);width:60px;flex-shrink:0">신규회원</span><input id="pg_fee_new" placeholder="예: 135,000원" style="flex:1"></div>
-            <div style="display:flex;align-items:center;gap:.5rem"><span style="font-size:.78rem;color:var(--tl);width:60px;flex-shrink:0">기존회원</span><input id="pg_fee_old" placeholder="예: 115,000원" style="flex:1"></div>
-          </div>
-        </div>
+        <div class="field"><label>참가비</label><input id="pg_fee" placeholder="예: 150,000원"></div>
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
-        <div class="field field-full">
-          <label>프로그램 유형</label>
-          <div style="display:flex;gap:1rem;margin-bottom:.75rem">
-            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:600;white-space:nowrap">
-              <input type="radio" name="pg_type" value="bookclub" checked onchange="pgToggleType('bookclub')" style="accent-color:var(--ac)"> 회차제
-            </label>
-            <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:600;white-space:nowrap">
-              <input type="radio" name="pg_type" value="event" onchange="pgToggleType('event')" style="accent-color:var(--ac)"> 일시적
-            </label>
-          </div>
-          <div id="pg_sessions_section">
-            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;flex-wrap:wrap">
-              <label style="font-size:.83rem;color:var(--tl);white-space:nowrap">차수 수</label>
-              <input type="number" id="pg_session_count" class="form-input" min="1" max="20" value="5" style="width:70px;flex:none">
-              <button type="button" class="btn btn-ghost btn-sm" onclick="pgAutoGenerateSessions()">자동 생성</button>
-              <span style="font-size:.78rem;color:var(--tl)">또는 직접 추가</span>
-              <button type="button" class="btn btn-ghost btn-sm" onclick="pgAddSession()">+ 행 추가</button>
-            </div>
-            <div id="pg_sessions_wrap" style="display:flex;flex-direction:column;gap:.4rem"></div>
-          </div>
-        </div>
         <div class="field field-full">
           <label>히어로 배경 이미지 <span style="font-weight:400;color:var(--tl)">(프로그램 페이지 상단 배경)</span></label>
           <div style="display:flex;gap:.5rem;align-items:center">
@@ -291,39 +277,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="card-title">등록된 프로그램 <button class="btn btn-ghost btn-sm" onclick="loadPrograms()">새로고침</button></div>
       <div id="pg_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
     </div>
-
-    <!-- 설문 에디터 (프로그램 카드에서 "설문 편집" 클릭 시 표시) -->
-    <div id="form-editor-section" class="card" style="display:none;border:2px solid var(--ac)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-        <div class="card-title" id="form-editor-title" style="margin:0">설문 편집</div>
-        <button class="btn btn-ghost btn-sm" onclick="fmClose()">✕ 닫기</button>
-      </div>
-      <div style="margin-bottom:1.25rem;padding:1rem;background:var(--bg);border-radius:6px;border:1px solid var(--be)">
-        <div style="font-size:.8rem;font-weight:700;color:var(--tl);margin-bottom:.5rem">페이지 상단 문구</div>
-        <input id="fm_header_title" placeholder="예: 시즌 9 신청" oninput="_fmFields.header_title=this.value" style="width:100%;margin-bottom:.4rem;font-size:.88rem;padding:.5rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp)">
-        <textarea id="fm_header_desc" rows="2" placeholder="예: 조니딥에 신청해주신 여러분 반갑습니다.&#10;함께 할 당신에 대해 알려주세요 🙋🏻‍♀️" oninput="_fmFields.header_desc=this.value" style="width:100%;resize:vertical;font-size:.88rem;padding:.5rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp);line-height:1.7"></textarea>
-      </div>
-      <div style="display:flex;gap:1rem;border-bottom:1px solid var(--be);margin-bottom:1.25rem;padding-bottom:0">
-        <button class="fm-tab-btn" data-t="member" onclick="fmSetTab('member')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">정규 멤버</button>
-        <button class="fm-tab-btn" data-t="guest" onclick="fmSetTab('guest')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">게스트</button>
-      </div>
-      <div id="fm-field-list" style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem"></div>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding-top:.75rem;border-top:1px solid var(--be)">
-        <span style="font-size:.8rem;color:var(--tl);align-self:center">질문 추가:</span>
-        <button class="btn btn-ghost btn-sm" onclick="fmAddField('text')">+ 텍스트</button>
-        <button class="btn btn-ghost btn-sm" onclick="fmAddField('textarea')">+ 장문</button>
-        <button class="btn btn-ghost btn-sm" onclick="fmAddField('radio')">+ 라디오</button>
-        <button class="btn btn-ghost btn-sm" onclick="fmAddField('checkbox')">+ 체크박스</button>
-      </div>
-      <div style="margin-top:1.25rem;padding:1rem;background:var(--bg);border-radius:6px;border:1px solid var(--be)">
-        <div style="font-size:.8rem;font-weight:700;color:var(--tl);margin-bottom:.5rem">제출 완료 메시지</div>
-        <textarea id="fm_success_msg" rows="3" placeholder="신청이 완료되었습니다.&#10;의미있는 시간 되도록 잘 만들겠습니다 :)" oninput="fmUpdateSuccessMsg()" style="width:100%;resize:vertical;font-size:.88rem;padding:.6rem .75rem;border:1px solid var(--be);border-radius:4px;background:var(--surface);color:var(--tp);line-height:1.7"></textarea>
-      </div>
-      <div style="display:flex;gap:.75rem;margin-top:1rem">
-        <button class="btn btn-primary" onclick="fmSaveFields()">저장</button>
-        <button class="btn btn-ghost" onclick="fmResetToDefault()">현재 기본값으로 초기화</button>
-      </div>
-    </div>
   </div>
 
   <!-- 발제문 -->
@@ -335,26 +288,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="card">
       <div class="card-title">새 발제문 추가</div>
       <div class="form-grid">
-        <div class="field"><label>시즌</label>
-          <select id="pr_season" class="form-input" onchange="prOnSeasonChange()">
-            <option value="">시즌 선택...</option>
-          </select>
-        </div>
-        <div class="field"><label>회차</label>
-          <select id="pr_session" class="form-input" onchange="prOnSessionChange()">
-            <option value="">회차 선택...</option>
-          </select>
-        </div>
-        <div class="field"><label>도서 제목</label>
-          <select id="pr_book" class="form-input">
-            <option value="">도서 선택...</option>
-          </select>
-        </div>
-        <div class="field"><label>발제자</label>
-          <select id="pr_author" class="form-input">
-            <option value="">발제자 선택...</option>
-          </select>
-        </div>
+        <div class="field"><label>시즌</label><input id="pr_season" placeholder="예: 시즌 9"></div>
+        <div class="field"><label>회차</label><input id="pr_session" placeholder="예: 3회차"></div>
+        <div class="field"><label>도서 제목</label><input id="pr_book" placeholder="예: 익숙한 것과의 결별"></div>
+        <div class="field"><label>발제자</label><input id="pr_author" placeholder="이름"></div>
         <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
         <div class="field field-full">
           <label>첨부 파일 / 이미지</label>
@@ -448,18 +385,19 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>시즌</th><th>성함</th><th>전화번호</th><th>신청일</th><th>상세</th></tr></thead>
+          <thead><tr><th>시즌</th><th>성함</th><th class="app-col-hide">전화번호</th><th class="app-col-hide">신청일</th><th>상세</th></tr></thead>
           <tbody id="app_tbody"><tr><td colspan="5" style="text-align:center;color:var(--tl)">불러오는 중...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- 미디어 관리 -->
+  <!-- 이미지 -->
+  <!-- 홈화면 사진 -->
   <div id="panel-homepage" class="panel active">
     <div class="page-header">
-      <div class="page-title">미디어 관리</div>
-      <div class="page-sub">홈화면 사진과 이미지 리소스를 관리해요</div>
+      <div class="page-title">홈화면 사진</div>
+      <div class="page-sub">홈페이지에 표시되는 사진을 관리해요</div>
     </div>
     <div class="card">
       <div class="card-title">모바일 히어로 높이</div>
@@ -475,22 +413,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <p style="font-size:.85rem;color:var(--tl);margin-bottom:1.5rem">사진을 클릭하거나 새 파일을 선택하면 바로 업로드되고 홈화면에 반영돼요.</p>
       <div id="hp_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.25rem"></div>
     </div>
-    <div class="card">
-      <div class="card-title">이미지 업로드 <span style="font-size:.8rem;font-weight:400;color:var(--tl)">— URL 복사해서 사용</span></div>
-      <div class="img-upload-area" onclick="document.getElementById('imgInput').click()" id="dropZone">
-        <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)">
-        <div style="font-size:2rem;margin-bottom:.75rem">📁</div>
-        <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 이미지를 드래그해서 업로드</div>
-        <div style="font-size:.82rem;color:var(--tl)">JPG, PNG, GIF, WEBP 지원</div>
-      </div>
-      <div id="upload_progress" style="display:none;margin-top:1rem">
-        <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
-      </div>
-      <div style="margin-top:1.25rem">
-        <div style="font-size:.88rem;font-weight:600;color:var(--ts);margin-bottom:.75rem">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
-        <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
-      </div>
-    </div>
   </div>
 
   <!-- 책 관리 -->
@@ -499,88 +421,55 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-title">책 관리</div>
       <div class="page-sub">조니딥에서 다룬 책들을 관리해요.</div>
     </div>
-    <!-- 알라딘 검색 -->
-    <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-title">🔍 알라딘으로 책 검색</div>
-      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
-        <input id="bk_search_q" class="form-input" placeholder="책 제목으로 검색..." style="flex:1" onkeydown="if(event.key==='Enter')searchBooks()">
-        <button class="btn btn-primary" onclick="searchBooks()">검색</button>
-      </div>
-      <div id="bk_search_msg" style="font-size:.85rem;color:var(--tl);display:none"></div>
-      <div id="bk_results_grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem"></div>
-    </div>
-
     <div class="bk-layout">
       <!-- 폼 -->
       <div class="card bk-form-card">
         <div class="card-header"><span id="bk_form_title">새 책 추가</span></div>
-        <div class="card-body">
+        <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
           <input type="hidden" id="bk_id">
-          <div class="bk-form-body">
-            <!-- 표지 컬럼 -->
-            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:18px">
-              <div style="width:72px;height:96px;border-radius:6px;border:1px dashed var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--surface2);flex-shrink:0">
-                <img id="bk_cover_preview" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-                <span id="bk_cover_placeholder" style="font-size:.7rem;color:var(--tl);text-align:center;padding:4px">표지</span>
+          <div>
+            <label class="form-label">표지 이미지</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <img id="bk_cover_preview" src="" alt="" style="width:60px;height:80px;object-fit:cover;border-radius:4px;border:1px solid var(--border);display:none;">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bk_cover_file').click()">이미지 선택</button>
+                <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger)">이미지 제거</button>
               </div>
-              <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:.25rem .6rem;width:100%" onclick="document.getElementById('bk_cover_file').click()">선택</button>
-              <button class="btn btn-ghost btn-sm" id="bk_cover_remove" onclick="bkRemoveCover()" style="display:none;color:var(--danger);font-size:.72rem;padding:.25rem .6rem;width:100%">제거</button>
               <input type="file" id="bk_cover_file" accept="image/*" style="display:none" onchange="bkCoverSelected(this)">
             </div>
-            <!-- 필드 컬럼 -->
-            <div class="bk-form-fields">
-              <!-- 1행: 제목 / 저자 / 시즌 / 회차 -->
-              <div class="bk-form-row bk-form-row-1">
-                <div>
-                  <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
-                  <input class="form-input" id="bk_title" placeholder="책 제목">
-                </div>
-                <div>
-                  <label class="form-label">저자</label>
-                  <input class="form-input" id="bk_author" placeholder="저자명">
-                </div>
-                <div>
-                  <label class="form-label">시즌</label>
-                  <select class="form-input" id="bk_category" onchange="bkOnSeasonChange()">
-                    <option value="">시즌 선택...</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="form-label">회차</label>
-                  <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
-                    <option value="">회차 선택...</option>
-                  </select>
-                </div>
-              </div>
-              <!-- 2행: 날짜 / 순서 / 추천 / spacer / 저장 / 초기화 -->
-              <div class="bk-form-row bk-form-row-2">
-                <div>
-                  <label class="form-label">날짜</label>
-                  <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
-                </div>
-                <div>
-                  <label class="form-label">순서</label>
-                  <input class="form-input" id="bk_order" type="number" value="0">
-                </div>
-                <div style="display:flex;align-items:center;gap:.4rem">
-                  <input type="checkbox" id="bk_recommended" style="width:15px;height:15px;accent-color:var(--ac);flex-shrink:0">
-                  <label for="bk_recommended" class="form-label" style="margin:0;cursor:pointer;white-space:nowrap">추천 도서</label>
-                </div>
-                <div></div>
-                <button class="btn btn-primary" onclick="saveBook()">저장</button>
-                <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
-              </div>
-            </div>
+          </div>
+          <div>
+            <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
+            <input class="form-input" id="bk_title" placeholder="책 제목">
+          </div>
+          <div>
+            <label class="form-label">저자</label>
+            <input class="form-input" id="bk_author" placeholder="저자명">
+          </div>
+          <div>
+            <label class="form-label">카테고리</label>
+            <input class="form-input" id="bk_category" placeholder="예: 시즌9">
+          </div>
+          <div>
+            <label class="form-label">날짜</label>
+            <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
+          </div>
+          <div>
+            <label class="form-label">이모지</label>
+            <input class="form-input" id="bk_emoji" placeholder="예: 📘">
+          </div>
+          <div>
+            <label class="form-label">순서</label>
+            <input class="form-input" id="bk_order" type="number" value="0">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="btn btn-primary" onclick="saveBook()">저장</button>
+            <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
           </div>
         </div>
       </div>
       <!-- 목록 -->
       <div class="bk-list-wrap">
-        <div style="display:flex;gap:1.25rem;border-bottom:1px solid var(--be);margin-bottom:.6rem;padding-bottom:0">
-          <button class="bk-tab-btn" data-f="all" onclick="setBkFilter('all')" style="background:none;border:none;border-bottom:2px solid var(--ac);color:var(--ac);font-weight:700;font-size:.85rem;padding:.4rem 0;cursor:pointer">시즌별</button>
-          <button class="bk-tab-btn" data-f="recommended" onclick="setBkFilter('recommended')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--tl);font-weight:400;font-size:.85rem;padding:.4rem 0;cursor:pointer">추천 도서</button>
-        </div>
-        <div id="bk_season_chips" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem"></div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
     </div>
@@ -593,108 +482,37 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-sub">시즌별 회원 출석 및 정산을 관리해요. 셀을 클릭하면 바로 수정할 수 있어요.</div>
     </div>
     <div class="m-tabs" id="member_tabs"></div>
-    <div class="m-tabs" id="member_season_tabs" style="border-top:1px solid var(--be);margin-top:0;padding-top:.5rem;display:none"></div>
     <div id="member_content"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
   </div>
 
-  <!-- 갤러리 -->
-  <div id="panel-gallery" class="panel">
+  <div id="panel-images" class="panel">
     <div class="page-header">
-      <div class="page-title">갤러리 관리</div>
-      <div class="page-sub">홈화면 "함께한 순간들" 마퀴에 표시될 사진을 시즌별로 관리해요</div>
+      <div class="page-title">이미지 관리</div>
+      <div class="page-sub">이미지를 업로드하고 URL을 복사해서 사용해요</div>
     </div>
     <div class="card">
-      <div class="card-title">사진 추가</div>
-      <div style="display:flex;flex-direction:column;gap:.85rem">
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:160px">
-            <label class="form-label">시즌 선택 *</label>
-            <select class="form-input" id="gl_season_sel" onchange="glOnSeasonSel()">
-              <option value="">시즌 선택...</option>
-            </select>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px" id="gl_session_sel_wrap">
-            <label class="form-label">회차 선택</label>
-            <select class="form-input" id="gl_session_sel">
-              <option value="">회차 선택...</option>
-            </select>
-          </div>
-          <div style="display:none;flex-direction:column;gap:.3rem;flex:1;min-width:160px" id="gl_season_custom_wrap">
-            <label class="form-label">시즌 직접 입력</label>
-            <input class="form-input" id="gl_season_custom" placeholder="예: 시즌9">
-          </div>
-        </div>
-        <div class="img-upload-area" onclick="glCheckSeasonAndUpload()" id="gl_drop_zone" style="margin-top:.25rem">
-          <input type="file" id="gl_file" accept="image/*" multiple style="display:none" onchange="glUploadFiles(this.files);this.value=''">
-          <div style="font-size:2rem;margin-bottom:.75rem">📸</div>
-          <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 사진을 드래그해서 업로드</div>
-          <div style="font-size:.82rem;color:var(--tl)">시즌 선택 후 · 여러 장 동시 업로드 가능</div>
-        </div>
-        <div id="gl_upload_status" style="display:none;font-size:.88rem;font-weight:600;color:var(--ac)"></div>
+      <div class="card-title">이미지 업로드</div>
+      <div class="img-upload-area" onclick="document.getElementById('imgInput').click()" id="dropZone">
+        <input type="file" id="imgInput" accept="image/*" multiple onchange="uploadImages(this.files)">
+        <div style="font-size:2rem;margin-bottom:.75rem">📁</div>
+        <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 이미지를 드래그해서 업로드</div>
+        <div style="font-size:.82rem;color:var(--tl)">JPG, PNG, GIF, WEBP 지원</div>
+      </div>
+      <div id="upload_progress" style="display:none;margin-top:1rem">
+        <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
-        <div class="card-title" style="margin:0">등록된 사진 <span id="gl_count" style="font-size:.8rem;font-weight:400;color:var(--tl)"></span></div>
-        <div style="display:flex;gap:.4rem">
-          <button class="btn btn-ghost btn-sm" id="gl_fav_btn" onclick="glToggleFavOnly()" title="즐겨찾기만 보기">☆</button>
-          <button class="btn btn-ghost btn-sm" id="gl_select_btn" onclick="glToggleSelectMode()">선택</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadGallery()">새로고침</button>
-          <button class="btn btn-ghost btn-sm" onclick="glRecompressLarge()" title="1MB 초과 사진 재압축" style="color:var(--ac);font-weight:600">🗜 재압축</button>
-        </div>
-      </div>
-      <!-- 일괄 작업 툴바 -->
-      <div id="gl_bulk_bar" style="display:none;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.6rem .8rem;background:var(--surface2);border-radius:8px;margin-bottom:.75rem">
-        <span id="gl_sel_count" style="font-size:.83rem;font-weight:600;color:var(--ts);white-space:nowrap">0장 선택</span>
-        <button class="btn btn-ghost btn-sm" onclick="glSelectAll()">전체 선택</button>
-        <button class="btn btn-ghost btn-sm" onclick="glDeselectAll()">선택 해제</button>
-        <div style="width:1px;height:1.2rem;background:var(--be);margin:0 .2rem"></div>
-        <button class="btn btn-ghost btn-sm" onclick="glBulkSetVisible(true)">공개</button>
-        <button class="btn btn-ghost btn-sm" onclick="glBulkSetVisible(false)">비공개</button>
-        <button class="btn btn-ghost btn-sm" onclick="glBulkMove()" style="color:var(--ac);font-weight:600">이동</button>
-        <button class="btn btn-ghost btn-sm" onclick="glBulkDelete()" style="color:var(--danger)">삭제</button>
-      </div>
-      <!-- 시즌 탭 필터 -->
-      <div id="gl_season_tabs" style="display:flex;gap:0;border-bottom:1px solid var(--be);overflow-x:auto;padding-bottom:0"></div>
-      <!-- 회차 서브탭 -->
-      <div id="gl_session_tabs" style="display:none;gap:0;border-bottom:1px solid var(--be);margin-bottom:1.25rem;overflow-x:auto;padding-bottom:0;padding-top:.1rem;background:var(--surface2)"></div>
-      <div id="gl_grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem">
-        <div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>
-      </div>
+      <div class="card-title">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
+      <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
     </div>
   </div>
-
 
 </main>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Gallery Move Modal -->
-<div id="gl_move_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:2rem" onclick="if(event.target===this)document.getElementById('gl_move_modal').style.display='none'">
-  <div style="background:#fff;border-radius:12px;padding:1.5rem;min-width:280px;max-width:360px;width:100%">
-    <div style="font-weight:700;font-size:1rem;margin-bottom:1rem">사진 이동</div>
-    <div style="display:flex;flex-direction:column;gap:.6rem">
-      <div>
-        <label class="form-label">시즌</label>
-        <select class="form-input" id="gl_move_season" onchange="glMoveSeasonChange()">
-          <option value="">시즌 선택...</option>
-        </select>
-      </div>
-      <div>
-        <label class="form-label">회차 <span style="font-weight:400;color:var(--tl)">(선택 안 해도 됨)</span></label>
-        <select class="form-input" id="gl_move_session">
-          <option value="">선택 안 함</option>
-        </select>
-      </div>
-    </div>
-    <div style="display:flex;gap:.5rem;margin-top:1.25rem">
-      <button class="btn btn-primary" style="flex:1" onclick="glBulkMoveConfirm()">이동</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('gl_move_modal').style.display='none'">취소</button>
-    </div>
-  </div>
-</div>
 
 <!-- Detail Modal -->
 <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;align-items:center;justify-content:center;padding:2rem">
@@ -850,7 +668,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers(); loadBooks(); loadBkSeasons();
+  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers(); loadBooks();
 }
 
 // Nav
@@ -860,8 +678,6 @@ function showPanel(id) {
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
-  if (id === 'gallery') { loadGallery(); }
-  if (id === 'proposals') { prLoadSeasons(); }
 }
 
 // Supabase helpers
@@ -907,41 +723,7 @@ function toast(msg, err=false) {
 let _editingProgramId = null;
 const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
-function pgToggleType(type) {
-  document.getElementById('pg_sessions_section').style.display = type === 'event' ? 'none' : '';
-}
-
-function pgAutoGenerateSessions() {
-  const count = parseInt(document.getElementById('pg_session_count').value) || 5;
-  document.getElementById('pg_sessions_wrap').innerHTML = '';
-  for (let i = 1; i <= count; i++) pgAddSession(`${i}회차`, '');
-}
-
-function pgAddSession(n='', d='') {
-  const wrap = document.getElementById('pg_sessions_wrap');
-  const row = document.createElement('div');
-  row.style.cssText = 'display:flex;gap:.4rem;align-items:center';
-  row.innerHTML = `<input class="form-input pg-session-n" placeholder="예: 1회차" value="${n}" style="width:90px;flex:none">
-    <input type="date" class="form-input pg-session-d" value="${d}" style="flex:1">
-    <button type="button" class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()" style="flex:none">✕</button>`;
-  wrap.appendChild(row);
-}
-
-function pgGetSessions() {
-  const rows = document.querySelectorAll('#pg_sessions_wrap > div');
-  return Array.from(rows).map(r => ({
-    n: r.querySelector('.pg-session-n').value.trim(),
-    d: r.querySelector('.pg-session-d').value.trim()
-  })).filter(s => s.n || s.d);
-}
-
-function pgLoadSessions(sessions) {
-  document.getElementById('pg_sessions_wrap').innerHTML = '';
-  (sessions || []).forEach(s => pgAddSession(s.n, s.d));
-}
-
 function pgFormData() {
-  const type = document.querySelector('input[name="pg_type"]:checked')?.value || 'bookclub';
   return {
     title: document.getElementById('pg_title').value.trim(),
     badge: document.getElementById('pg_badge').value,
@@ -950,22 +732,16 @@ function pgFormData() {
     date_start: document.getElementById('pg_start').value,
     date_end: document.getElementById('pg_end').value,
     venue: document.getElementById('pg_venue').value,
-    meeting_time: document.getElementById('pg_meeting_time').value.trim(),
-    fee: (()=>{ const n=document.getElementById('pg_fee_new').value.trim(), o=document.getElementById('pg_fee_old').value.trim(); const parts=[]; if(n) parts.push('신규회원 : '+n); if(o) parts.push('기존회원 : '+o); return parts.join('\n'); })(),
+    fee: document.getElementById('pg_fee').value,
     capacity: document.getElementById('pg_capacity').value,
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
     image_url: document.getElementById('pg_image').value,
-    type,
-    sessions: type === 'event' ? [] : pgGetSessions(),
   };
 }
 
 function pgClearForm() {
   PG_FIELDS.forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pg_sessions_wrap').innerHTML = '';
-  document.querySelector('input[name="pg_type"][value="bookclub"]').checked = true;
-  pgToggleType('bookclub');
   _editingProgramId = null;
   document.getElementById('pg_save_btn').textContent = '저장하기';
   document.getElementById('pg_cancel_btn').style.display = 'none';
@@ -980,16 +756,11 @@ function editProgram(p) {
   document.getElementById('pg_start').value = p.date_start || '';
   document.getElementById('pg_end').value = p.date_end || '';
   document.getElementById('pg_venue').value = p.venue || '';
-  document.getElementById('pg_meeting_time').value = p.meeting_time || '';
-  (()=>{ const fee=p.fee||''; const nLine=fee.split('\n').find(l=>l.includes('신규')); const oLine=fee.split('\n').find(l=>l.includes('기존')); document.getElementById('pg_fee_new').value=nLine?nLine.replace(/신규회원\s*:\s*/,''):''; document.getElementById('pg_fee_old').value=oLine?oLine.replace(/기존회원\s*:\s*/,''):''; })();
+  document.getElementById('pg_fee').value = p.fee || '';
   document.getElementById('pg_capacity').value = p.capacity || '';
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';
   document.getElementById('pg_image').value = p.image_url || '';
-  const pgType = p.type || 'bookclub';
-  document.querySelector(`input[name="pg_type"][value="${pgType}"]`).checked = true;
-  pgToggleType(pgType);
-  pgLoadSessions(p.sessions);
   const pgPrev = document.getElementById('pg_image_preview'); if(pgPrev){pgPrev.src=p.image_url||'';pgPrev.style.display=p.image_url?'block':'none';}
   _editingProgramId = p.id;
   document.getElementById('pg_save_btn').textContent = '수정 저장';
@@ -1001,8 +772,6 @@ function editProgram(p) {
 async function saveProgram() {
   const data = pgFormData();
   if (!data.title) { toast('제목을 입력해 주세요.', true); return; }
-  const numMatch = (data.badge || '').match(/\d+/);
-  if (numMatch) data.season_number = parseInt(numMatch[0]);
   const ok = _editingProgramId
     ? await sbPatch('JD_programs', _editingProgramId, data)
     : await sbPost('JD_programs', { ...data, visible: true });
@@ -1010,371 +779,42 @@ async function saveProgram() {
   else toast('저장 중 오류가 발생했어요.', true);
 }
 
-function pgInitDrag() {
-  const list = document.getElementById('pg_sortable');
-  if (!list) return;
-  let dragging = null;
-
-  list.querySelectorAll('.item-row').forEach(row => {
-    row.addEventListener('dragstart', e => {
-      dragging = row;
-      setTimeout(() => row.style.opacity = '0.4', 0);
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    row.addEventListener('dragend', () => {
-      row.style.opacity = '';
-      list.querySelectorAll('.item-row').forEach(r => r.style.borderTop = '');
-      pgSaveOrder();
-    });
-    row.addEventListener('dragover', e => {
-      e.preventDefault();
-      if (row === dragging) return;
-      list.querySelectorAll('.item-row').forEach(r => r.style.borderTop = '');
-      row.style.borderTop = '2px solid var(--ac)';
-      const bounding = row.getBoundingClientRect();
-      const offset = bounding.y + bounding.height / 2;
-      if (e.clientY < offset) list.insertBefore(dragging, row);
-      else list.insertBefore(dragging, row.nextSibling);
-    });
-  });
-}
-
-async function pgSaveOrder() {
-  const rows = document.querySelectorAll('#pg_sortable .item-row');
-  const total = rows.length;
-  const updates = Array.from(rows).map((r, i) => ({
-    id: r.dataset.id,
-    sort_order: total - i
-  }));
-  await Promise.all(updates.map(u =>
-    fetch(`${SUPA_URL}/rest/v1/JD_programs?id=eq.${u.id}`, {
-      method: 'PATCH',
-      headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ sort_order: u.sort_order })
-    })
-  ));
-  toast('순서 저장됐어요 ✓');
-}
-
-async function duplicateProgram(p) {
-  const { id, created_at, ...copy } = p;
-  copy.title = copy.title + ' (복사본)';
-  const maxOrder = Math.max(0, ...[...document.querySelectorAll('#pg_sortable .item-row')].map((_, i, a) => a.length - i));
-  const ok = await sbPost('JD_programs', { ...copy, visible: true, sort_order: maxOrder + 1 });
-  if (ok) { toast('복제됐어요 ✓'); loadPrograms(); }
-  else toast('복제 중 오류가 발생했어요.', true);
-}
-
 async function loadPrograms() {
-  const raw = await sbGet('JD_programs', '');
-  const data = raw.slice().sort((a, b) => (b.season_number || 0) - (a.season_number || 0));
+  const data = await sbGet('JD_programs');
   const el = document.getElementById('pg_list');
   if (!data.length) { el.innerHTML = '<div style="color:var(--tl);font-size:.88rem">등록된 프로그램이 없어요.</div>'; return; }
-  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">' + data.map(p => {
-    const pj = JSON.stringify(p).replace(/'/g,"&#39;");
-    const isCurrent = !!p.is_current;
-    const sessCount = (p.sessions || []).length;
-    const dateStr = p.date_start ? `${p.date_start}${p.date_end ? ' ~ ' + p.date_end : ''}` : '';
-    return `
-    <div style="background:var(--surface);border:2px solid ${isCurrent ? 'var(--ac)' : 'var(--be)'};border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 4px rgba(0,0,0,.06)">
-      <div style="padding:12px 13px;flex:1;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span style="font-size:.7rem;font-weight:700;letter-spacing:.06em;background:${isCurrent ? 'var(--ac)' : 'rgba(37,99,235,.1)'};color:${isCurrent ? '#fff' : 'var(--ac)'};padding:2px 8px;border-radius:4px">${p.badge || '—'}</span>
-            ${isCurrent ? '<span style="font-size:.65rem;background:#10b98120;color:#059669;font-weight:700;padding:2px 6px;border-radius:10px">현재 시즌</span>' : ''}
-            ${!p.visible ? '<span style="font-size:.65rem;background:rgba(100,116,139,.12);color:var(--tl);font-weight:600;padding:2px 6px;border-radius:10px">비공개</span>' : ''}
-          </div>
-          ${!isCurrent ? `<button title="현재 시즌으로 설정" onclick="setCurrentSeason('${p.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--tl);line-height:1;padding:0" onmouseover="this.style.color='var(--ac)'" onmouseout="this.style.color='var(--tl)'">☆</button>` : '<span style="font-size:1rem;color:#f59e0b">★</span>'}
-        </div>
-        <div style="font-weight:700;font-size:.88rem;color:var(--tp);line-height:1.4;margin-bottom:7px;">${p.title}</div>
-        ${dateStr ? `<div style="font-size:.72rem;color:var(--tl);margin-bottom:2px;">📅 ${dateStr}</div>` : ''}
-        ${sessCount ? `<div style="font-size:.72rem;color:var(--tl);">🔁 ${sessCount}회차</div>` : ''}
-        ${p.venue ? `<div style="font-size:.72rem;color:var(--tl);margin-top:2px;">📍 ${p.venue}</div>` : ''}
+  el.innerHTML = '<div class="item-list">' + data.map(p => `
+    <div class="item-row">
+      <div class="item-info">
+        <h4>${p.badge ? `<span style="font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.08em;margin-right:.5rem">${p.badge}</span>` : ''}${p.title}</h4>
+        <p>${p.date_start || ''}${p.date_end ? ' ~ ' + p.date_end : ''} ${p.venue ? '· ' + p.venue : ''}</p>
       </div>
-      <div style="border-top:1px solid var(--be);">
-        <div style="display:grid;grid-template-columns:1fr 1fr;">
-          <button style="padding:6px;font-size:.75rem;border:none;border-right:1px solid var(--be);background:none;cursor:pointer;color:var(--ts)" onclick='editProgram(${pj})'>수정</button>
-          <button style="padding:6px;font-size:.75rem;border:none;background:none;cursor:pointer;color:var(--ts)" onclick='openFormEditor(${pj})'>설문</button>
-        </div>
-        <div style="border-top:1px solid var(--be);display:grid;grid-template-columns:${(p.page_url ? 1 : 0) + (p.apply_link ? 1 : 0) + 1}fr ${(p.page_url ? 1 : 0) + (p.apply_link ? 1 : 0) > 0 ? (p.page_url ? '1fr ' : '') + (p.apply_link ? '1fr ' : '') : ''};">
-          <button style="padding:5px;font-size:.72rem;border:none;background:none;cursor:pointer;color:var(--danger);${(p.page_url || p.apply_link) ? 'border-right:1px solid var(--be)' : ''}" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
-          ${p.page_url ? `<a href="${p.page_url}" target="_blank" style="padding:5px;font-size:.72rem;text-align:center;${p.apply_link ? 'border-right:1px solid var(--be);' : ''}color:var(--ac);text-decoration:none;display:block;">페이지</a>` : ''}
-          ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" style="padding:5px;font-size:.72rem;text-align:center;color:var(--ac);text-decoration:none;display:block;">신청</a>` : ''}
-        </div>
+      <div class="item-actions">
+        ${p.page_url ? `<a href="${p.page_url}" target="_blank" class="btn btn-ghost btn-sm">페이지 보기</a>` : ''}
+        ${p.apply_link ? `<a href="${p.apply_link}" target="_blank" class="btn btn-ghost btn-sm">신청 링크</a>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick='editProgram(${JSON.stringify(p).replace(/'/g,"&#39;")})'>수정</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteItem('JD_programs','${p.id}',loadPrograms)">삭제</button>
       </div>
-    </div>`;
-  }).join('') + '</div>';
-}
-
-async function setCurrentSeason(id) {
-  // 기존 현재 시즌 해제 후 새 시즌 설정
-  const all = await sbGet('JD_programs', '&is_current=eq.true');
-  for (const p of all) { await sbPatch('JD_programs', p.id, { is_current: false }); }
-  await sbPatch('JD_programs', id, { is_current: true });
-  toast('현재 시즌이 변경됐어요 ✓');
-  loadPrograms();
-}
-
-// ── FORM EDITOR ────────────────────────────────────────────
-let _fmPgId = null, _fmTab = 'member';
-let _fmFields = { member: [], guest: [] };
-
-const FM_DEFAULT = {
-  member: [
-    {id:'name',       type:'text',     label:'성함을 알려주세요.',                              required:true},
-    {id:'phone',      type:'text',     label:'전화번호',                                       required:true},
-    {id:'instagram',  type:'text',     label:'인스타그램 아이디',                               required:false},
-    {id:'how_found',  type:'radio',    label:'조니딥 모임을 어떻게 알게 되셨나요?',              required:true,  options:['인스타그램을 통해','검색을 통해서','지인 추천으로','기존 참가 멤버']},
-    {id:'interests',  type:'textarea', label:'최근의 관심사 및 키워드는?',                       required:true},
-    {id:'job',        type:'textarea', label:'현재 어떤 업무를 하고 계세요?',                    required:true},
-    {id:'career_dream',type:'textarea',label:'커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?',     required:true},
-    {id:'org_culture',type:'textarea', label:"나에게 '조직문화&교육'이란?",                     required:true},
-    {id:'motivation', type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',required:true},
-  ],
-  guest: [
-    {id:'name',      type:'text',     label:'성함을 알려주세요.',                               required:true},
-    {id:'session',   type:'checkbox', label:'어떤 모임에 신청하고 싶으신가요?',                  required:true, options:['1회차 (08/08)','2회차 (09/12)','3회차 (10/10)','4회차 (11월)','5회차 (12/12)']},
-    {id:'phone',     type:'text',     label:'전화번호',                                        required:true},
-    {id:'instagram', type:'text',     label:'인스타그램 아이디',                                required:false},
-    {id:'how_found', type:'radio',    label:'조니딥 모임을 어떻게 알게 되셨나요?',               required:true, options:['인스타그램을 통해','검색을 통해서','지인 추천으로','기존 참가 멤버']},
-    {id:'interests', type:'textarea', label:'최근의 관심사 및 키워드는?',                        required:true},
-    {id:'job',       type:'textarea', label:'현재 어떤 업무를 하고 계세요?',                     required:true},
-    {id:'career_dream',type:'textarea',label:'커리어를 통해서 어떤 미래를 꿈꾸고 계신가요?',    required:true},
-    {id:'org_culture',type:'textarea',label:"나에게 '조직문화&교육'이란?",                      required:true},
-    {id:'motivation',type:'textarea', label:'이번 조니딥 참여 계기와 기대하는 점을 알려주세요.',required:true},
-  ]
-};
-
-function openFormEditor(p) {
-  _fmPgId = p.id;
-  const ff = p.form_fields;
-  _fmFields = (ff && (ff.member || ff.guest))
-    ? JSON.parse(JSON.stringify(ff))
-    : JSON.parse(JSON.stringify(FM_DEFAULT));
-  if (!_fmFields.member) _fmFields.member = JSON.parse(JSON.stringify(FM_DEFAULT.member));
-  if (!_fmFields.guest)  _fmFields.guest  = JSON.parse(JSON.stringify(FM_DEFAULT.guest));
-  if (!_fmFields.member_success) _fmFields.member_success = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
-  if (!_fmFields.guest_success)  _fmFields.guest_success  = '신청이 완료되었습니다.\n의미있는 시간 되도록 잘 만들겠습니다 :)';
-  document.getElementById('fm_header_title').value = _fmFields.header_title || '';
-  document.getElementById('fm_header_desc').value  = _fmFields.header_desc  || '';
-  document.getElementById('form-editor-title').textContent = `설문 편집 — ${p.badge || p.title || ''}`;
-  const sec = document.getElementById('form-editor-section');
-  sec.style.display = 'block';
-  sec.scrollIntoView({behavior:'smooth', block:'start'});
-  fmSetTab('member');
-}
-
-function fmClose() {
-  document.getElementById('form-editor-section').style.display = 'none';
-  _fmPgId = null;
-}
-
-function fmSetTab(tab) {
-  _fmTab = tab;
-  document.querySelectorAll('.fm-tab-btn').forEach(el => {
-    const on = el.dataset.t === tab;
-    el.style.fontWeight = on ? '700' : '400';
-    el.style.borderBottom = on ? '2px solid var(--ac)' : '2px solid transparent';
-    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
-  });
-  const ta = document.getElementById('fm_success_msg');
-  if (ta) ta.value = _fmFields[tab + '_success'] || '';
-  fmRenderFieldList();
-}
-
-function fmUpdateSuccessMsg() {
-  const ta = document.getElementById('fm_success_msg');
-  if (ta) _fmFields[_fmTab + '_success'] = ta.value;
-}
-
-const FM_TYPE_LABEL = {text:'텍스트', textarea:'장문', radio:'라디오', checkbox:'체크박스'};
-
-function fmRenderFieldList() {
-  const fields = _fmFields[_fmTab];
-  const list = document.getElementById('fm-field-list');
-  if (!fields.length) {
-    list.innerHTML = '<p style="color:var(--tl);font-size:.85rem">질문이 없어요. 아래에서 추가해 주세요.</p>';
-    return;
-  }
-  list.innerHTML = fields.map((f, i) => `
-    <div style="background:var(--surface2);border:1px solid var(--be);padding:.75rem;display:flex;gap:.5rem;align-items:flex-start">
-      <span style="font-size:.75rem;font-weight:700;color:var(--tl);padding-top:.55rem;min-width:18px">${i+1}.</span>
-      <div style="flex:1;display:flex;flex-direction:column;gap:.4rem">
-        <input class="form-input" value="${(f.label||'').replace(/"/g,'&quot;')}" style="font-size:.88rem"
-          oninput="_fmFields['${_fmTab}'][${i}].label=this.value" placeholder="질문 내용을 입력하세요">
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
-          <select class="form-input" style="width:auto;font-size:.8rem"
-            onchange="_fmFields['${_fmTab}'][${i}].type=this.value;fmRenderFieldList()">
-            ${['text','textarea','radio','checkbox'].map(t =>
-              `<option value="${t}"${f.type===t?' selected':''}>${FM_TYPE_LABEL[t]}</option>`).join('')}
-          </select>
-          <label style="display:flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--ts);cursor:pointer;white-space:nowrap">
-            <input type="checkbox" ${f.required?'checked':''}
-              onchange="_fmFields['${_fmTab}'][${i}].required=this.checked"
-              style="accent-color:var(--ac);width:14px;height:14px"> 필수
-          </label>
-          <div style="margin-left:auto;display:flex;gap:.25rem">
-            ${i > 0 ? `<button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem" onclick="fmMove(${i},-1)">↑</button>` : '<span style="width:28px"></span>'}
-            ${i < fields.length-1 ? `<button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem" onclick="fmMove(${i},1)">↓</button>` : '<span style="width:28px"></span>'}
-            <button class="btn btn-ghost btn-sm" style="padding:.2rem .45rem;color:var(--danger)" onclick="fmRemove(${i})">✕</button>
-          </div>
-        </div>
-        ${(f.type==='radio'||f.type==='checkbox') ? `
-          <div style="font-size:.75rem;color:var(--tl)">선택지 (쉼표로 구분):</div>
-          <input class="form-input" style="font-size:.82rem"
-            value="${(f.options||[]).join(', ').replace(/"/g,'&quot;')}"
-            oninput="_fmFields['${_fmTab}'][${i}].options=this.value.split(',').map(s=>s.trim()).filter(Boolean)"
-            placeholder="옵션1, 옵션2, 옵션3">
-        ` : ''}
-      </div>
-    </div>`).join('');
-}
-
-function fmMove(idx, dir) {
-  const f = _fmFields[_fmTab];
-  const ni = idx + dir;
-  if (ni < 0 || ni >= f.length) return;
-  [f[idx], f[ni]] = [f[ni], f[idx]];
-  fmRenderFieldList();
-}
-
-function fmRemove(idx) {
-  _fmFields[_fmTab].splice(idx, 1);
-  fmRenderFieldList();
-}
-
-function fmAddField(type) {
-  _fmFields[_fmTab].push({
-    id: 'field_' + Date.now(),
-    type, label: '', required: false,
-    ...(type==='radio'||type==='checkbox' ? {options:[]} : {})
-  });
-  fmRenderFieldList();
-  document.getElementById('fm-field-list').lastElementChild?.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-function fmResetToDefault() {
-  if (!confirm(`${_fmTab==='member'?'정규 멤버':'게스트'} 설문을 기본값으로 초기화할까요? 현재 내용이 사라집니다.`)) return;
-  _fmFields[_fmTab] = JSON.parse(JSON.stringify(FM_DEFAULT[_fmTab]));
-  fmRenderFieldList();
-  toast('기본값으로 초기화했어요. 저장 버튼을 눌러야 반영돼요.');
-}
-
-async function fmSaveFields() {
-  if (!_fmPgId) return;
-  const ok = await sbPatch('JD_programs', _fmPgId, { form_fields: _fmFields });
-  if (ok) toast('설문이 저장됐어요 ✓');
-  else toast('저장 실패', true);
+    </div>`).join('') + '</div>';
 }
 
 // ── PROPOSALS ──
 let _editingProposalId = null;
 const PR_FIELDS = ['pr_season','pr_session','pr_book','pr_author','pr_content','pr_file'];
 
-// ── 발제문 드롭다운 연동 ──────────────────────────────────────
-let _prPrograms = []; // { badge, sessions:[], members:[] }
-
-async function prLoadSeasons() {
-  // JD_programs에서 시즌 목록
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,type,sessions&order=season_number.desc`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  _prPrograms = await res.json() || [];
-
-  // 멤버 데이터도 로드
-  const mRes = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?select=value&key=eq.members_v1`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  const mData = await mRes.json();
-  if (mData && mData[0]) {
-    const parsed = JSON.parse(mData[0].value);
-    _prPrograms = _prPrograms.map(p => ({
-      ...p,
-      members: (parsed.seasons.find(s => s.name.replace(/\s/g,'') === p.badge.replace(/\s/g,'')) || {}).members || []
-    }));
-  }
-
-  const sel = document.getElementById('pr_season');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">시즌 선택...</option>'
-    + _prPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
-}
-
-function prOnSeasonChange() {
-  const badge = document.getElementById('pr_season').value;
-  const prog = _prPrograms.find(p => p.badge === badge);
-
-  // 회차 셀렉트
-  const sessSel = document.getElementById('pr_session');
-  sessSel.innerHTML = '<option value="">회차 선택...</option>';
-  const sessions = prog && prog.type === 'event' ? [] :
-    (prog && prog.sessions && prog.sessions.length ? prog.sessions : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' })));
-  sessions.forEach(ss => {
-    sessSel.innerHTML += `<option value="${ss.n}">${ss.n}${ss.d ? ' ('+ss.d+')' : ''}</option>`;
-  });
-
-  // 발제자 셀렉트 (시즌 멤버)
-  const authSel = document.getElementById('pr_author');
-  authSel.innerHTML = '<option value="">발제자 선택...</option>';
-  if (prog && prog.members) {
-    prog.members.filter(m => m.name).forEach(m => {
-      authSel.innerHTML += `<option value="${m.name}">${m.name}</option>`;
-    });
-  }
-
-  // 도서 초기화
-  document.getElementById('pr_book').innerHTML = '<option value="">도서 선택...</option>';
-}
-
-async function prOnSessionChange() {
-  const badge = document.getElementById('pr_season').value;
-  const session = document.getElementById('pr_session').value;
-  const bookSel = document.getElementById('pr_book');
-  bookSel.innerHTML = '<option value="">불러오는 중...</option>';
-
-  const res = await fetch(
-    `${SUPA_URL}/rest/v1/JD_books?select=title&category=eq.${encodeURIComponent(badge)}&is_recommended=eq.false&order=sort_order.asc`,
-    { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } }
-  );
-  const books = await res.json() || [];
-  bookSel.innerHTML = '<option value="">도서 선택...</option>'
-    + books.map(b => `<option value="${b.title}">${b.title}</option>`).join('');
-  if (!books.length) bookSel.innerHTML += '<option value="" disabled>등록된 도서 없음</option>';
-}
-
 function prClearForm() {
-  document.getElementById('pr_season').value = '';
-  document.getElementById('pr_session').innerHTML = '<option value="">회차 선택...</option>';
-  document.getElementById('pr_book').innerHTML = '<option value="">도서 선택...</option>';
-  document.getElementById('pr_author').innerHTML = '<option value="">발제자 선택...</option>';
-  document.getElementById('pr_content').value = '';
-  document.getElementById('pr_file').value = '';
+  PR_FIELDS.forEach(id => document.getElementById(id).value = '');
   _editingProposalId = null;
   document.getElementById('pr_save_btn').textContent = '저장하기';
   document.getElementById('pr_cancel_btn').style.display = 'none';
   document.getElementById('pr_form_status').textContent = '';
 }
 
-function prSetOption(selId, val) {
-  const sel = document.getElementById(selId);
-  if (!sel) return;
-  // 옵션이 없으면 추가
-  if (val && ![...sel.options].some(o => o.value === val)) {
-    sel.innerHTML += `<option value="${val}">${val}</option>`;
-  }
-  sel.value = val || '';
-}
-
 function editProposal(p) {
-  prSetOption('pr_season', p.season);
-  prOnSeasonChange();
-  setTimeout(() => {
-    prSetOption('pr_session', p.session_number);
-    prOnSessionChange().then(() => {
-      prSetOption('pr_book', p.book_title);
-    });
-    prSetOption('pr_author', p.author_name);
-  }, 300);
+  document.getElementById('pr_season').value = p.season || '';
+  document.getElementById('pr_session').value = p.session_number || '';
+  document.getElementById('pr_book').value = p.book_title || '';
+  document.getElementById('pr_author').value = p.author_name || '';
   document.getElementById('pr_content').value = p.content || '';
   document.getElementById('pr_file').value = p.file_url || '';
   _editingProposalId = p.id;
@@ -1553,9 +993,9 @@ async function loadApplications() {
     return `<tr>
       <td><span class="badge badge-blue">${seasonLabel(a.season)}</span></td>
       <td style="font-weight:600">${name}</td>
-      <td>${phone}</td>
-      <td style="color:var(--tl)">${date}</td>
-      <td style="display:flex;gap:.4rem"><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick='deleteApplication(${a.id}, ${i})'>삭제</button></td>
+      <td class="app-col-hide">${phone}</td>
+      <td class="app-col-hide" style="color:var(--tl)">${date}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button></td>
     </tr>`;
   }).join('');
 }
@@ -1570,57 +1010,13 @@ function showAppDetail(idx) {
       <div style="font-size:.75rem;font-weight:700;color:var(--tl);margin-bottom:.3rem;letter-spacing:.04em;text-transform:uppercase">${k}</div>
       <div style="font-size:.92rem;color:var(--dk);line-height:1.7">${v||'—'}</div>
     </div>`).join('');
-  const seasonOptions = [...document.getElementById('app_filter').options]
-    .filter(o => o.value)
-    .map(o => `<option value="${o.value}" ${o.value === a.season ? 'selected' : ''}>${o.text}</option>`)
-    .join('');
   document.getElementById('modal_content').innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem">
-      <div style="display:flex;align-items:center;gap:.6rem">
-        <span class="badge badge-blue" id="app_detail_badge">${seasonLabel(a.season)}</span>
-        <span style="font-size:.78rem;color:var(--tl)">${date}</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:.4rem">
-        <select id="app_move_sel" style="font-size:.8rem;padding:.3rem .6rem;border:1px solid var(--be);border-radius:4px;background:var(--bg);color:var(--tp)">${seasonOptions}</select>
-        <button class="btn btn-ghost btn-sm" onclick="moveApplication(${a.id})">이동</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteApplication(${a.id}, ${idx}, true)">삭제</button>
-      </div>
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem">
+      <span class="badge badge-blue">${seasonLabel(a.season)}</span>
+      <span style="font-size:.78rem;color:var(--tl)">${date}</span>
     </div>
     ${rows}`;
   document.getElementById('modal').style.display = 'flex';
-}
-
-async function moveApplication(id) {
-  const sel = document.getElementById('app_move_sel');
-  const newSeason = sel && sel.value;
-  if (!newSeason) return;
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ season: newSeason })
-  });
-  if (res.ok) {
-    toast('이동 완료!');
-    document.getElementById('app_detail_badge').textContent = seasonLabel(newSeason);
-    await loadApplications();
-  } else {
-    toast('이동 실패. 다시 시도해주세요.', true);
-  }
-}
-
-async function deleteApplication(id, idx, fromModal) {
-  if (!confirm('이 신청 내역을 삭제할까요? 되돌릴 수 없어요.')) return;
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  if (res.ok) {
-    toast('삭제 완료!');
-    if (fromModal) document.getElementById('modal').style.display = 'none';
-    await loadApplications();
-  } else {
-    toast('삭제 실패. 다시 시도해주세요.', true);
-  }
 }
 
 function exportCSV() {
@@ -1852,10 +1248,9 @@ async function uploadImages(files) {
   const arr = Array.from(files);
   if (!arr.length) return;
   let i = 0;
-  const processNext = async () => {
+  const processNext = () => {
     if (i >= arr.length) { loadImages(); return; }
-    const rawFile = arr[i++];
-    const file = await heicToJpeg(rawFile);
+    const file = arr[i++];
     openCropModal(file, async blob => {
       const fname = Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
       toast(`업로드 중... (${i}/${arr.length})`);
@@ -1868,490 +1263,6 @@ async function uploadImages(files) {
   processNext();
 }
 
-// ── GALLERY ────────────────────────────────────────────────
-let _glAllPhotos = [], _glSeasonFilter = '전체', _glSessionFilter = '전체', _glPrograms = [];
-let _glSelectMode = false, _glSelected = new Set(), _glFavOnly = false;
-
-async function loadGallery() {
-  const grid = document.getElementById('gl_grid');
-  const countEl = document.getElementById('gl_count');
-  grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">불러오는 중...</div>';
-
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=id,image_url,caption,season,session,sort_order,visible,favorited&order=season.desc,sort_order.asc,created_at.asc`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  _glAllPhotos = await res.json() || [];
-
-  // 프로그램 목록(sessions 포함) 캐시
-  try {
-    const pgRes = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions,season_number&order=season_number.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-    _glPrograms = (await pgRes.json()) || [];
-  } catch(e) { _glPrograms = []; }
-
-  // 갤러리 시즌 + 프로그램 시즌 합산
-  const galSeasons = [...new Set(_glAllPhotos.map(r => r.season || '미분류'))];
-  const pgSeasons = _glPrograms.map(p => p.badge).filter(Boolean);
-  const allSeasons = [...new Set([...galSeasons, ...pgSeasons])].sort((a,b) => {
-    const na = parseInt((a.match(/\d+/) || [0])[0]), nb = parseInt((b.match(/\d+/) || [0])[0]);
-    return nb - na;
-  });
-
-  glRenderSeasonTabs(['전체', ...allSeasons]);
-  glRenderUploadSeasonSel(allSeasons);
-  glRenderGrid();
-  if (countEl) countEl.textContent = `(총 ${_glAllPhotos.length}장)`;
-}
-
-function glRenderSeasonTabs(seasons) {
-  const tabs = document.getElementById('gl_season_tabs');
-  const allTabs = [...seasons, '★ 즐겨찾기'];
-  tabs.innerHTML = allTabs.map(s => {
-    const isActive = s === _glSeasonFilter;
-    const isFav = s === '★ 즐겨찾기';
-    return `<button onclick="glSetSeason('${s}')" class="gl-stab" data-s="${s}"
-      style="background:none;border:none;border-bottom:2px solid ${isActive?(isFav?'#f59e0b':'var(--ac)'):'transparent'};
-      color:${isActive?(isFav?'#f59e0b':'var(--ac)'):(isFav?'#d97706':'var(--tl)')};font-weight:${isActive?'700':'400'};
-      font-size:.85rem;padding:.4rem .9rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>`;
-  }).join('');
-}
-
-function glSetSeason(s) {
-  _glSeasonFilter = s;
-  _glSessionFilter = '전체';
-  _glFavOnly = (s === '★ 즐겨찾기');
-  // 즐겨찾기 버튼 아이콘 동기화
-  const favBtn = document.getElementById('gl_fav_btn');
-  if (favBtn) { favBtn.textContent = _glFavOnly ? '★' : '☆'; favBtn.style.color = _glFavOnly ? '#f59e0b' : ''; }
-  document.querySelectorAll('.gl-stab').forEach(el => {
-    const on = el.dataset.s === s;
-    const isFav = el.dataset.s === '★ 즐겨찾기';
-    el.style.borderBottomColor = on ? (isFav ? '#f59e0b' : 'var(--ac)') : 'transparent';
-    el.style.color = on ? (isFav ? '#f59e0b' : 'var(--ac)') : (isFav ? '#d97706' : 'var(--tl)');
-    el.style.fontWeight = on ? '700' : '400';
-  });
-  glRenderSessionTabs(s);
-  glRenderGrid();
-}
-
-function glRenderSessionTabs(season) {
-  const wrap = document.getElementById('gl_session_tabs');
-  if (season === '전체') { wrap.style.display = 'none'; return; }
-  const prog = _glPrograms.find(p => p.badge === season);
-  const sessions = (prog && prog.sessions && prog.sessions.length)
-    ? prog.sessions.map(s => s.n)
-    : [];
-  // 갤러리에 실제 존재하는 회차도 포함
-  const galSessions = [...new Set(_glAllPhotos.filter(r => (r.season||'미분류') === season && r.session).map(r => r.session))];
-  const allSessions = [...new Set([...sessions, ...galSessions])];
-  if (!allSessions.length) { wrap.style.display = 'none'; return; }
-
-  wrap.style.display = 'flex';
-  wrap.innerHTML = ['전체', ...allSessions].map(s => `
-    <button onclick="glSetSession('${s}')" class="gl-sestab" data-s="${s}"
-      style="background:none;border:none;border-bottom:2px solid ${s===_glSessionFilter?'var(--ac)':'transparent'};
-      color:${s===_glSessionFilter?'var(--ac)':'var(--tl)'};font-weight:${s===_glSessionFilter?'700':'400'};
-      font-size:.82rem;padding:.35rem .8rem;cursor:pointer;white-space:nowrap;transition:all .15s">${s}</button>
-  `).join('');
-}
-
-function glSetSession(s) {
-  _glSessionFilter = s;
-  document.querySelectorAll('.gl-sestab').forEach(el => {
-    const on = el.dataset.s === s;
-    el.style.borderBottomColor = on ? 'var(--ac)' : 'transparent';
-    el.style.color = on ? 'var(--ac)' : 'var(--tl)';
-    el.style.fontWeight = on ? '700' : '400';
-  });
-  glRenderGrid();
-}
-
-function glRenderGrid() {
-  const grid = document.getElementById('gl_grid');
-  const isFavTab = _glSeasonFilter === '★ 즐겨찾기';
-  let rows = (isFavTab || _glSeasonFilter === '전체')
-    ? _glAllPhotos
-    : _glAllPhotos.filter(r => (r.season || '미분류') === _glSeasonFilter);
-  if (!isFavTab && _glSeasonFilter !== '전체' && _glSessionFilter !== '전체') {
-    rows = rows.filter(r => r.session === _glSessionFilter);
-  }
-  if (_glFavOnly) rows = rows.filter(r => r.favorited);
-
-  if (!rows.length) {
-    grid.innerHTML = '<p style="color:var(--tl);font-size:.88rem">이 시즌에 등록된 사진이 없어요.</p>';
-    return;
-  }
-
-  grid.innerHTML = rows.map(r => {
-    const sel = _glSelected.has(r.id);
-    return `
-    <div data-id="${r.id}" onclick="glCardClick('${r.id}',event)"
-      style="position:relative;border-radius:12px;overflow:hidden;background:var(--be);aspect-ratio:3/4;cursor:pointer;
-      border:2px solid ${sel?'var(--ac)':r.visible?'transparent':'var(--danger)'};
-      box-shadow:${sel?'0 0 0 2px var(--ac)':'none'};transition:box-shadow .15s">
-      <img src="${r.image_url}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
-      ${_glSelectMode ? `
-        <div style="position:absolute;inset:0;background:${sel?'rgba(37,99,235,.18)':'transparent'};transition:background .15s;pointer-events:none"></div>
-        <div style="position:absolute;top:.5rem;left:.5rem;width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:${sel?'var(--ac)':'rgba(0,0,0,.3)'};display:flex;align-items:center;justify-content:center;pointer-events:none">
-          ${sel?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7L10 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>':''}
-        </div>
-      ` : `
-        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s" class="gl-hover-overlay"></div>
-        <div style="position:absolute;bottom:0;left:0;right:0;padding:.6rem .7rem;opacity:0;transition:opacity .2s" class="gl-hover-overlay">
-          ${r.caption ? `<div style="font-size:.7rem;color:#fff;font-weight:600;margin-bottom:.3rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${r.caption}</div>` : ''}
-          <div style="display:flex;gap:.3rem">
-            <button onclick="glEditCaption('${r.id}','${(r.caption||'').replace(/'/g,"\\'")}','${(r.season||'').replace(/'/g,"\\'")}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">캡션</button>
-            <button onclick="glToggleVisible('${r.id}',${r.visible});event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px">${r.visible?'비공개':'공개'}</button>
-            <button onclick="glDelete('${r.id}');event.stopPropagation()" style="flex:1;font-size:.68rem;padding:.22rem;background:rgba(220,38,38,.6);border:none;color:#fff;cursor:pointer;border-radius:4px">삭제</button>
-          </div>
-        </div>
-        <div style="position:absolute;top:.45rem;left:.45rem;background:rgba(0,0,0,.55);color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.season||'미분류'}${r.session?' · '+r.session:''}</div>
-      `}
-      <div style="position:absolute;top:.45rem;right:.45rem;background:${r.visible?'rgba(37,99,235,.85)':'rgba(220,38,38,.85)'};color:#fff;font-size:.58rem;font-weight:700;padding:.18rem .45rem;border-radius:8px">${r.visible?'공개':'비공개'}</div>
-      <button onclick="glToggleFav('${r.id}',${!!r.favorited});event.stopPropagation()"
-        style="position:absolute;top:2.2rem;right:.45rem;background:none;border:none;font-size:1rem;cursor:pointer;line-height:1;padding:.15rem;
-        filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));color:${r.favorited?'#f59e0b':'rgba(255,255,255,0.5)'};
-        transition:color .15s,opacity .15s;z-index:2">
-        ${r.favorited ? '★' : '☆'}
-      </button>
-    </div>`;
-  }).join('');
-
-  if (!_glSelectMode) {
-    grid.querySelectorAll('[data-id]').forEach(card => {
-      card.addEventListener('mouseenter', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '1'));
-      card.addEventListener('mouseleave', () => card.querySelectorAll('.gl-hover-overlay').forEach(o => o.style.opacity = '0'));
-    });
-  }
-}
-
-function glToggleFavOnly() {
-  // 버튼 클릭 시 즐겨찾기 탭으로 이동 (또는 전체로 복귀)
-  if (_glSeasonFilter === '★ 즐겨찾기') {
-    glSetSeason('전체');
-  } else {
-    glSetSeason('★ 즐겨찾기');
-  }
-}
-
-async function glToggleFav(id, current) {
-  const photo = _glAllPhotos.find(p => p.id === id);
-  if (photo) photo.favorited = !current;
-  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-    method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ favorited: !current })
-  });
-  glRenderGrid();
-}
-
-function glToggleSelectMode() {
-  _glSelectMode = !_glSelectMode;
-  _glSelected.clear();
-  const btn = document.getElementById('gl_select_btn');
-  const bar = document.getElementById('gl_bulk_bar');
-  btn.textContent = _glSelectMode ? '선택 취소' : '선택';
-  btn.style.background = _glSelectMode ? 'var(--ac)' : '';
-  btn.style.color = _glSelectMode ? '#fff' : '';
-  bar.style.display = _glSelectMode ? 'flex' : 'none';
-  glRenderGrid();
-}
-
-function glCardClick(id, e) {
-  if (_glSelectMode) { e.stopPropagation(); glToggleSelect(id); }
-}
-
-function glToggleSelect(id) {
-  _glSelected.has(id) ? _glSelected.delete(id) : _glSelected.add(id);
-  document.getElementById('gl_sel_count').textContent = `${_glSelected.size}장 선택`;
-  glRenderGrid();
-}
-
-function glSelectAll() {
-  const grid = document.getElementById('gl_grid');
-  grid.querySelectorAll('[data-id]').forEach(c => _glSelected.add(c.dataset.id));
-  document.getElementById('gl_sel_count').textContent = `${_glSelected.size}장 선택`;
-  glRenderGrid();
-}
-
-function glDeselectAll() {
-  _glSelected.clear();
-  document.getElementById('gl_sel_count').textContent = `0장 선택`;
-  glRenderGrid();
-}
-
-async function glBulkSetVisible(visible) {
-  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
-  await Promise.all([..._glSelected].map(id =>
-    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-      method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ visible })
-    })
-  ));
-  toast(`${_glSelected.size}장 ${visible ? '공개' : '비공개'} 처리됐어요 ✓`);
-  _glSelected.clear();
-  loadGallery();
-}
-
-async function glBulkDelete() {
-  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
-  if (!confirm(`선택한 ${_glSelected.size}장을 삭제할까요?`)) return;
-  await Promise.all([..._glSelected].map(id =>
-    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-      method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    })
-  ));
-  toast(`${_glSelected.size}장 삭제됐어요`);
-  _glSelected.clear();
-  loadGallery();
-}
-
-function glBulkMove() {
-  if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
-  const modal = document.getElementById('gl_move_modal');
-  const seasonSel = document.getElementById('gl_move_season');
-  seasonSel.innerHTML = '<option value="">시즌 선택...</option>'
-    + _glPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
-  document.getElementById('gl_move_session').innerHTML = '<option value="">선택 안 함</option>';
-  modal.style.display = 'flex';
-}
-
-async function glMoveSeasonChange() {
-  const badge = document.getElementById('gl_move_season').value;
-  const sessionSel = document.getElementById('gl_move_session');
-  sessionSel.innerHTML = '<option value="">선택 안 함</option>';
-  const prog = _glPrograms.find(p => p.badge === badge);
-  const sessions = prog && prog.sessions && prog.sessions.length
-    ? prog.sessions : [1,2,3,4,5].map(n => ({n:`${n}회차`}));
-  sessions.forEach(s => sessionSel.innerHTML += `<option value="${s.n}">${s.n}</option>`);
-}
-
-async function glBulkMoveConfirm() {
-  const season = document.getElementById('gl_move_season').value;
-  if (!season) { toast('시즌을 선택해 주세요.', true); return; }
-  const session = document.getElementById('gl_move_session').value || null;
-  await Promise.all([..._glSelected].map(id =>
-    fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-      method: 'PATCH', headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ season, session })
-    })
-  ));
-  document.getElementById('gl_move_modal').style.display = 'none';
-  toast(`${_glSelected.size}장 이동됐어요 ✓`);
-  _glSelected.clear();
-  loadGallery();
-}
-
-function glRenderUploadSeasonSel(existingSeasons) {
-  const sel = document.getElementById('gl_season_sel');
-  if (!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">시즌 선택...</option>'
-    + existingSeasons.map(s => `<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('')
-    + '<option value="__new__">+ 새 시즌 직접 입력</option>';
-}
-
-async function glOnSeasonSel() {
-  const sel = document.getElementById('gl_season_sel');
-  const wrap = document.getElementById('gl_season_custom_wrap');
-  wrap.style.display = sel.value === '__new__' ? 'flex' : 'none';
-  wrap.style.flexDirection = 'column';
-
-  const sessionSel = document.getElementById('gl_session_sel');
-  sessionSel.innerHTML = '<option value="">회차 선택...</option>';
-  if (!sel.value || sel.value === '__new__') return;
-
-  // JD_programs에서 해당 시즌 sessions 가져오기
-  try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.${encodeURIComponent(sel.value)}&select=type,sessions`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-    const data = await res.json();
-    const prog = data && data[0];
-    const sessions = prog && prog.type === 'event' ? [] :
-      (prog && prog.sessions && prog.sessions.length ? prog.sessions.map(s => s.n) : ['1회차','2회차','3회차','4회차','5회차']);
-    sessionSel.innerHTML = '<option value="">회차 선택...</option>' + sessions.map(s => `<option value="${s}">${s}</option>`).join('');
-  } catch(e) {
-    sessionSel.innerHTML = '<option value="">회차 선택...</option>' + ['1회차','2회차','3회차','4회차','5회차'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-}
-
-function glGetSelectedSeason() {
-  const sel = document.getElementById('gl_season_sel');
-  if (sel.value === '__new__') {
-    return (document.getElementById('gl_season_custom')?.value || '').trim();
-  }
-  return sel.value;
-}
-
-function glCheckSeasonAndUpload() {
-  const season = glGetSelectedSeason();
-  if (!season) { toast('먼저 시즌을 선택해 주세요.', true); return; }
-  document.getElementById('gl_file').click();
-}
-
-async function heicToJpeg(file) {
-  // iPhone HEIC는 file.type이 '' 또는 'image/heic'/'image/heif'로 옴
-  const isHeic = /^image\/(heic|heif)$/i.test(file.type)
-    || /\.(heic|heif)$/i.test(file.name)
-    || (file.type === '' && /\.(heic|heif|jpg|jpeg)$/i.test(file.name) === false && file.size > 100000);
-  if (!isHeic) return file;
-  toast('HEIC 변환 중...');
-  try {
-    if (typeof heic2any === 'undefined') throw new Error('heic2any 라이브러리 로드 실패');
-    const result = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
-    const converted = Array.isArray(result) ? result[0] : result;
-    toast('HEIC → JPEG 변환 완료 ✓');
-    return new File([converted], file.name.replace(/\.(heic|heif)$/i, '.jpg'), { type: 'image/jpeg' });
-  } catch(e) {
-    console.warn('HEIC 변환 실패:', e);
-    toast('HEIC 변환 실패: ' + e.message, true);
-    return file;
-  }
-}
-
-async function glCompressImage(file, maxW = 1600, quality = 0.70) {
-  file = await heicToJpeg(file);
-  return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      let w = img.naturalWidth, h = img.naturalHeight;
-      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
-    img.src = url;
-  });
-}
-
-async function glRecompressLarge() {
-  const THRESHOLD = 1024 * 1024; // 1MB
-  toast('Storage에서 대용량 파일 목록 조회 중...');
-
-  // Storage List API로 gallery 폴더 파일 목록 가져오기
-  const listRes = await fetch(`${SUPA_URL}/storage/v1/object/list/jd-images`, {
-    method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prefix: 'gallery/', limit: 1000, offset: 0, sortBy: { column: 'name', order: 'asc' } })
-  });
-  const files = await listRes.json();
-  if (!Array.isArray(files)) { toast('파일 목록 조회 실패', true); return; }
-
-  const large = files.filter(f => f.metadata && f.metadata.size > THRESHOLD);
-  if (!large.length) { toast('1MB 초과 파일이 없습니다 ✓'); return; }
-
-  const ok = confirm(`1MB 초과 사진 ${large.length}장을 재압축할까요?\n(기존 파일을 덮어씁니다)`);
-  if (!ok) return;
-
-  let done = 0, saved = 0;
-  for (const f of large) {
-    const path = 'gallery/' + f.name.replace(/^gallery\//, '');
-    toast(`재압축 중... (${done+1}/${large.length}) ${f.name}`);
-    try {
-      // 1. 다운로드
-      const dlRes = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${path}`, {
-        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-      });
-      const origBlob = await dlRes.blob();
-      const origFile = new File([origBlob], f.name, { type: origBlob.type || 'image/jpeg' });
-
-      // 2. Canvas 압축 (70%, max 1600px)
-      const compressed = await glCompressImage(origFile);
-
-      // 3. 같은 경로에 덮어쓰기 업로드
-      const upRes = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${path}`, {
-        method: 'PUT',
-        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
-        body: compressed
-      });
-      if (upRes.ok) {
-        const savedKB = Math.round((origBlob.size - compressed.size) / 1024);
-        saved += savedKB;
-        done++;
-      } else {
-        toast(`실패: ${f.name}`, true);
-      }
-    } catch(e) {
-      toast(`오류: ${e.message}`, true);
-    }
-  }
-  toast(`✓ 재압축 완료! ${done}장, 총 ${Math.round(saved/1024)}MB 절약`);
-  loadGallery();
-}
-
-async function glUploadFiles(files) {
-  if (!files || !files.length) return;
-  const season = glGetSelectedSeason();
-  if (!season) { toast('시즌을 먼저 선택해 주세요.', true); return; }
-  const session = document.getElementById('gl_session_sel')?.value || null;
-
-  const status = document.getElementById('gl_upload_status');
-  status.style.display = 'block';
-  const total = files.length;
-  let done = 0;
-
-  for (const file of Array.from(files)) {
-    status.textContent = `압축 중... (${done+1}/${total})`;
-    const blob = await glCompressImage(file);
-    const savedKB = Math.round((file.size - blob.size) / 1024);
-    status.textContent = `업로드 중... (${done+1}/${total})${savedKB > 0 ? ' ▼'+savedKB+'KB 절약' : ''}`;
-    const safeSeason = season.replace(/시즌/g, 's').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const fname = `gallery/${safeSeason}_${Date.now()}_${Math.random().toString(36).slice(2,5)}.jpg`;
-    const uploaded = await uploadBlob(blob, fname);
-    if (uploaded && uploaded.ok) {
-      const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
-      const dbRes = await fetch(`${SUPA_URL}/rest/v1/JD_gallery`, {
-        method: 'POST',
-        headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ image_url: url, season, session: session || null, sort_order: 0, visible: true })
-      });
-      if (!dbRes.ok) {
-        const errTxt = await dbRes.text().catch(() => '');
-        toast(`DB 저장 실패: ${dbRes.status} ${errTxt}`, true);
-      }
-    } else {
-      toast(`Storage 업로드 실패: ${uploaded?._err||'unknown'}`, true);
-    }
-    done++;
-  }
-  status.textContent = `✓ ${season} 사진 ${done}장 업로드 완료!`;
-  setTimeout(() => { status.style.display = 'none'; }, 2500);
-  loadGallery();
-}
-
-async function glEditCaption(id, current, season) {
-  const cap = prompt('캡션 입력 (비워두면 삭제):', current);
-  if (cap === null) return;
-  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ caption: cap || null })
-  });
-  toast('캡션 저장됐어요 ✓');
-  loadGallery();
-}
-
-async function glToggleVisible(id, current) {
-  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ visible: !current })
-  });
-  toast(!current ? '홈화면에 표시돼요 ✓' : '숨겼어요');
-  loadGallery();
-}
-
-async function glDelete(id) {
-  if (!confirm('이 사진을 삭제할까요?')) return;
-  await fetch(`${SUPA_URL}/rest/v1/JD_gallery?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  toast('삭제됐어요');
-  loadGallery();
-}
-
 async function loadImages() {
   const res = await fetch(`${SUPA_URL}/storage/v1/object/list/jd-images`, {
     method: 'POST',
@@ -2361,7 +1272,7 @@ async function loadImages() {
   const data = await res.json();
   const grid = document.getElementById('img_grid');
   if (!data || !data.length) { grid.innerHTML = '<div style="color:var(--tl);font-size:.88rem">업로드된 이미지가 없어요.</div>'; return; }
-  grid.innerHTML = data.filter(f => f.name && f.id).map(f => {
+  grid.innerHTML = data.filter(f => f.name).map(f => {
     const url = `${SUPA_URL}/storage/v1/object/public/jd-images/${f.name}`;
     return `<div class="img-card">
       <img src="${url}" loading="lazy">
@@ -2392,11 +1303,6 @@ const dropZone = document.getElementById('dropZone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--ac)'; });
 dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
 dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.borderColor = ''; uploadImages(e.dataTransfer.files); });
-
-const glDropZone = document.getElementById('gl_drop_zone');
-glDropZone.addEventListener('dragover', e => { e.preventDefault(); glDropZone.style.borderColor = 'var(--ac)'; });
-glDropZone.addEventListener('dragleave', () => { glDropZone.style.borderColor = ''; });
-glDropZone.addEventListener('drop', e => { e.preventDefault(); glDropZone.style.borderColor = ''; glUploadFiles(e.dataTransfer.files); });
 
 // Generic delete
 async function deleteItem(table, id, reload) {
@@ -2555,283 +1461,46 @@ function cellDisplay(v) {
   return (n < 0 ? '-₩' : '+₩') + Math.abs(n).toLocaleString();
 }
 
-// ── Books: 알라딘 검색 ─────────────────────────────────────
-let _bkSearchItems = [];
-
-async function searchBooks() {
-  const q = document.getElementById('bk_search_q').value.trim();
-  if (!q) { toast('검색어를 입력해 주세요.', true); return; }
-  const msg = document.getElementById('bk_search_msg');
-  const grid = document.getElementById('bk_results_grid');
-  msg.textContent = '검색 중...'; msg.style.display = 'block';
-  grid.style.display = 'none'; grid.innerHTML = '';
-
-  try {
-    const res = await fetch(`${SUPA_URL}/functions/v1/aladin-search?q=${encodeURIComponent(q)}`, {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    const data = await res.json();
-    _bkSearchItems = data.items || [];
-    if (!_bkSearchItems.length) { msg.textContent = '검색 결과가 없어요. 직접 입력해 주세요.'; return; }
-    msg.style.display = 'none';
-    grid.style.display = 'grid';
-    grid.innerHTML = _bkSearchItems.map((b, i) => `
-      <div onclick="bkSelectFromSearch(${i})" style="cursor:pointer;border:2px solid transparent;transition:border-color .15s;padding:2px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='transparent'">
-        <img src="${b.cover||''}" alt="${b.title}" style="width:100%;aspect-ratio:2/3;object-fit:cover;background:#e2e8f0;display:block">
-        <div style="font-size:.68rem;font-weight:600;color:var(--dk);line-height:1.35;margin-top:.3rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${b.title}</div>
-        <div style="font-size:.63rem;color:var(--tl);margin-top:.1rem">${(b.author||'').split(' (')[0]}</div>
-      </div>
-    `).join('');
-  } catch(e) {
-    msg.textContent = '검색 오류가 발생했어요.';
-  }
-}
-
-function bkSelectFromSearch(idx) {
-  const b = _bkSearchItems[idx];
-  if (!b) return;
-  // 폼에 자동 채우기
-  document.getElementById('bk_id').value = '';
-  document.getElementById('bk_title').value = b.title || '';
-  document.getElementById('bk_author').value = (b.author || '').split(' (')[0];
-  document.getElementById('bk_category').value = '';
-  document.getElementById('bk_date').value = '';
-  document.getElementById('bk_recommended').checked = false;
-  document.getElementById('bk_order').value = '0';
-  // 표지 미리보기 (알라딘 URL 직접 사용)
-  _bkCoverBlob = null;
-  _bkCoverUrl = b.cover || '';
-  const prev = document.getElementById('bk_cover_preview');
-  if (_bkCoverUrl) {
-    prev.src = _bkCoverUrl; prev.style.display = 'block';
-    document.getElementById('bk_cover_remove').style.display = 'inline-flex';
-    const ph = document.getElementById('bk_cover_placeholder');
-    if (ph) ph.style.display = 'none';
-  }
-  document.getElementById('bk_form_title').textContent = '선택한 책 추가';
-  // 폼으로 스크롤
-  document.querySelector('.bk-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast('시즌과 날짜를 입력한 뒤 저장해 주세요 ✓');
-}
-
 // ── Books ──────────────────────────────────────────────────
 let _bkCoverBlob = null, _bkCoverUrl = null;
-let _bkPrograms = []; // 시즌별 프로그램 캐시
-
-async function loadBkSeasons() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,type,sessions&order=season_number.desc`, {
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-  });
-  _bkPrograms = (await res.json()) || [];
-  const sel = document.getElementById('bk_category');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">시즌 선택...</option>';
-  _bkPrograms.forEach(p => {
-    if (!p.badge) return;
-    const opt = document.createElement('option');
-    opt.value = p.badge; opt.textContent = p.badge;
-    if (p.badge === cur) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  // 직접 입력 옵션
-  const other = document.createElement('option');
-  other.value = '__other__'; other.textContent = '기타 (직접 입력)';
-  sel.appendChild(other);
-}
-
-function bkOnSeasonChange() {
-  const val = document.getElementById('bk_category').value;
-  const sessionSel = document.getElementById('bk_session_sel');
-  sessionSel.innerHTML = '<option value="">회차 선택...</option>';
-  document.getElementById('bk_date').value = '';
-
-  if (val === '__other__') {
-    // 직접 입력 모드: category를 text input으로 교체
-    const sel = document.getElementById('bk_category');
-    const input = document.createElement('input');
-    input.className = 'form-input'; input.id = 'bk_category'; input.placeholder = '예: 시즌9';
-    sel.replaceWith(input);
-    sessionSel.innerHTML = '<option value="">—</option>';
-    return;
-  }
-
-  const prog = _bkPrograms.find(p => p.badge === val);
-  if (!prog) return;
-  const sessions = prog.type === 'event' ? [] :
-    (prog.sessions && prog.sessions.length ? prog.sessions : [1,2,3,4,5].map(n => ({ n: `${n}회차`, d: '' })));
-  sessions.forEach(s => {
-    if (!s.n) return;
-    const opt = document.createElement('option');
-    opt.value = s.n; opt.dataset.date = s.d || ''; opt.textContent = s.n + (s.d ? '  (' + s.d + ')' : '');
-    sessionSel.appendChild(opt);
-  });
-}
-
-function bkOnSessionChange() {
-  const sel = document.getElementById('bk_session_sel');
-  const opt = sel.options[sel.selectedIndex];
-  const date = opt ? (opt.dataset.date || '') : '';
-  if (date) document.getElementById('bk_date').value = date;
-}
-
-let _bkFilter = 'all'; // 'all' | 'recommended'
-let _bkSeasonFilter = null; // null = 전체, 또는 특정 시즌 이름
-let _bkAllData = [];
-
-function renderSeasonChips() {
-  const wrap = document.getElementById('bk_season_chips');
-  if (!wrap) return;
-  if (_bkFilter === 'recommended') { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'flex';
-  const seasons = [...new Set(_bkAllData.filter(b => !b.is_recommended && b.category).map(b => b.category))]
-    .sort((a, b) => parseInt(b.match(/\d+/)||[0]) - parseInt(a.match(/\d+/)||[0]));
-  const chip = (label, active, onclick) =>
-    `<button onclick="${onclick}" style="background:${active?'var(--ac)':'transparent'};color:${active?'#fff':'var(--tl)'};border:1px solid ${active?'var(--ac)':'var(--be)'};border-radius:4px;font-size:.76rem;font-weight:${active?'700':'500'};padding:.25rem .7rem;cursor:pointer;">${label}</button>`;
-  wrap.innerHTML = chip('전체', !_bkSeasonFilter, "setBkSeasonFilter(null)")
-    + seasons.map(s => chip(s, _bkSeasonFilter === s, `setBkSeasonFilter('${s}')`)).join('');
-}
-
-function setBkSeasonFilter(season) {
-  _bkSeasonFilter = season;
-  renderSeasonChips();
-  renderBookList();
-}
-
-function renderBookList() {
-  const list = document.getElementById('bk_list');
-  const isRec = _bkFilter === 'recommended';
-  let data = isRec
-    ? _bkAllData.filter(b => b.is_recommended)
-    : _bkAllData.filter(b => !b.is_recommended && b.category);
-  if (!isRec && _bkSeasonFilter) data = data.filter(b => b.category === _bkSeasonFilter);
-
-  if (!data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
-
-  if (isRec) {
-    list.style.display = 'grid';
-    list.style.gridTemplateColumns = 'repeat(auto-fill, 150px)';
-    list.style.gap = '12px';
-    list.innerHTML = data.map(b => bookCard(b)).join('');
-    return;
-  }
-
-  // 시즌별 그룹핑 (시즌 번호 내림차순)
-  const groups = {};
-  data.forEach(b => { const k = b.category || '기타'; if (!groups[k]) groups[k] = []; groups[k].push(b); });
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const na = parseInt(a.match(/\d+/) || [0]), nb = parseInt(b.match(/\d+/) || [0]);
-    return nb - na;
-  });
-
-  list.style.display = 'block';
-  list.innerHTML = sortedKeys.map(season => {
-    const books = groups[season];
-    const sessionGroups = {};
-    books.forEach(b => { const k = b.session || '미분류'; if (!sessionGroups[k]) sessionGroups[k] = []; sessionGroups[k].push(b); });
-    const sessionKeys = Object.keys(sessionGroups).sort((a, b) => {
-      const na = parseInt(a.match(/\d+/) || [0]), nb = parseInt(b.match(/\d+/) || [0]);
-      return na - nb;
-    });
-    const sortedBooks = books.slice().sort((a, b) => {
-      const na = parseInt((a.session || '').match(/\d+/) || [999]);
-      const nb = parseInt((b.session || '').match(/\d+/) || [999]);
-      return na - nb;
-    });
-    const booksHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fill,150px);gap:12px">${sortedBooks.map(b => bookCard(b)).join('')}</div>`;
-    return `
-      <div style="margin-bottom:1.5rem">
-        <div style="font-size:.82rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--be)">${season} · ${books.length}권</div>
-        ${booksHtml}
-      </div>`;
-  }).join('');
-}
-
-function bookCard(b) {
-  const bj = JSON.stringify(b).replace(/'/g,"&#39;");
-  // 회차 날짜 조회
-  const prog = _bkPrograms.find(p => p.badge === b.category);
-  const sessObj = prog && b.session ? (prog.sessions || []).find(s => s.n === b.session) : null;
-  const dateStr = sessObj && sessObj.d ? sessObj.d.replace(/(\d{4})-(\d{2})-(\d{2})/, (_,y,m,d) => `${m}/${parseInt(d)}`) : '';
-  const cover = b.cover_url && b.cover_url.startsWith('http')
-    ? `<div style="position:relative;width:100%;padding-bottom:150%;background:#f1f3f8;border-radius:4px 4px 0 0;overflow:hidden;"><img src="${b.cover_url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;"></div>`
-    : `<div style="position:relative;width:100%;padding-bottom:150%;background:var(--surface2);border-radius:4px 4px 0 0;"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tl);">이미지 없음</span></div>`;
-  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;" onclick='editBook(${bj})'>
-    ${cover}
-    <div style="padding:8px 9px;flex:1;display:flex;flex-direction:column;gap:3px;">
-      <div style="font-weight:600;font-size:12px;line-height:1.4;color:var(--tp)">${b.title}</div>
-      ${b.author ? `<div style="font-size:11px;color:var(--tl)">${b.author}</div>` : ''}
-      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;align-items:center;">
-        ${b.session ? `<span style="font-size:10px;color:var(--ac);font-weight:700">${b.session}</span>` : ''}
-        ${dateStr ? `<span style="font-size:10px;color:var(--tl)">${dateStr}</span>` : ''}
-        ${b.is_recommended ? `<span style="font-size:10px;background:#f59e0b20;color:#d97706;font-weight:600;padding:1px 5px;border-radius:3px">추천</span>` : ''}
-      </div>
-    </div>
-    <div style="display:flex;border-top:1px solid var(--be);">
-      <button style="flex:1;font-size:11px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--ts);border-right:1px solid var(--be)" onclick='event.stopPropagation();editBook(${bj})'>수정</button>
-      <button style="flex:1;font-size:11px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
-    </div>
-  </div>`;
-}
-
-function setBkFilter(f) {
-  _bkFilter = f;
-  _bkSeasonFilter = null;
-  document.querySelectorAll('.bk-tab-btn').forEach(el => {
-    el.style.fontWeight = el.dataset.f === f ? '700' : '400';
-    el.style.borderBottom = el.dataset.f === f ? '2px solid var(--ac)' : '2px solid transparent';
-    el.style.color = el.dataset.f === f ? 'var(--ac)' : 'var(--tl)';
-  });
-  renderSeasonChips();
-  renderBookList();
-}
 
 async function loadBooks() {
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?order=sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
-  _bkAllData = await res.json() || [];
-  renderSeasonChips();
-  renderBookList();
+  const data = await res.json();
+  const list = document.getElementById('bk_list');
+  if (!data || !data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
+  list.innerHTML = data.map(b => `
+    <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
+      ${b.cover_url && b.cover_url.startsWith('http')
+        ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
+        : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
+      <div style="padding:7px 9px 4px;">
+        <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.emoji||''} ${b.title}</div>
+        ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
+        ${b.category ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;">${b.category}</div>` : ''}
+      </div>
+      <div style="padding:0 6px 6px;display:flex;gap:3px;">
+        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
+        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
+      </div>
+    </div>`).join('');
 }
 
 function editBook(b) {
   document.getElementById('bk_id').value = b.id;
   document.getElementById('bk_title').value = b.title || '';
   document.getElementById('bk_author').value = b.author || '';
-  const catSel = document.getElementById('bk_category');
-  catSel.value = b.category || '';
-  // 공백 차이("시즌8" vs "시즌 8") 대비 fuzzy 매칭
-  if (catSel.value !== (b.category || '') || !catSel.value) {
-    const norm = (s) => (s||'').replace(/\s/g,'').toLowerCase();
-    for (let i = 0; i < catSel.options.length; i++) {
-      if (norm(catSel.options[i].value) === norm(b.category)) {
-        catSel.selectedIndex = i; break;
-      }
-    }
-  }
+  document.getElementById('bk_category').value = b.category || '';
   document.getElementById('bk_date').value = b.date || '';
-  // session 복원
-  if (b.category) {
-    bkOnSeasonChange();
-    setTimeout(() => {
-      const sessionSel = document.getElementById('bk_session_sel');
-      if (sessionSel && b.session) {
-        for (let i = 0; i < sessionSel.options.length; i++) {
-          if (sessionSel.options[i].value === b.session) {
-            sessionSel.selectedIndex = i;
-            break;
-          }
-        }
-      }
-    }, 0);
-  }
-  document.getElementById('bk_recommended').checked = !!b.is_recommended;
+  document.getElementById('bk_emoji').value = b.emoji || '';
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   _bkCoverBlob = null;
   _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
   const prev = document.getElementById('bk_cover_preview');
   const rm = document.getElementById('bk_cover_remove');
-  if (_bkCoverUrl) { prev.src = _bkCoverUrl; prev.style.display = 'block'; rm.style.display = ''; const ph=document.getElementById('bk_cover_placeholder'); if(ph) ph.style.display='none'; }
+  if (_bkCoverUrl) { prev.src = _bkCoverUrl; prev.style.display = 'block'; rm.style.display = ''; }
   else { prev.src = ''; prev.style.display = 'none'; rm.style.display = 'none'; }
   document.getElementById('bk_form_title').textContent = '책 수정';
 }
@@ -2840,28 +1509,14 @@ function bkClearForm() {
   document.getElementById('bk_id').value = '';
   document.getElementById('bk_title').value = '';
   document.getElementById('bk_author').value = '';
-  // bk_category가 input으로 바뀌었을 경우 select로 복원
-  const catEl = document.getElementById('bk_category');
-  if (catEl.tagName === 'INPUT') {
-    const sel = document.createElement('select');
-    sel.className = 'form-input'; sel.id = 'bk_category';
-    sel.setAttribute('onchange', 'bkOnSeasonChange()');
-    catEl.replaceWith(sel);
-    loadBkSeasons();
-  } else {
-    catEl.value = '';
-  }
-  const sessionSel = document.getElementById('bk_session_sel');
-  if (sessionSel) { sessionSel.innerHTML = '<option value="">회차 선택...</option>'; }
+  document.getElementById('bk_category').value = '';
   document.getElementById('bk_date').value = '';
-  document.getElementById('bk_recommended').checked = false;
+  document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = 0;
   _bkCoverBlob = null; _bkCoverUrl = null;
   const prev = document.getElementById('bk_cover_preview');
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('bk_cover_remove').style.display = 'none';
-  const ph = document.getElementById('bk_cover_placeholder');
-  if (ph) ph.style.display = '';
   document.getElementById('bk_form_title').textContent = '새 책 추가';
 }
 
@@ -2871,22 +1526,17 @@ function bkRemoveCover() {
   prev.src = ''; prev.style.display = 'none';
   document.getElementById('bk_cover_remove').style.display = 'none';
   document.getElementById('bk_cover_file').value = '';
-  const ph = document.getElementById('bk_cover_placeholder');
-  if (ph) ph.style.display = '';
 }
 
-async function bkCoverSelected(input) {
+function bkCoverSelected(input) {
   if (!input.files[0]) return;
-  const file = await heicToJpeg(input.files[0]);
-  openCropModal(file, croppedFile => {
+  openCropModal(input.files[0], croppedFile => {
     openResizeModal(croppedFile, async blob => {
       _bkCoverBlob = blob;
       const url = URL.createObjectURL(blob);
       const prev = document.getElementById('bk_cover_preview');
       prev.src = url; prev.style.display = 'block';
       document.getElementById('bk_cover_remove').style.display = '';
-      const ph = document.getElementById('bk_cover_placeholder');
-      if (ph) ph.style.display = 'none';
     });
   });
   input.value = '';
@@ -2907,9 +1557,8 @@ async function saveBook() {
     title,
     author: document.getElementById('bk_author').value.trim() || null,
     category: document.getElementById('bk_category').value.trim() || null,
-    session: document.getElementById('bk_session_sel').value.trim() || null,
     date: document.getElementById('bk_date').value.trim() || null,
-    is_recommended: document.getElementById('bk_recommended').checked,
+    emoji: document.getElementById('bk_emoji').value.trim() || null,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,
     cover_url: cover_url || null,
   };
@@ -2968,316 +1617,13 @@ async function saveMembersData(toast=true) {
 
 function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
-  const seasonTabs = document.getElementById('member_season_tabs');
-  const summaryActive = currentSeasonIdx === 'summary';
-  const feesActive = currentSeasonIdx === 'fees';
-  const depositActive = typeof currentSeasonIdx === 'number';
-
-  // 상단 탭: 종합 현황 | 회비 관리 | 디파짓 관리
-  tabs.innerHTML =
-    `<button class="m-tab ${summaryActive?'active':''}" onclick="switchToSummary()" style="font-weight:700">종합 현황</button>` +
-    `<button class="m-tab ${feesActive?'active':''}" onclick="switchToFees()" style="font-weight:700">회비 관리</button>` +
-    `<button class="m-tab ${depositActive?'active':''}" onclick="switchToDeposit()" style="font-weight:700">디파짓 관리</button>`;
-
-  // 시즌 서브탭: 디파짓 관리 선택 시만 표시
-  if (depositActive) {
-    seasonTabs.style.display = '';
-    seasonTabs.innerHTML =
-      membersData.seasons.map((s, i) =>
-        `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
-          ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
-          <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
-        </button>`
-      ).join('') +
-      `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
-  } else {
-    seasonTabs.style.display = 'none';
-    seasonTabs.innerHTML = '';
-  }
-}
-
-function switchToDeposit() {
-  currentSeasonIdx = membersData.seasons.length ? 0 : 'summary';
-  if (currentSeasonIdx === 'summary') { switchToSummary(); return; }
-  renderMemberTabs();
-  renderMemberSeason(currentSeasonIdx);
-}
-
-function switchToSummary() {
-  currentSeasonIdx = 'summary';
-  renderMemberTabs();
-  renderMemberSummary();
-}
-
-function switchToFees() {
-  currentSeasonIdx = 'fees';
-  renderMemberTabs();
-  renderFeesDashboard();
-}
-
-// ── 회비 관리 ──────────────────────────────────────────────────
-
-function feeData(si) {
-  const s = membersData.seasons[si];
-  if (!s.fees) s.fees = { incomeGroups: [], guestGroups: [], expenseItems: [] };
-  return s.fees;
-}
-
-function fmtW(n) { return n ? '₩' + Number(n).toLocaleString() : '-'; }
-
-function renderFeesDashboard() {
-  const seasons = membersData.seasons;
-  if (!seasons.length) {
-    document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>';
-    return;
-  }
-  // 시즌 선택 탭
-  let activeFeeSeasonIdx = window._activeFeeSeasonIdx ?? 0;
-  if (activeFeeSeasonIdx >= seasons.length) activeFeeSeasonIdx = 0;
-  window._activeFeeSeasonIdx = activeFeeSeasonIdx;
-
-  const seasonTabs = seasons.map((s,i) =>
-    `<button onclick="window._activeFeeSeasonIdx=${i};renderFeesDashboard()" style="padding:.35rem .9rem;border-radius:6px;border:1px solid ${i===activeFeeSeasonIdx?'var(--ac)':'var(--border)'};background:${i===activeFeeSeasonIdx?'var(--ac)':'none'};color:${i===activeFeeSeasonIdx?'#fff':'var(--ts)'};font-size:.82rem;cursor:pointer;font-weight:${i===activeFeeSeasonIdx?700:400}">${s.name}</button>`
-  ).join('');
-
-  const s = seasons[activeFeeSeasonIdx];
-  const fd = feeData(activeFeeSeasonIdx);
-  const sc = s.sessions.length || 5;
-
-  // 수입 테이블
-  const incomeRows = fd.incomeGroups.map((g, gi) => `
-    <tr>
-      <td><input value="${g.label}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'label',this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td>
-      <td><input type="number" value="${g.count}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'count',this.value)" style="border:none;background:none;width:60px;text-align:center;font-size:.83rem"></td>
-      <td><input type="number" value="${g.amount}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'amount',this.value)" style="border:none;background:none;width:90px;text-align:right;font-size:.83rem"></td>
-      <td style="text-align:right;font-weight:600;color:var(--ac)">${fmtW(g.count*g.amount)}</td>
-      <td><button onclick="feeRemoveIncome(${activeFeeSeasonIdx},${gi})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td>
-    </tr>`).join('');
-
-  const guestRows = fd.guestGroups.map((g, gi) => `
-    <tr>
-      <td><input value="${g.label}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'label',this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td>
-      <td><input type="number" value="${g.count}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'count',this.value)" style="border:none;background:none;width:60px;text-align:center;font-size:.83rem"></td>
-      <td><input type="number" value="${g.amount}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'amount',this.value)" style="border:none;background:none;width:90px;text-align:right;font-size:.83rem"></td>
-      <td style="text-align:right;font-weight:600;color:var(--ac)">${fmtW(g.count*g.amount)}</td>
-      <td><button onclick="feeRemoveGuest(${activeFeeSeasonIdx},${gi})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td>
-    </tr>`).join('');
-
-  const totalIncome = [...fd.incomeGroups, ...fd.guestGroups].reduce((s,g) => s + (g.count*g.amount||0), 0);
-
-  // 지출 테이블 헤더 (회차 기반)
-  const sessionCols = s.sessions.length
-    ? s.sessions.map(ss => `<th style="text-align:right;white-space:nowrap">${ss.n}<br><small style="font-weight:400;opacity:.6">${ss.d||''}</small></th>`).join('')
-    : Array.from({length:sc},(_,i)=>`<th style="text-align:right">${i+1}회차</th>`).join('');
-
-  const expenseRows = fd.expenseItems.map((item, ei) => {
-    const amounts = Array.from({length:sc}, (_,ci) => item.amounts[ci]||0);
-    const rowTotal = amounts.reduce((a,b)=>a+b,0);
-    const cells = amounts.map((v,ci) =>
-      `<td style="text-align:right"><input type="number" value="${v||''}" placeholder="0" onblur="feeUpdateExpense(${activeFeeSeasonIdx},${ei},${ci},this.value)" style="border:none;background:none;width:80px;text-align:right;font-size:.83rem"></td>`
-    ).join('');
-    return `<tr>
-      <td><input value="${item.label}" onblur="feeUpdateExpenseLabel(${activeFeeSeasonIdx},${ei},this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td>
-      ${cells}
-      <td style="text-align:right;font-weight:600">${fmtW(rowTotal)}</td>
-      <td><button onclick="feeRemoveExpense(${activeFeeSeasonIdx},${ei})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td>
-    </tr>`;
-  }).join('');
-
-  // 회차별 지출 합계 행
-  const colTotals = Array.from({length:sc},(_,ci)=>
-    fd.expenseItems.reduce((s,item)=>s+(Number(item.amounts[ci])||0),0)
-  );
-  const totalExpense = colTotals.reduce((a,b)=>a+b,0);
-  const colTotalCells = colTotals.map(t=>`<td style="text-align:right;font-weight:700;font-size:.8rem;color:#ef4444">${t?fmtW(t):'-'}</td>`).join('');
-
-  const balance = totalIncome - totalExpense;
-  const balanceColor = balance >= 0 ? '#2563eb' : '#ef4444';
-
-  document.getElementById('member_content').innerHTML = `
-    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">${seasonTabs}</div>
-
-    <!-- 수입 -->
-    <div class="card" style="margin-bottom:1rem">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>수입</span>
-        <div style="display:flex;gap:.5rem">
-          <button class="btn btn-ghost btn-sm" onclick="feeAddIncome(${activeFeeSeasonIdx})">+ 정규 멤버 그룹 추가</button>
-          <button class="btn btn-ghost btn-sm" onclick="feeAddGuest(${activeFeeSeasonIdx})">+ 게스트 추가</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table class="m-table">
-          <thead><tr><th>구분</th><th style="text-align:center">인원</th><th style="text-align:right">1인 회비</th><th style="text-align:right">소계</th><th></th></tr></thead>
-          <tbody>
-            ${incomeRows || '<tr><td colspan="5" style="color:var(--tl);font-size:.82rem;text-align:center;padding:.75rem">그룹을 추가해 주세요</td></tr>'}
-            ${guestRows}
-          </tbody>
-          <tfoot><tr style="background:rgba(37,99,235,.04)">
-            <td colspan="3" style="font-weight:700;font-size:.85rem">총 회비 합계</td>
-            <td style="text-align:right;font-weight:700;color:var(--ac);font-size:.95rem">${fmtW(totalIncome)}</td>
-            <td></td>
-          </tr></tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- 지출 -->
-    <div class="card" style="margin-bottom:1rem">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>지출</span>
-        <button class="btn btn-ghost btn-sm" onclick="feeAddExpense(${activeFeeSeasonIdx})">+ 항목 추가</button>
-      </div>
-      <div style="overflow-x:auto">
-        <table class="m-table">
-          <thead><tr><th>항목</th>${sessionCols}<th style="text-align:right">합계</th><th></th></tr></thead>
-          <tbody>
-            ${expenseRows || '<tr><td colspan="${sc+3}" style="color:var(--tl);font-size:.82rem;text-align:center;padding:.75rem">항목을 추가해 주세요</td></tr>'}
-          </tbody>
-          <tfoot><tr style="background:rgba(239,68,68,.04)">
-            <td style="font-weight:700;font-size:.8rem">합계</td>
-            ${colTotalCells}
-            <td style="text-align:right;font-weight:700;color:#ef4444">${fmtW(totalExpense)}</td>
-            <td></td>
-          </tr></tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- 결산 -->
-    <div class="card">
-      <div class="card-title">결산</div>
-      <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:center">
-        <div style="text-align:center">
-          <div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">총 수입</div>
-          <div style="font-size:1.2rem;font-weight:700;color:var(--ac)">${fmtW(totalIncome)}</div>
-        </div>
-        <div style="font-size:1.5rem;color:var(--tl)">−</div>
-        <div style="text-align:center">
-          <div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">총 지출</div>
-          <div style="font-size:1.2rem;font-weight:700;color:#ef4444">${fmtW(totalExpense)}</div>
-        </div>
-        <div style="font-size:1.5rem;color:var(--tl)">=</div>
-        <div style="text-align:center">
-          <div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">남은 비용</div>
-          <div style="font-size:1.4rem;font-weight:700;color:${balanceColor}">${fmtW(balance)}</div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function feeAddIncome(si) {
-  feeData(si).incomeGroups.push({ label:'정규 멤버', count:0, amount:0 });
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeAddGuest(si) {
-  feeData(si).guestGroups.push({ label:'게스트', count:0, amount:0 });
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeAddExpense(si) {
-  const sc = membersData.seasons[si].sessions.length || 5;
-  feeData(si).expenseItems.push({ label:'항목', amounts: Array(sc).fill(0) });
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeRemoveIncome(si, gi) { feeData(si).incomeGroups.splice(gi,1); saveMembersData(false); renderFeesDashboard(); }
-function feeRemoveGuest(si, gi) { feeData(si).guestGroups.splice(gi,1); saveMembersData(false); renderFeesDashboard(); }
-function feeRemoveExpense(si, ei) { feeData(si).expenseItems.splice(ei,1); saveMembersData(false); renderFeesDashboard(); }
-
-function feeUpdateIncome(si, gi, field, val) {
-  feeData(si).incomeGroups[gi][field] = field==='label' ? val : Number(val)||0;
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeUpdateGuest(si, gi, field, val) {
-  feeData(si).guestGroups[gi][field] = field==='label' ? val : Number(val)||0;
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeUpdateExpenseLabel(si, ei, val) {
-  feeData(si).expenseItems[ei].label = val;
-  saveMembersData(false); renderFeesDashboard();
-}
-function feeUpdateExpense(si, ei, ci, val) {
-  const item = feeData(si).expenseItems[ei];
-  if (!item.amounts) item.amounts = [];
-  item.amounts[ci] = Number(val)||0;
-  saveMembersData(false); renderFeesDashboard();
-}
-
-function renderMemberSummary() {
-  const seasons = membersData.seasons;
-  if (!seasons.length) {
-    document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>';
-    return;
-  }
-
-  // 전체 멤버 이름 수집 (중복 제거, 빈 이름 제외)
-  const nameSet = new Set();
-  seasons.forEach(s => s.members.forEach(m => { if (m.name.trim()) nameSet.add(m.name.trim()); }));
-  const allNames = [...nameSet].sort((a, b) => a.localeCompare(b, 'ko'));
-
-  // 각 멤버 × 시즌 참여 여부 계산
-  // 참여 = att 배열에 실제 출석 표시(O, o, ○, 출, 빈값 아닌 것)가 1개 이상
-  function participated(member) {
-    if (!member) return false;
-    return member.att.some(v => {
-      const t = (v||'').trim();
-      return t && !t.startsWith('-') && t !== '0';
-    });
-  }
-
-  const thSeasons = seasons.map(s => `<th style="white-space:nowrap">${s.name}</th>`).join('');
-
-  const rows = allNames.map(name => {
-    let total = 0;
-    const cells = seasons.map(s => {
-      const m = s.members.find(m => m.name.trim() === name);
-      const joined = participated(m);
-      if (joined) total++;
-      return joined
-        ? `<td style="text-align:center;color:#2563eb;font-weight:700">O</td>`
-        : m
-          ? `<td style="text-align:center;color:var(--tl);opacity:.4">-</td>`
-          : `<td style="text-align:center;color:var(--tl);opacity:.2">·</td>`;
-    }).join('');
-    const pct = Math.round(total / seasons.length * 100);
-    const barColor = pct >= 80 ? '#2563eb' : pct >= 50 ? '#7c3aed' : '#94a3b8';
-    return `<tr>
-      <td style="font-weight:600;white-space:nowrap">${name}</td>
-      ${cells}
-      <td style="text-align:center;font-weight:700;color:${barColor}">${total}<span style="font-weight:400;font-size:.75rem;color:var(--tl);margin-left:.25rem">/ ${seasons.length}</span></td>
-      <td style="min-width:80px">
-        <div style="background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden">
-          <div style="background:${barColor};height:100%;width:${pct}%;border-radius:4px;transition:width .3s"></div>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-
-  // 시즌별 참여 인원 합계 행
-  const colCounts = seasons.map(s => {
-    const cnt = s.members.filter(m => m.name.trim() && participated(m)).length;
-    return `<td style="text-align:center;font-weight:700;font-size:.8rem;color:var(--ac)">${cnt}명</td>`;
-  }).join('');
-
-  document.getElementById('member_content').innerHTML = `
-    <div style="overflow-x:auto">
-      <table class="m-table" style="min-width:600px">
-        <thead><tr>
-          <th style="min-width:80px">이름</th>
-          ${thSeasons}
-          <th style="text-align:center">참여 횟수</th>
-          <th style="min-width:80px">참여율</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr style="background:rgba(37,99,235,.04)">
-          <td style="font-weight:700;font-size:.8rem;color:var(--tl)">시즌 참여 인원</td>
-          ${colCounts}
-          <td colspan="2"></td>
-        </tr></tfoot>
-      </table>
-    </div>
-    <p style="margin-top:1rem;font-size:.78rem;color:var(--tl)">O = 참여 · - = 등록됐으나 미참여 · · = 해당 시즌 미등록</p>
-  `;
+  tabs.innerHTML = membersData.seasons.map((s, i) =>
+    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
+      ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
+      <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
+    </button>`
+  ).join('') +
+  `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
 }
 
 function deleteSeason(i) {
@@ -3535,7 +1881,11 @@ function previewColumn() {
 // ── 홈화면 사진 ────────────────────────────────────────────
 const HP_SLOTS = [
   { key: 'home_hero_image', label: '히어로 배경' },
-  // 책 표지 1~5는 JD_books 최신 시즌에서 자동 로딩됩니다
+  { key: 'home_book_1',     label: '책 표지 1' },
+  { key: 'home_book_2',     label: '책 표지 2' },
+  { key: 'home_book_3',     label: '책 표지 3' },
+  { key: 'home_book_4',     label: '책 표지 4' },
+  { key: 'home_book_5',     label: '책 표지 5' },
 ];
 
 async function saveHeroMobileH() {
@@ -3599,8 +1949,7 @@ async function loadHomepagePhotos() {
   });
 }
 
-async function inlineUpload(file, targetId, previewId) {
-  file = await heicToJpeg(file);
+function inlineUpload(file, targetId, previewId) {
   openCropModal(file, async blob => {
     const fname = 'content/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.jpg';
     toast('업로드 중...');
@@ -3622,9 +1971,8 @@ function hpPreview(src) {
 }
 
 async function replaceHomePhoto(input, key) {
-  let file = input.files[0];
+  const file = input.files[0];
   if (!file) return;
-  file = await heicToJpeg(file);
   openCropModal(file, async blob => {
     toast('업로드 중...');
     const path = `homepage/${key}_${Date.now()}.jpg`;
