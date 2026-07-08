@@ -712,6 +712,24 @@ tr:hover td{background:rgba(37,99,235,.03)}
   </div>
 </div>
 
+<!-- Hero Album Picker Modal -->
+<div id="hpAlbumModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:15000;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto" onclick="if(event.target===this)closeHpAlbum()">
+  <div style="background:var(--wh);max-width:900px;width:100%;margin:auto">
+    <div style="padding:1.1rem 1.5rem;border-bottom:1px solid var(--be);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem">갤러리에서 선택</div>
+        <div style="font-size:.75rem;color:var(--tl);margin-top:.1rem">사진 클릭 → 자르기 → 크기 조정 순서로 이어져요</div>
+      </div>
+      <button onclick="closeHpAlbum()" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--tl)">✕</button>
+    </div>
+    <div style="padding:.5rem 1.5rem;border-bottom:1px solid var(--be);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+      <span style="font-size:.72rem;font-weight:600;color:var(--ts)">시즌</span>
+      <div id="hpAlbumSeasons" style="display:flex;gap:.25rem;flex-wrap:wrap"></div>
+    </div>
+    <div id="hpAlbumGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;padding:1rem 1.5rem;max-height:62vh;overflow-y:auto"></div>
+  </div>
+</div>
+
 <!-- Preview Modal -->
 <div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto" onclick="if(event.target===this)closePreview()">
   <div style="background:#F4F6FA;max-width:760px;width:100%;position:relative;margin:auto">
@@ -2653,9 +2671,10 @@ async function loadHomepagePhotos() {
           ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`
           : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:.8rem">사진 없음</div>`
         }
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s" class="hp-overlay">
-          ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer;backdrop-filter:blur(4px)">미리보기</button>` : ''}
-          <button onclick="event.stopPropagation();document.getElementById('card${slot.key}').click()" style="background:var(--ac);border:none;color:#fff;font-size:.78rem;font-weight:600;padding:.35rem .75rem;cursor:pointer">교체</button>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.35rem;flex-wrap:wrap;padding:.4rem;background:rgba(0,0,0,.45);opacity:0;transition:opacity .2s" class="hp-overlay">
+          ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">미리보기</button>` : ''}
+          <button onclick="event.stopPropagation();document.getElementById('card${slot.key}').click()" style="background:var(--ac);border:none;color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer">파일</button>
+          <button onclick="event.stopPropagation();hpOpenAlbum('${slot.key}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">앨범</button>
         </div>
       </div>
       <div style="padding:.65rem .75rem;font-size:.78rem;font-weight:600;color:var(--ts)">${slot.label}</div>
@@ -2690,28 +2709,88 @@ function hpPreview(src) {
 }
 
 async function replaceHomePhoto(input, key) {
-  const file = input.files[0];
+  let file = input.files[0];
   if (!file) return;
-  openCropModal(file, async blob => {
-    toast('업로드 중...');
-    const path = `homepage/${key}_${Date.now()}.jpg`;
-    const upRes = await uploadBlob(blob, path);
-    if (!upRes.ok) { toast(`업로드 실패: ${upRes._err || ''}`, true); return; }
-    const publicUrl = `${SUPA_URL}/storage/v1/object/public/jd-images/${path}`;
+  file = await heicToJpeg(file);
+  openCropModal(file, blob => hpUploadAndSave(blob, key));
+}
 
-    // Upsert setting
-    const upsertRes = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({ key, value: publicUrl, updated_at: new Date().toISOString() })
-    });
-    if (upsertRes.ok) { toast('사진이 교체됐어요! 홈화면에 바로 반영돼요 ✓'); loadHomepagePhotos(); }
-    else toast('저장 실패', true);
+async function hpUploadAndSave(blob, key) {
+  toast('업로드 중...');
+  const path = `homepage/${key}_${Date.now()}.jpg`;
+  const upRes = await uploadBlob(blob, path);
+  if (!upRes.ok) { toast(`업로드 실패: ${upRes._err || ''}`, true); return; }
+  const publicUrl = `${SUPA_URL}/storage/v1/object/public/jd-images/${path}`;
+  const upsertRes = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ key, value: publicUrl, updated_at: new Date().toISOString() })
   });
+  if (upsertRes.ok) { toast('사진이 교체됐어요! 페이지에 바로 반영돼요 ✓'); loadHomepagePhotos(); }
+  else toast('저장 실패', true);
+}
+
+// ── 히어로 앨범 피커 ──────────────────────────────────────
+let _hpAlbumKey = null, _hpAlbumAll = [], _hpAlbumSeasonFilter = '전체';
+
+function hpOpenAlbum(key) {
+  _hpAlbumKey = key;
+  document.getElementById('hpAlbumModal').style.display = 'flex';
+  loadHpAlbum();
+}
+
+function closeHpAlbum() {
+  document.getElementById('hpAlbumModal').style.display = 'none';
+  _hpAlbumKey = null;
+}
+
+async function loadHpAlbum() {
+  const grid = document.getElementById('hpAlbumGrid');
+  grid.innerHTML = '<div style="color:var(--tl);font-size:.85rem;padding:2rem">로딩 중...</div>';
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_gallery?select=url,season,session_num&order=created_at.desc&limit=300`, { headers: SUPA_HEADERS });
+  const rows = await res.json();
+  if (!Array.isArray(rows) || !rows.length) { grid.innerHTML = '<div style="color:var(--tl);font-size:.85rem;padding:2rem">갤러리에 사진이 없어요.</div>'; return; }
+  _hpAlbumAll = rows;
+  _hpAlbumSeasonFilter = '전체';
+  const seasons = ['전체', ...[...new Set(rows.map(r => r.season).filter(Boolean))].sort()];
+  const seasonDiv = document.getElementById('hpAlbumSeasons');
+  seasonDiv.innerHTML = seasons.map(s => `<button onclick="hpAlbumFilter('${s}')" data-season="${s}" style="padding:.2rem .5rem;font-size:.7rem;font-weight:600;border:1px solid var(--be);cursor:pointer;background:${s==='전체'?'var(--ac)':'var(--bg)'};color:${s==='전체'?'#fff':'var(--ts)'}">${s}</button>`).join('');
+  renderHpAlbum();
+}
+
+function hpAlbumFilter(season) {
+  _hpAlbumSeasonFilter = season;
+  document.querySelectorAll('#hpAlbumSeasons button').forEach(btn => {
+    const active = btn.dataset.season === season;
+    btn.style.background = active ? 'var(--ac)' : 'var(--bg)';
+    btn.style.color = active ? '#fff' : 'var(--ts)';
+  });
+  renderHpAlbum();
+}
+
+function renderHpAlbum() {
+  const grid = document.getElementById('hpAlbumGrid');
+  const filtered = _hpAlbumSeasonFilter === '전체' ? _hpAlbumAll : _hpAlbumAll.filter(r => r.season === _hpAlbumSeasonFilter);
+  if (!filtered.length) { grid.innerHTML = '<div style="color:var(--tl);font-size:.85rem;padding:2rem">해당 시즌 사진이 없어요.</div>'; return; }
+  grid.innerHTML = filtered.map(r => `
+    <div onclick="hpPickFromAlbum('${r.url}')" style="cursor:pointer;position:relative;aspect-ratio:4/3;overflow:hidden;border:2px solid transparent;transition:border-color .15s" onmouseenter="this.style.borderColor='var(--ac)'" onmouseleave="this.style.borderColor='transparent'">
+      <img src="${r.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+      ${r.season ? `<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:rgba(255,255,255,.85);font-size:.63rem;padding:.18rem .4rem;line-height:1.4">${r.season}${r.session_num ? ' · '+r.session_num+'회차' : ''}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function hpPickFromAlbum(url) {
+  closeHpAlbum();
+  const key = _hpAlbumKey;
+  if (!key) return;
+  toast('이미지 로딩 중...');
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    const file = new File([blob], 'album.jpg', { type: 'image/jpeg' });
+    openCropModal(file, b => hpUploadAndSave(b, key));
+  } catch(e) { toast('이미지를 불러오지 못했어요.', true); }
 }
 </script>
 </body></html>
