@@ -385,7 +385,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>시즌</th><th>성함</th><th class="app-col-hide">전화번호</th><th class="app-col-hide">신청일</th><th>상세</th></tr></thead>
+          <thead><tr><th>시즌</th><th>성함</th><th class="app-col-hide">전화번호</th><th class="app-col-hide">신청일</th><th>관리</th></tr></thead>
           <tbody id="app_tbody"><tr><td colspan="5" style="text-align:center;color:var(--tl)">불러오는 중...</td></tr></tbody>
         </table>
       </div>
@@ -998,9 +998,49 @@ async function loadApplications() {
       <td style="font-weight:600">${name}</td>
       <td class="app-col-hide">${phone}</td>
       <td class="app-col-hide" style="color:var(--tl)">${date}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick='showAppDetail(${i})'>상세</button>
+        <button class="btn btn-ghost btn-sm" onclick='moveApplication(${i})'>이동</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick='deleteApplication(${i})'>삭제</button>
+      </td>
     </tr>`;
   }).join('');
+}
+
+async function moveApplication(idx) {
+  const a = _allApplications[idx];
+  if (!a) return;
+  const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
+  const name = fields['성함'] || fields['성함을 알려주세요.'] || fields['이름'] || '—';
+
+  const allSeasons = [...new Set(Object.keys(SEASON_LABELS))];
+  const options = allSeasons.filter(s => s !== a.season).map(s => `${SEASON_LABELS[s]} (${s})`).join('\n');
+  const input = prompt(`"${name}" 님을 이동할 시즌을 입력하세요.\n\n현재: ${seasonLabel(a.season)}\n\n사용 가능한 시즌:\n${options}\n\n슬러그 또는 라벨을 그대로 입력해도 돼요.`);
+  if (!input) return;
+
+  const targetSeason = Object.keys(SEASON_LABELS).find(k => k === input || SEASON_LABELS[k] === input) || input;
+
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${a.id}`, {
+    method: 'PATCH',
+    headers: { ...SUPA_HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ season: targetSeason })
+  });
+  if (res.ok) { toast(`"${name}" 님을 ${seasonLabel(targetSeason)}으로 이동했어요 ✓`); loadApplications(); }
+  else { const e = await res.text(); toast('이동 실패: ' + e, true); }
+}
+
+async function deleteApplication(idx) {
+  const a = _allApplications[idx];
+  if (!a) return;
+  const fields = (() => { try { return JSON.parse(a.fields); } catch { return {}; } })();
+  const name = fields['성함'] || fields['성함을 알려주세요.'] || fields['이름'] || '—';
+  if (!confirm(`"${name}" 님의 신청 데이터를 삭제할까요?\n이 작업은 되돌릴 수 없어요.`)) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_applications?id=eq.${a.id}`, {
+    method: 'DELETE',
+    headers: SUPA_HEADERS
+  });
+  if (res.ok) { toast(`"${name}" 님 데이터를 삭제했어요.`); loadApplications(); }
+  else { const e = await res.text(); toast('삭제 실패: ' + e, true); }
 }
 
 function showAppDetail(idx) {
