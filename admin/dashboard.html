@@ -423,10 +423,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div id="upload_progress" style="display:none;margin-top:1rem">
         <div style="font-size:.88rem;color:var(--ac);font-weight:600" id="upload_msg">업로드 중...</div>
       </div>
-      <div style="margin-top:1.25rem">
-        <div style="font-size:.88rem;font-weight:600;color:var(--ts);margin-bottom:.75rem">업로드된 이미지 <button class="btn btn-ghost btn-sm" onclick="loadImages()">새로고침</button></div>
-        <div id="img_grid" class="img-grid"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
-      </div>
     </div>
   </div>
 
@@ -754,7 +750,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); loadImages(); initMembers(); loadBooks();
+  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks();
 }
 
 // Nav
@@ -2599,11 +2595,6 @@ function previewColumn() {
 // ── 홈화면 사진 ────────────────────────────────────────────
 const HP_SLOTS = [
   { key: 'home_hero_image', label: '히어로 배경' },
-  { key: 'home_book_1',     label: '책 표지 1' },
-  { key: 'home_book_2',     label: '책 표지 2' },
-  { key: 'home_book_3',     label: '책 표지 3' },
-  { key: 'home_book_4',     label: '책 표지 4' },
-  { key: 'home_book_5',     label: '책 표지 5' },
 ];
 
 async function saveHeroMobileH() {
