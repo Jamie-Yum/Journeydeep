@@ -2194,6 +2194,7 @@ async function loadBooks() {
         </div>
         <div style="padding:0 6px 6px;display:flex;gap:3px;">
           <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
+          <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:#2563eb" onclick='event.stopPropagation();openBookCard(${JSON.stringify(b).replace(/'/g,"&#39;")})'>카드</button>
           <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
         </div>
       </div>`).join('');
@@ -2818,6 +2819,178 @@ function inlineUpload(file, targetId, previewId) {
     if (previewId) { const p = document.getElementById(previewId); if(p){p.src=url;p.style.display='block';} }
     toast('업로드 완료 ✓');
   });
+}
+
+// ── 도서 카드 이미지 내보내기 ──────────────────────────────
+const BK_CARD_BGSRC = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&q=80';
+const BK_CARD_W = 600, BK_CARD_H = 800;
+
+function openBookCard(b) {
+  const existing = document.getElementById('bkCardModal');
+  if (existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'bkCardModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:20000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;padding:2rem';
+  m.innerHTML = `
+    <div style="color:#fff;font-size:.95rem;font-weight:700">도서 카드 미리보기</div>
+    <canvas id="bkCardCanvas" width="${BK_CARD_W}" height="${BK_CARD_H}" style="max-width:min(${BK_CARD_W}px,80vw);max-height:70vh;object-fit:contain;box-shadow:0 12px 60px rgba(0,0,0,.6)"></canvas>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center">
+      <div style="display:flex;gap:.4rem">
+        ${['#1a0f0a','#0a1628','#0d1f12','#1a1a2e'].map((c,i)=>
+          `<div onclick="bkCardSetBg(this,'${c}')" data-color="${c}" style="width:28px;height:28px;background:${c};border:2px solid ${i===0?'#fff':'transparent'};cursor:pointer" title="배경색 ${i+1}"></div>`
+        ).join('')}
+        <div onclick="bkCardSetBg(this,'photo')" data-color="photo" style="width:28px;height:28px;background:url(${BK_CARD_BGSRC}) center/cover;border:2px solid transparent;cursor:pointer" title="사진 배경"></div>
+      </div>
+      <button onclick="bkCardDownload('${(b.title||'book').replace(/'/g,'')}')" style="background:var(--ac);border:none;color:#fff;font-size:.85rem;font-weight:700;padding:.55rem 1.5rem;cursor:pointer">⬇ 다운로드</button>
+      <button onclick="document.getElementById('bkCardModal').remove()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.85rem;padding:.55rem 1rem;cursor:pointer">닫기</button>
+    </div>
+  `;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+
+  m._book = b;
+  m._bgMode = '#1a0f0a';
+  bkCardDraw(b, '#1a0f0a');
+}
+
+window.bkCardSetBg = function(el, mode) {
+  document.querySelectorAll('#bkCardModal [data-color]').forEach(d => d.style.border = '2px solid transparent');
+  el.style.border = '2px solid #fff';
+  const m = document.getElementById('bkCardModal');
+  m._bgMode = mode;
+  bkCardDraw(m._book, mode);
+};
+
+window.bkCardDownload = function(title) {
+  const canvas = document.getElementById('bkCardCanvas');
+  const a = document.createElement('a');
+  a.download = `조니딥_${title}_카드.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+
+async function bkCardLoadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src + (src.includes('?') ? '&' : '?') + '_t=' + Date.now();
+  });
+}
+
+async function bkCardDraw(b, bgMode) {
+  const canvas = document.getElementById('bkCardCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = BK_CARD_W, H = BK_CARD_H;
+
+  // background
+  if (bgMode === 'photo') {
+    try {
+      const bgImg = await bkCardLoadImage(BK_CARD_BGSRC);
+      ctx.drawImage(bgImg, 0, 0, W, H);
+      ctx.fillStyle = 'rgba(0,0,0,.55)';
+      ctx.fillRect(0, 0, W, H);
+    } catch(e) {
+      ctx.fillStyle = '#1a0f0a';
+      ctx.fillRect(0, 0, W, H);
+    }
+  } else {
+    const grad = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.3, W*0.8);
+    grad.addColorStop(0, lightenHex(bgMode, 30));
+    grad.addColorStop(1, bgMode);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // top text
+  ctx.textAlign = 'center';
+  const season = b.category || '';
+  const sessionLine = b.session ? `${b.session}회차 모임 도서` : '모임 도서';
+  const dateLine = b.date ? `(${b.date})` : '';
+
+  ctx.fillStyle = 'rgba(255,255,255,.55)';
+  ctx.font = '500 22px Pretendard, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillText(season, W/2, 90);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 30px Pretendard, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillText(sessionLine, W/2, 135);
+
+  if (dateLine) {
+    ctx.fillStyle = 'rgba(255,255,255,.65)';
+    ctx.font = '500 22px Pretendard, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillText(dateLine, W/2, 175);
+  }
+
+  // book cover
+  const coverW = 240, coverH = 340;
+  const cx = (W - coverW) / 2, cy = 210;
+  if (b.cover_url) {
+    try {
+      const coverImg = await bkCardLoadImage(b.cover_url);
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.6)';
+      ctx.shadowBlur = 30;
+      ctx.shadowOffsetX = 8;
+      ctx.drawImage(coverImg, cx, cy, coverW, coverH);
+      ctx.restore();
+    } catch(e) {
+      bkCardDrawPlaceholder(ctx, cx, cy, coverW, coverH, b.emoji || '📘');
+    }
+  } else {
+    bkCardDrawPlaceholder(ctx, cx, cy, coverW, coverH, b.emoji || '📘');
+  }
+
+  // bottom: title + author
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 26px Pretendard, "Apple SD Gothic Neo", sans-serif';
+  const maxW = W - 80;
+  bkCardWrapText(ctx, b.title || '', W/2, cy + coverH + 52, maxW, 36);
+
+  if (b.author) {
+    ctx.fillStyle = 'rgba(255,255,255,.6)';
+    ctx.font = '500 18px Pretendard, "Apple SD Gothic Neo", sans-serif';
+    ctx.fillText(b.author, W/2, cy + coverH + 110);
+  }
+
+  // JourneyDeep watermark
+  ctx.fillStyle = 'rgba(255,255,255,.25)';
+  ctx.font = '500 14px Pretendard, "Apple SD Gothic Neo", sans-serif';
+  ctx.fillText('JourneyDeep', W/2, H - 28);
+}
+
+function bkCardDrawPlaceholder(ctx, x, y, w, h, emoji) {
+  ctx.fillStyle = 'rgba(255,255,255,.12)';
+  ctx.fillRect(x, y, w, h);
+  ctx.font = `${Math.min(w,h)*0.35}px serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(emoji, x + w/2, y + h/2 + 20);
+}
+
+function bkCardWrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split('');
+  let line = '';
+  let ly = y;
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i];
+    if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+      ctx.fillText(line, x, ly);
+      line = words[i];
+      ly += lineHeight;
+    } else { line = testLine; }
+  }
+  ctx.fillText(line, x, ly);
+}
+
+function lightenHex(hex, amt) {
+  const num = parseInt(hex.replace('#',''), 16);
+  const r = Math.min(255, (num >> 16) + amt);
+  const g = Math.min(255, ((num >> 8) & 0xff) + amt);
+  const bl = Math.min(255, (num & 0xff) + amt);
+  return `rgb(${r},${g},${bl})`;
 }
 
 function hpPagePreview(page) {
