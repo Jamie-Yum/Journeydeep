@@ -476,17 +476,22 @@ tr:hover td{background:rgba(37,99,235,.03)}
               <input class="form-input" id="bk_author" placeholder="저자명">
             </div>
             <div>
-              <label class="form-label">카테고리</label>
-              <input class="form-input" id="bk_category" placeholder="예: 시즌9">
+              <label class="form-label">프로그램 <span style="color:var(--danger)">*</span></label>
+              <select class="form-input" id="bk_category" onchange="bkOnProgramChange()">
+                <option value="">프로그램 선택...</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">차수</label>
+              <select class="form-input" id="bk_session_sel" onchange="bkOnSessionChange()">
+                <option value="">차수 선택...</option>
+              </select>
             </div>
             <div>
               <label class="form-label">날짜</label>
-              <input class="form-input" id="bk_date" placeholder="예: 2025-03-15">
+              <input class="form-input" id="bk_date" placeholder="자동 입력" readonly style="background:var(--be);color:var(--tl)">
             </div>
-            <div>
-              <label class="form-label">이모지</label>
-              <input class="form-input" id="bk_emoji" placeholder="예: 📘">
-            </div>
+            <input type="hidden" id="bk_emoji" value="">
             <div>
               <label class="form-label">추천책</label>
               <div style="display:flex;align-items:center;gap:.4rem;padding-top:.35rem">
@@ -2128,9 +2133,6 @@ function bkSelectFromSearch(idx) {
   document.getElementById('bk_id').value = '';
   document.getElementById('bk_title').value = b.title || '';
   document.getElementById('bk_author').value = (b.author || '').split(' (')[0];
-  document.getElementById('bk_category').value = '';
-  document.getElementById('bk_date').value = '';
-  document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = '0';
   const recCb3 = document.getElementById('bk_recommended'); if (recCb3) recCb3.checked = false;
   _bkCoverBlob = null;
@@ -2160,10 +2162,42 @@ function bkSelectFromSearch(idx) {
 
 // ── Books ──────────────────────────────────────────────────
 let _bkCoverBlob = null, _bkCoverUrl = null;
+let _bkPrograms = [];  // [{badge, sessions:[{n,d}]}]
 
 function _bkSeasonNum(s) { const m = (s||'').match(/(\d+)/); return m ? parseInt(m[1]) : 999; }
 
+async function bkLoadPrograms() {
+  if (_bkPrograms.length) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?select=badge,sessions&order=season_number.desc`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+  _bkPrograms = (await res.json()) || [];
+  const sel = document.getElementById('bk_category');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">프로그램 선택...</option>' +
+    _bkPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
+}
+
+function bkOnProgramChange() {
+  const badge = document.getElementById('bk_category').value;
+  const prog = _bkPrograms.find(p => p.badge === badge);
+  const sesSel = document.getElementById('bk_session_sel');
+  sesSel.innerHTML = '<option value="">차수 선택...</option>';
+  document.getElementById('bk_date').value = '';
+  if (prog && prog.sessions) {
+    prog.sessions.forEach(s => {
+      sesSel.innerHTML += `<option value="${s.n}" data-d="${s.d}">${s.n}${s.d ? ' · ' + s.d : ''}</option>`;
+    });
+  }
+}
+
+function bkOnSessionChange() {
+  const sesSel = document.getElementById('bk_session_sel');
+  const opt = sesSel.options[sesSel.selectedIndex];
+  const d = opt ? opt.getAttribute('data-d') : '';
+  document.getElementById('bk_date').value = d || '';
+}
+
 async function loadBooks() {
+  await bkLoadPrograms();
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?select=*&order=sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
@@ -2228,11 +2262,18 @@ function editBook(b) {
   document.getElementById('bk_id').value = b.id;
   document.getElementById('bk_title').value = b.title || '';
   document.getElementById('bk_author').value = b.author || '';
-  document.getElementById('bk_category').value = b.category || '';
-  document.getElementById('bk_date').value = b.date || '';
-  document.getElementById('bk_emoji').value = b.emoji || '';
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   const recCb = document.getElementById('bk_recommended'); if (recCb) recCb.checked = !!b.is_recommended;
+  // 프로그램 선택
+  const catSel = document.getElementById('bk_category');
+  catSel.value = b.category || '';
+  bkOnProgramChange();
+  // 차수 선택 후 날짜 세팅
+  const sesSel = document.getElementById('bk_session_sel');
+  if (b.session) {
+    sesSel.value = b.session;
+  }
+  document.getElementById('bk_date').value = b.date || '';
   _bkCoverBlob = null;
   _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
   const prev = document.getElementById('bk_cover_preview');
@@ -2247,8 +2288,8 @@ function bkClearForm() {
   document.getElementById('bk_title').value = '';
   document.getElementById('bk_author').value = '';
   document.getElementById('bk_category').value = '';
+  document.getElementById('bk_session_sel').innerHTML = '<option value="">차수 선택...</option>';
   document.getElementById('bk_date').value = '';
-  document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = 0;
   const recCb2 = document.getElementById('bk_recommended'); if (recCb2) recCb2.checked = false;
   _bkCoverBlob = null; _bkCoverUrl = null;
@@ -2291,12 +2332,13 @@ async function saveBook() {
     if (!uploaded || !uploaded.ok) return;
     cover_url = `${SUPA_URL}/storage/v1/object/public/jd-images/${fname}`;
   }
+  const sessionVal = document.getElementById('bk_session_sel').value || null;
   const payload = {
     title,
     author: document.getElementById('bk_author').value.trim() || null,
-    category: document.getElementById('bk_category').value.trim() || null,
-    date: document.getElementById('bk_date').value.trim() || null,
-    emoji: document.getElementById('bk_emoji').value.trim() || null,
+    category: document.getElementById('bk_category').value || null,
+    session: sessionVal,
+    date: document.getElementById('bk_date').value || null,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,
     is_recommended: !!(document.getElementById('bk_recommended')?.checked),
     cover_url: cover_url || null,
