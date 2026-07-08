@@ -485,8 +485,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
               <input class="form-input" id="bk_emoji" placeholder="예: 📘">
             </div>
             <div>
-              <label class="form-label">순서</label>
-              <input class="form-input" id="bk_order" type="number" value="0">
+              <label class="form-label">추천책</label>
+              <div style="display:flex;align-items:center;gap:.4rem;padding-top:.35rem">
+                <input type="checkbox" id="bk_recommended" style="width:15px;height:15px;accent-color:var(--ac);cursor:pointer">
+                <label for="bk_recommended" style="font-size:.8rem;color:var(--ts);cursor:pointer">추천책으로 표시</label>
+              </div>
             </div>
             <div style="display:flex;gap:8px;align-items:flex-end;padding-top:1.35rem">
               <button class="btn btn-primary" onclick="saveBook()">저장</button>
@@ -497,6 +500,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <!-- 목록 -->
       <div class="bk-list-wrap">
+        <div id="bk_filter_tabs" style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem"></div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
     </div>
@@ -2119,6 +2123,7 @@ function bkSelectFromSearch(idx) {
   document.getElementById('bk_date').value = '';
   document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = '0';
+  const recCb3 = document.getElementById('bk_recommended'); if (recCb3) recCb3.checked = false;
   _bkCoverBlob = null;
   _bkCoverUrl = b.cover || '';
   const prev = document.getElementById('bk_cover_preview');
@@ -2134,28 +2139,66 @@ function bkSelectFromSearch(idx) {
 // ── Books ──────────────────────────────────────────────────
 let _bkCoverBlob = null, _bkCoverUrl = null;
 
+function _bkSeasonNum(s) { const m = (s||'').match(/(\d+)/); return m ? parseInt(m[1]) : 999; }
+
 async function loadBooks() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?order=sort_order.asc,created_at.asc`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_books?select=*&order=sort_order.asc,created_at.asc`, {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   });
   const data = await res.json();
   const list = document.getElementById('bk_list');
-  if (!data || !data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; return; }
-  list.innerHTML = data.map(b => `
-    <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
-      ${b.cover_url && b.cover_url.startsWith('http')
-        ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
-        : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:12px;">이미지 없음</div>`}
-      <div style="padding:7px 9px 4px;">
-        <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.emoji||''} ${b.title}</div>
-        ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
-        ${b.category ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;">${b.category}</div>` : ''}
-      </div>
-      <div style="padding:0 6px 6px;display:flex;gap:3px;">
-        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
-        <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
-      </div>
-    </div>`).join('');
+  const tabsEl = document.getElementById('bk_filter_tabs');
+  if (!data || !data.length) { list.innerHTML = '<p style="color:var(--tl)">등록된 책이 없어요.</p>'; if(tabsEl)tabsEl.innerHTML=''; return; }
+
+  const seasons = [...new Set(data.filter(b => !b.is_recommended).map(b => b.category || '기타'))]
+    .sort((a, b) => _bkSeasonNum(a) - _bkSeasonNum(b));
+
+  let _bkActiveFilter = '전체';
+
+  function bkRenderTabs() {
+    if (!tabsEl) return;
+    const all = ['전체', ...seasons, '추천책'];
+    tabsEl.innerHTML = all.map(t =>
+      `<button onclick="window._bkSetFilter('${t}')" data-bktab="${t}" style="padding:.2rem .55rem;font-size:.72rem;font-weight:600;border:1px solid var(--be);cursor:pointer;background:${t===_bkActiveFilter?'var(--ac)':'var(--bg)'};color:${t===_bkActiveFilter?'#fff':'var(--ts)'}">${t}</button>`
+    ).join('');
+  }
+
+  function bkRenderList() {
+    const filtered = _bkActiveFilter === '전체' ? data
+      : _bkActiveFilter === '추천책' ? data.filter(b => b.is_recommended)
+      : data.filter(b => !b.is_recommended && (b.category || '기타') === _bkActiveFilter);
+    const sorted = [...filtered].sort((a, b) => {
+      if (!!a.is_recommended !== !!b.is_recommended) return a.is_recommended ? 1 : -1;
+      const d = _bkSeasonNum(a.category||'') - _bkSeasonNum(b.category||'');
+      return d !== 0 ? d : (a.sort_order||0) - (b.sort_order||0);
+    });
+    list.innerHTML = sorted.map(b => `
+      <div class="card" style="overflow:hidden;cursor:pointer;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
+        ${b.cover_url && b.cover_url.startsWith('http')
+          ? `<img src="${b.cover_url}" style="width:100%;height:140px;object-fit:cover;display:block;">`
+          : `<div style="width:100%;height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:18px;">${b.emoji||'📘'}</div>`}
+        <div style="padding:7px 9px 4px;">
+          <div style="font-weight:600;font-size:12px;line-height:1.3;">${b.emoji||''} ${b.title}</div>
+          ${b.author ? `<div style="font-size:11px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
+          <div style="font-size:10px;margin-top:3px;${b.is_recommended?'color:#e07;':'color:var(--accent)'}">
+            ${b.is_recommended ? '⭐ 추천책' : (b.category||'')}
+          </div>
+        </div>
+        <div style="padding:0 6px 6px;display:flex;gap:3px;">
+          <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--ts)" onclick='event.stopPropagation();editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>수정</button>
+          <button style="flex:1;font-size:10px;padding:3px 0;border:1px solid var(--border);background:none;cursor:pointer;border-radius:3px;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
+        </div>
+      </div>`).join('');
+  }
+
+  window._bkSetFilter = function(tab) {
+    _bkActiveFilter = tab;
+    bkRenderTabs();
+    bkRenderList();
+  };
+
+  bkRenderTabs();
+  bkRenderList();
 }
 
 function editBook(b) {
@@ -2166,6 +2209,7 @@ function editBook(b) {
   document.getElementById('bk_date').value = b.date || '';
   document.getElementById('bk_emoji').value = b.emoji || '';
   document.getElementById('bk_order').value = b.sort_order ?? 0;
+  const recCb = document.getElementById('bk_recommended'); if (recCb) recCb.checked = !!b.is_recommended;
   _bkCoverBlob = null;
   _bkCoverUrl = (b.cover_url && b.cover_url.startsWith('http')) ? b.cover_url : null;
   const prev = document.getElementById('bk_cover_preview');
@@ -2183,6 +2227,7 @@ function bkClearForm() {
   document.getElementById('bk_date').value = '';
   document.getElementById('bk_emoji').value = '';
   document.getElementById('bk_order').value = 0;
+  const recCb2 = document.getElementById('bk_recommended'); if (recCb2) recCb2.checked = false;
   _bkCoverBlob = null; _bkCoverUrl = null;
   const prev = document.getElementById('bk_cover_preview');
   prev.src = ''; prev.style.display = 'none';
@@ -2230,6 +2275,7 @@ async function saveBook() {
     date: document.getElementById('bk_date').value.trim() || null,
     emoji: document.getElementById('bk_emoji').value.trim() || null,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,
+    is_recommended: !!(document.getElementById('bk_recommended')?.checked),
     cover_url: cover_url || null,
   };
   let ok;

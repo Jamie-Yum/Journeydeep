@@ -357,27 +357,23 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
     var count=document.getElementById('bl-count');
     if(count)count.textContent='시즌 1부터 지금까지, 조니딥이 함께 읽어온 '+together.length+'권의 책들입니다.';
 
-    // 시즌 탭 (함께 읽은 책 기준)
+    // 시즌 탭 (시즌 번호 순 정렬)
+    function seasonNum(s){var m=(s||'').match(/(\d+)/);return m?parseInt(m[1]):999;}
     var seasons=[];
     together.forEach(function(b){var k=b.category||'기타';if(seasons.indexOf(k)===-1)seasons.push(k);});
+    seasons.sort(function(a,b){return seasonNum(a)-seasonNum(b);});
     var tabsEl=document.getElementById('blTabs');
     if(tabsEl)tabsEl.innerHTML=['전체'].concat(seasons).map(function(t,i){
       return '<button class="book-tab'+(i===0?' active':'')+'" onclick="bookFilter(this,\''+t+'\')">'+t+'</button>';
     }).join('');
 
-    // 함께 읽은 책 그리드
+    // 함께 읽은 책 그리드 (시즌 순 정렬)
+    together.sort(function(a,b){
+      var d=seasonNum(a.category||'')-seasonNum(b.category||'');
+      return d!==0?d:(a.sort_order||0)-(b.sort_order||0);
+    });
     var grid=document.getElementById('bookGrid');
     grid.innerHTML=together.map(function(b){return makeCard(b);}).join('');
-
-    // 추천받은 책 섹션
-    if(recommended.length){
-      var recSec=document.getElementById('recSection');
-      var recGrid=document.getElementById('recGrid');
-      var recCount=document.getElementById('rec-count');
-      if(recCount)recCount.textContent='멤버들에게 추천받은 '+recommended.length+'권의 책들입니다.';
-      recGrid.innerHTML=recommended.map(function(b){return makeCard(b,'추천받은 책');}).join('');
-      recSec.style.display='';
-    }
 
     var obs2=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting)en.target.classList.add('visible')});},{threshold:0.05});
     document.querySelectorAll('#bookGrid .reveal, #recGrid .reveal').forEach(function(el){obs2.observe(el);});
