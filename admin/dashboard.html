@@ -249,6 +249,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field field-full"><label>소개 내용</label><textarea id="pg_desc" placeholder="프로그램을 소개해 주세요."></textarea></div>
         <div class="field"><label>시작일</label><input id="pg_start" placeholder="예: 2026.08.08"></div>
         <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
+        <div class="field"><label>모임 시간</label><input id="pg_meeting_time" placeholder="예: 매주 토요일 오전 10시"></div>
         <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
         <div class="field"><label>참가비 — 신규 멤버</label><input id="pg_fee_member" placeholder="예: 150,000원"></div>
         <div class="field"><label>참가비 — 기존 멤버</label><input id="pg_fee_guest" placeholder="예: 120,000원"></div>
@@ -804,7 +805,7 @@ function toast(msg, err=false) {
 
 // ── PROGRAMS ──
 let _editingProgramId = null;
-const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_venue','pg_fee_member','pg_fee_guest','pg_capacity','pg_apply','pg_page_url','pg_image'];
+const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_meeting_time','pg_venue','pg_fee_member','pg_fee_guest','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
 function pgFormData() {
   return {
@@ -814,6 +815,7 @@ function pgFormData() {
     description: document.getElementById('pg_desc').value,
     date_start: document.getElementById('pg_start').value,
     date_end: document.getElementById('pg_end').value,
+    meeting_time: document.getElementById('pg_meeting_time').value,
     venue: document.getElementById('pg_venue').value,
     fee_member: document.getElementById('pg_fee_member').value,
     fee_guest: document.getElementById('pg_fee_guest').value,
@@ -839,6 +841,7 @@ function editProgram(p) {
   document.getElementById('pg_desc').value = p.description || '';
   document.getElementById('pg_start').value = p.date_start || '';
   document.getElementById('pg_end').value = p.date_end || '';
+  document.getElementById('pg_meeting_time').value = p.meeting_time || '';
   document.getElementById('pg_venue').value = p.venue || '';
   document.getElementById('pg_fee_member').value = p.fee_member || p.fee || '';
   document.getElementById('pg_fee_guest').value = p.fee_guest || '';
@@ -2594,7 +2597,14 @@ function previewColumn() {
 
 // ── 홈화면 사진 ────────────────────────────────────────────
 const HP_SLOTS = [
-  { key: 'home_hero_image', label: '히어로 배경' },
+  { key: 'hero_index',       label: '홈 (index.html)',            page: 'index.html' },
+  { key: 'hero_program_jd',  label: '프로그램 (program/jd.html)', page: 'program/jd.html' },
+  { key: 'hero_together',    label: 'Together',                   page: 'community/together.html' },
+  { key: 'hero_proposals',   label: '발제문',                     page: 'community/proposals.html' },
+  { key: 'hero_reflections', label: '성찰',                       page: 'community/reflections.html' },
+  { key: 'hero_columns',     label: '칼럼',                       page: 'community/columns.html' },
+  { key: 'hero_books',       label: '도서 아카이브',              page: 'archive/books.html' },
+  { key: 'hero_gallery',     label: '갤러리',                     page: 'archive/gallery.html' },
 ];
 
 async function saveHeroMobileH() {

@@ -386,6 +386,7 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
     if(grid)grid.innerHTML='<p style="color:#e55;text-align:center;padding:3rem">도서 목록을 불러오지 못했습니다: '+e.message+'</p>';
   });
 })();
+(function(){var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}).then(function(rows){if(!Array.isArray(rows))return;rows.forEach(function(row){if(row.key==='hero_books'&&row.value){var el=document.querySelector('.bl-hero');if(el){el.style.backgroundImage='url('+row.value+')';el.style.backgroundSize='cover';el.style.backgroundPosition='center';}}});}).catch(function(){});})();
 </script>
 
 </body></html>

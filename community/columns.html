@@ -407,6 +407,7 @@ function observeReveal(){document.querySelectorAll('.reveal').forEach(function(e
 
 // ── 초기 로드 ─────────────────────────────────────────────
 loadColumns();
+(function(){var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}).then(function(rows){if(!Array.isArray(rows))return;rows.forEach(function(row){if(row.key==='hero_columns'&&row.value){var el=document.querySelector('.page-header');if(el){el.style.backgroundImage='url('+row.value+')';el.style.backgroundSize='cover';el.style.backgroundPosition='center';}}});}).catch(function(){});})();
 </script>
 
 </body>

@@ -382,7 +382,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
   .then(function(r){return r.json();}).then(function(rows){
     if(!Array.isArray(rows))return;
     rows.forEach(function(row){
-      if(row.key==='home_hero_image'){var el=document.getElementById('home_hero_image');if(el&&row.value)el.src=row.value;}
+      if((row.key==='hero_index'||row.key==='home_hero_image')&&row.value){var el=document.getElementById('home_hero_image');if(el)el.src=row.value;}
       if(row.key==='hero_mobile_height'&&row.value)document.documentElement.style.setProperty('--hero-mobile-h',row.value);
     });
   }).catch(function(){});
