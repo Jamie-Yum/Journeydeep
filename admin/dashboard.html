@@ -251,8 +251,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div class="field"><label>종료일</label><input id="pg_end" placeholder="예: 2026.12.12"></div>
         <div class="field"><label>모임 시간</label><input id="pg_meeting_time" placeholder="예: 매주 토요일 오전 10시"></div>
         <div class="field"><label>장소</label><input id="pg_venue" placeholder="예: 을지로 스푼하우스"></div>
-        <div class="field"><label>참가비 — 신규 멤버</label><input id="pg_fee_member" placeholder="예: 150,000원"></div>
-        <div class="field"><label>참가비 — 기존 멤버</label><input id="pg_fee_guest" placeholder="예: 120,000원"></div>
+        <div class="field"><label>정규멤버 회비 — 신규</label><input id="pg_fee_member" placeholder="예: 150,000원"></div>
+        <div class="field"><label>정규멤버 회비 — 기존</label><input id="pg_fee_member_existing" placeholder="예: 130,000원"></div>
+        <div class="field"><label>게스트 회비 — 신규</label><input id="pg_fee_guest" placeholder="예: 120,000원"></div>
+        <div class="field"><label>게스트 회비 — 기존</label><input id="pg_fee_guest_existing" placeholder="예: 100,000원"></div>
         <div class="field"><label>정원</label><input id="pg_capacity" placeholder="예: 최대 12명"></div>
         <div class="field"><label>신청 링크</label><input id="pg_apply" placeholder="https://..."></div>
         <div class="field"><label>프로그램 페이지 URL <span style="font-weight:400;color:var(--tl)">(별도 페이지가 있는 경우)</span></label><input id="pg_page_url" placeholder="/program/jd.html"></div>
@@ -838,7 +840,7 @@ function toast(msg, err=false) {
 
 // ── PROGRAMS ──
 let _editingProgramId = null;
-const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_meeting_time','pg_venue','pg_fee_member','pg_fee_guest','pg_capacity','pg_apply','pg_page_url','pg_image'];
+const PG_FIELDS = ['pg_title','pg_badge','pg_subtitle','pg_desc','pg_start','pg_end','pg_meeting_time','pg_venue','pg_fee_member','pg_fee_member_existing','pg_fee_guest','pg_fee_guest_existing','pg_capacity','pg_apply','pg_page_url','pg_image'];
 
 function pgFormData() {
   return {
@@ -851,7 +853,9 @@ function pgFormData() {
     meeting_time: document.getElementById('pg_meeting_time').value,
     venue: document.getElementById('pg_venue').value,
     fee_member: document.getElementById('pg_fee_member').value,
+    fee_member_existing: document.getElementById('pg_fee_member_existing').value,
     fee_guest: document.getElementById('pg_fee_guest').value,
+    fee_guest_existing: document.getElementById('pg_fee_guest_existing').value,
     capacity: document.getElementById('pg_capacity').value,
     apply_link: document.getElementById('pg_apply').value,
     page_url: document.getElementById('pg_page_url').value,
@@ -877,7 +881,9 @@ function editProgram(p) {
   document.getElementById('pg_meeting_time').value = p.meeting_time || '';
   document.getElementById('pg_venue').value = p.venue || '';
   document.getElementById('pg_fee_member').value = p.fee_member || p.fee || '';
+  document.getElementById('pg_fee_member_existing').value = p.fee_member_existing || '';
   document.getElementById('pg_fee_guest').value = p.fee_guest || '';
+  document.getElementById('pg_fee_guest_existing').value = p.fee_guest_existing || '';
   document.getElementById('pg_capacity').value = p.capacity || '';
   document.getElementById('pg_apply').value = p.apply_link || '';
   document.getElementById('pg_page_url').value = p.page_url || '';

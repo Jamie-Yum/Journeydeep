@@ -176,7 +176,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           <div class="price-value">시즌 전체 참여</div>
           <div class="price-sub">8월 ~ 12월 · 총 5회차</div>
         </div>
-        <div class="price-scope" id="fee_member_display">가격은 추후 안내 예정</div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;align-items:flex-end;text-align:right">
+          <div style="font-size:.72rem;color:var(--tl)">신규 <span class="price-scope" id="fee_member_display" style="font-size:.9rem;font-weight:700;color:var(--dk)">추후 안내</span></div>
+          <div style="font-size:.72rem;color:var(--tl)">기존 <span class="price-scope" id="fee_member_existing_display" style="font-size:.9rem;font-weight:700;color:var(--dk)">추후 안내</span></div>
+        </div>
       </div>
 
       <div class="form-card">
@@ -199,7 +202,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
           <div class="price-value">원하는 회차 선택</div>
           <div class="price-sub">1회차 단위 체험 참여</div>
         </div>
-        <div class="price-scope" id="fee_guest_display">가격은 추후 안내 예정</div>
+        <div style="display:flex;flex-direction:column;gap:.35rem;align-items:flex-end;text-align:right">
+          <div style="font-size:.72rem;color:var(--tl)">신규 <span class="price-scope" id="fee_guest_display" style="font-size:.9rem;font-weight:700;color:var(--dk)">추후 안내</span></div>
+          <div style="font-size:.72rem;color:var(--tl)">기존 <span class="price-scope" id="fee_guest_existing_display" style="font-size:.9rem;font-weight:700;color:var(--dk)">추후 안내</span></div>
+        </div>
       </div>
 
       <div class="form-card">
@@ -390,7 +396,7 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     ? 'badge=eq.' + encodeURIComponent(urlSeason)
     : 'is_current=eq.true';
 
-  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_guest,form_fields,sessions&' + pgFilter + '&limit=1', {
+  fetch(SUPA_URL + '/rest/v1/JD_programs?select=badge,fee_member,fee_member_existing,fee_guest,fee_guest_existing,form_fields,sessions&' + pgFilter + '&limit=1', {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (!Array.isArray(data) || !data.length) return;
@@ -409,9 +415,13 @@ document.getElementById('guestForm').addEventListener('submit', function(e) {
     document.title = _activeSeason + ' 신청 — 조니딥';
 
     var mEl = document.getElementById('fee_member_display');
+    var mExEl = document.getElementById('fee_member_existing_display');
     var gEl = document.getElementById('fee_guest_display');
+    var gExEl = document.getElementById('fee_guest_existing_display');
     if (mEl && p.fee_member) mEl.textContent = p.fee_member;
+    if (mExEl && p.fee_member_existing) mExEl.textContent = p.fee_member_existing;
     if (gEl && p.fee_guest) gEl.textContent = p.fee_guest;
+    if (gExEl && p.fee_guest_existing) gExEl.textContent = p.fee_guest_existing;
 
     var sessions = p.sessions || [];
 
