@@ -529,9 +529,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div style="display:flex;flex-direction:column;gap:.85rem">
         <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:160px">
-            <label class="form-label">시즌 선택 *</label>
+            <label class="form-label">프로그램 선택 *</label>
             <select class="form-input" id="gl_season_sel" onchange="glOnSeasonSel()">
-              <option value="">시즌 선택...</option>
+              <option value="">프로그램 선택...</option>
             </select>
           </div>
           <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px" id="gl_session_sel_wrap">
@@ -549,7 +549,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
           <input type="file" id="gl_file" accept="image/*" multiple style="display:none" onchange="glUploadFiles(this.files);this.value=''">
           <div style="font-size:2rem;margin-bottom:.75rem">📸</div>
           <div style="font-weight:600;color:var(--ts);margin-bottom:.25rem">클릭하거나 사진을 드래그해서 업로드</div>
-          <div style="font-size:.82rem;color:var(--tl)">시즌 선택 후 · 여러 장 동시 업로드 가능</div>
+          <div style="font-size:.82rem;color:var(--tl)">프로그램 선택 후 · 여러 장 동시 업로드 가능</div>
         </div>
         <div id="gl_upload_status" style="display:none;font-size:.88rem;font-weight:600;color:var(--ac)"></div>
       </div>
@@ -597,7 +597,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div>
         <label class="form-label">시즌</label>
         <select class="form-input" id="gl_move_season" onchange="glMoveSeasonChange()">
-          <option value="">시즌 선택...</option>
+          <option value="">프로그램 선택...</option>
         </select>
       </div>
       <div>
@@ -1864,7 +1864,7 @@ function glBulkMove() {
   if (!_glSelected.size) { toast('선택된 사진이 없어요.', true); return; }
   const modal = document.getElementById('gl_move_modal');
   const seasonSel = document.getElementById('gl_move_season');
-  seasonSel.innerHTML = '<option value="">시즌 선택...</option>'
+  seasonSel.innerHTML = '<option value="">프로그램 선택...</option>'
     + _glPrograms.map(p => `<option value="${p.badge}">${p.badge}</option>`).join('');
   document.getElementById('gl_move_session').innerHTML = '<option value="">선택 안 함</option>';
   modal.style.display = 'flex';
@@ -1900,7 +1900,7 @@ function glRenderUploadSeasonSel(existingSeasons) {
   const sel = document.getElementById('gl_season_sel');
   if (!sel) return;
   const cur = sel.value;
-  sel.innerHTML = '<option value="">시즌 선택...</option>'
+  sel.innerHTML = '<option value="">프로그램 선택...</option>'
     + existingSeasons.map(s => `<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('')
     + '<option value="__new__">+ 새 시즌 직접 입력</option>';
 }
