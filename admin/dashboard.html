@@ -2142,6 +2142,19 @@ function bkSelectFromSearch(idx) {
   document.getElementById('bk_form_title').textContent = '선택한 책 추가';
   document.querySelector('.bk-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   toast('시즌과 날짜를 입력한 뒤 저장해 주세요 ✓');
+
+  // 알라딘 이미지 → Supabase Storage 업로드 (백그라운드)
+  if (b.cover) {
+    fetch(`${SUPA_URL}/functions/v1/aladin-cover?url=${encodeURIComponent(b.cover)}`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    }).then(r => r.json()).then(res => {
+      if (res.url) {
+        _bkCoverUrl = res.url;
+        const p = document.getElementById('bk_cover_preview');
+        if (p) { p.src = res.url; }
+      }
+    }).catch(() => {});
+  }
 }
 
 // ── Books ──────────────────────────────────────────────────
