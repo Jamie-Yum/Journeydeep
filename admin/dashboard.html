@@ -1648,26 +1648,156 @@ async function initMembers() {
   renderMemberSeason(0);
 }
 
-async function saveMembersData(toast=true) {
+async function saveMembersData(showMsg=true) {
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
     method: 'POST',
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
       'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({ key: MEMBERS_KEY, value: JSON.stringify(membersData), updated_at: new Date().toISOString() })
   });
-  if (toast) res.ok ? toast('저장됐어요!') : toast('저장 실패', true);
+  if (showMsg) res.ok ? toast('저장됐어요!') : toast('저장 실패', true);
 }
 
 function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
-  tabs.innerHTML = membersData.seasons.map((s, i) =>
-    `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
-      ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
-      <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
-    </button>`
-  ).join('') +
-  `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
+  const summaryActive = currentSeasonIdx === 'summary';
+  const feesActive = currentSeasonIdx === 'fees';
+  tabs.innerHTML =
+    `<button class="m-tab ${summaryActive?'active':''}" onclick="switchToSummary()" style="font-weight:700">종합 현황</button>` +
+    `<button class="m-tab ${feesActive?'active':''}" onclick="switchToFees()" style="font-weight:700">회비 관리</button>` +
+    membersData.seasons.map((s, i) =>
+      `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
+        ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
+        <span onclick="event.stopPropagation();deleteSeason(${i})" title="시즌 삭제" style="position:absolute;top:4px;right:5px;font-size:.75rem;opacity:.45;cursor:pointer;line-height:1" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity='.45'">✕</span>
+      </button>`
+    ).join('') +
+    `<button class="m-tab" onclick="addSeason()" style="color:var(--ac);border-style:dashed">+ 시즌 추가</button>`;
 }
+
+function switchToSummary() {
+  currentSeasonIdx = 'summary';
+  renderMemberTabs();
+  renderMemberSummary();
+}
+
+function switchToFees() {
+  currentSeasonIdx = 'fees';
+  renderMemberTabs();
+  renderFeesDashboard();
+}
+
+function renderMemberSummary() {
+  const seasons = membersData.seasons;
+  if (!seasons.length) { document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>'; return; }
+  const nameSet = new Set();
+  seasons.forEach(s => s.members.forEach(m => { if (m.name.trim()) nameSet.add(m.name.trim()); }));
+  const allNames = [...nameSet].sort((a, b) => a.localeCompare(b, 'ko'));
+  function participated(member) {
+    if (!member) return false;
+    return member.att.some(v => { const t=(v||'').trim(); return t && !t.startsWith('-') && t !== '0'; });
+  }
+  const thSeasons = seasons.map(s => `<th style="white-space:nowrap">${s.name}</th>`).join('');
+  const rows = allNames.map(name => {
+    let total = 0;
+    const cells = seasons.map(s => {
+      const m = s.members.find(m => m.name.trim() === name);
+      const joined = participated(m);
+      if (joined) total++;
+      return joined
+        ? `<td style="text-align:center;color:#2563eb;font-weight:700">O</td>`
+        : m ? `<td style="text-align:center;color:var(--tl);opacity:.4">-</td>`
+            : `<td style="text-align:center;color:var(--tl);opacity:.2">·</td>`;
+    }).join('');
+    const pct = Math.round(total / seasons.length * 100);
+    const barColor = pct >= 80 ? '#2563eb' : pct >= 50 ? '#7c3aed' : '#94a3b8';
+    return `<tr>
+      <td style="font-weight:600;white-space:nowrap">${name}</td>
+      ${cells}
+      <td style="text-align:center;font-weight:700;color:${barColor}">${total}<span style="font-weight:400;font-size:.75rem;color:var(--tl);margin-left:.25rem">/ ${seasons.length}</span></td>
+      <td style="min-width:80px"><div style="background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden"><div style="background:${barColor};height:100%;width:${pct}%;border-radius:4px"></div></div></td>
+    </tr>`;
+  }).join('');
+  const colCounts = seasons.map(s => {
+    const cnt = s.members.filter(m => m.name.trim() && participated(m)).length;
+    return `<td style="text-align:center;font-weight:700;font-size:.8rem;color:var(--ac)">${cnt}명</td>`;
+  }).join('');
+  document.getElementById('member_content').innerHTML = `
+    <div style="overflow-x:auto"><table class="m-table" style="min-width:600px">
+      <thead><tr><th style="min-width:80px">이름</th>${thSeasons}<th style="text-align:center">참여 횟수</th><th style="min-width:80px">참여율</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr style="background:rgba(37,99,235,.04)"><td style="font-weight:700;font-size:.8rem;color:var(--tl)">시즌 참여 인원</td>${colCounts}<td colspan="2"></td></tr></tfoot>
+    </table></div>
+    <p style="margin-top:1rem;font-size:.78rem;color:var(--tl)">O = 참여 · - = 등록됐으나 미참여 · · = 해당 시즌 미등록</p>`;
+}
+
+// ── 회비 관리 ──
+function feeData(si) {
+  const s = membersData.seasons[si];
+  if (!s.fees) s.fees = { incomeGroups: [], guestGroups: [], expenseItems: [] };
+  return s.fees;
+}
+function fmtW(n) { return n ? '₩' + Number(n).toLocaleString() : '-'; }
+
+function renderFeesDashboard() {
+  const seasons = membersData.seasons;
+  if (!seasons.length) { document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>'; return; }
+  let activeFeeSeasonIdx = window._activeFeeSeasonIdx ?? 0;
+  if (activeFeeSeasonIdx >= seasons.length) activeFeeSeasonIdx = 0;
+  window._activeFeeSeasonIdx = activeFeeSeasonIdx;
+  const seasonTabs = seasons.map((s,i) =>
+    `<button onclick="window._activeFeeSeasonIdx=${i};renderFeesDashboard()" style="padding:.35rem .9rem;border-radius:6px;border:1px solid ${i===activeFeeSeasonIdx?'var(--ac)':'var(--border)'};background:${i===activeFeeSeasonIdx?'var(--ac)':'none'};color:${i===activeFeeSeasonIdx?'#fff':'var(--ts)'};font-size:.82rem;cursor:pointer;font-weight:${i===activeFeeSeasonIdx?700:400}">${s.name}</button>`
+  ).join('');
+  const s = seasons[activeFeeSeasonIdx];
+  const fd = feeData(activeFeeSeasonIdx);
+  const sc = s.sessions.length || 5;
+  const incomeRows = fd.incomeGroups.map((g,gi) => `<tr><td><input value="${g.label}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'label',this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td><td><input type="number" value="${g.count}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'count',this.value)" style="border:none;background:none;width:60px;text-align:center;font-size:.83rem"></td><td><input type="number" value="${g.amount}" onblur="feeUpdateIncome(${activeFeeSeasonIdx},${gi},'amount',this.value)" style="border:none;background:none;width:90px;text-align:right;font-size:.83rem"></td><td style="text-align:right;font-weight:600;color:var(--ac)">${fmtW(g.count*g.amount)}</td><td><button onclick="feeRemoveIncome(${activeFeeSeasonIdx},${gi})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td></tr>`).join('');
+  const guestRows = fd.guestGroups.map((g,gi) => `<tr><td><input value="${g.label}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'label',this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td><td><input type="number" value="${g.count}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'count',this.value)" style="border:none;background:none;width:60px;text-align:center;font-size:.83rem"></td><td><input type="number" value="${g.amount}" onblur="feeUpdateGuest(${activeFeeSeasonIdx},${gi},'amount',this.value)" style="border:none;background:none;width:90px;text-align:right;font-size:.83rem"></td><td style="text-align:right;font-weight:600;color:var(--ac)">${fmtW(g.count*g.amount)}</td><td><button onclick="feeRemoveGuest(${activeFeeSeasonIdx},${gi})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td></tr>`).join('');
+  const totalIncome = [...fd.incomeGroups,...fd.guestGroups].reduce((s,g)=>s+(g.count*g.amount||0),0);
+  const sessionCols = s.sessions.length
+    ? s.sessions.map(ss=>`<th style="text-align:right;white-space:nowrap">${ss.n}<br><small style="font-weight:400;opacity:.6">${ss.d||''}</small></th>`).join('')
+    : Array.from({length:sc},(_,i)=>`<th style="text-align:right">${i+1}회차</th>`).join('');
+  const expenseRows = fd.expenseItems.map((item,ei) => {
+    const amounts = Array.from({length:sc},(_,ci)=>item.amounts[ci]||0);
+    const rowTotal = amounts.reduce((a,b)=>a+b,0);
+    const cells = amounts.map((v,ci)=>`<td style="text-align:right"><input type="number" value="${v||''}" placeholder="0" onblur="feeUpdateExpense(${activeFeeSeasonIdx},${ei},${ci},this.value)" style="border:none;background:none;width:80px;text-align:right;font-size:.83rem"></td>`).join('');
+    return `<tr><td><input value="${item.label}" onblur="feeUpdateExpenseLabel(${activeFeeSeasonIdx},${ei},this.value)" style="border:none;background:none;width:100%;font-size:.83rem"></td>${cells}<td style="text-align:right;font-weight:600">${fmtW(rowTotal)}</td><td><button onclick="feeRemoveExpense(${activeFeeSeasonIdx},${ei})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.75rem;opacity:.5">✕</button></td></tr>`;
+  }).join('');
+  const colTotals = Array.from({length:sc},(_,ci)=>fd.expenseItems.reduce((s,item)=>s+(Number(item.amounts[ci])||0),0));
+  const totalExpense = colTotals.reduce((a,b)=>a+b,0);
+  const colTotalCells = colTotals.map(t=>`<td style="text-align:right;font-weight:700;font-size:.8rem;color:#ef4444">${t?fmtW(t):'-'}</td>`).join('');
+  const balance = totalIncome - totalExpense;
+  const balanceColor = balance >= 0 ? '#2563eb' : '#ef4444';
+  document.getElementById('member_content').innerHTML = `
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">${seasonTabs}</div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center"><span>수입</span><div style="display:flex;gap:.5rem"><button class="btn btn-ghost btn-sm" onclick="feeAddIncome(${activeFeeSeasonIdx})">+ 정규 멤버 그룹 추가</button><button class="btn btn-ghost btn-sm" onclick="feeAddGuest(${activeFeeSeasonIdx})">+ 게스트 추가</button></div></div>
+      <div style="overflow-x:auto"><table class="m-table"><thead><tr><th>구분</th><th style="text-align:center">인원</th><th style="text-align:right">1인 회비</th><th style="text-align:right">소계</th><th></th></tr></thead><tbody>${incomeRows||'<tr><td colspan="5" style="color:var(--tl);font-size:.82rem;text-align:center;padding:.75rem">그룹을 추가해 주세요</td></tr>'}${guestRows}</tbody><tfoot><tr style="background:rgba(37,99,235,.04)"><td colspan="3" style="font-weight:700;font-size:.85rem">총 회비 합계</td><td style="text-align:right;font-weight:700;color:var(--ac);font-size:.95rem">${fmtW(totalIncome)}</td><td></td></tr></tfoot></table></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center"><span>지출</span><button class="btn btn-ghost btn-sm" onclick="feeAddExpense(${activeFeeSeasonIdx})">+ 항목 추가</button></div>
+      <div style="overflow-x:auto"><table class="m-table"><thead><tr><th>항목</th>${sessionCols}<th style="text-align:right">합계</th><th></th></tr></thead><tbody>${expenseRows||'<tr><td colspan="5" style="color:var(--tl);font-size:.82rem;text-align:center;padding:.75rem">항목을 추가해 주세요</td></tr>'}</tbody><tfoot><tr style="background:rgba(239,68,68,.04)"><td style="font-weight:700;font-size:.8rem">합계</td>${colTotalCells}<td style="text-align:right;font-weight:700;color:#ef4444">${fmtW(totalExpense)}</td><td></td></tr></tfoot></table></div>
+    </div>
+    <div class="card"><div class="card-title">결산</div>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:center">
+        <div style="text-align:center"><div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">총 수입</div><div style="font-size:1.2rem;font-weight:700;color:var(--ac)">${fmtW(totalIncome)}</div></div>
+        <div style="font-size:1.5rem;color:var(--tl)">−</div>
+        <div style="text-align:center"><div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">총 지출</div><div style="font-size:1.2rem;font-weight:700;color:#ef4444">${fmtW(totalExpense)}</div></div>
+        <div style="font-size:1.5rem;color:var(--tl)">=</div>
+        <div style="text-align:center"><div style="font-size:.75rem;color:var(--tl);margin-bottom:.25rem">남은 비용</div><div style="font-size:1.4rem;font-weight:700;color:${balanceColor}">${fmtW(balance)}</div></div>
+      </div>
+    </div>`;
+}
+
+function feeAddIncome(si) { feeData(si).incomeGroups.push({label:'정규 멤버',count:0,amount:0}); saveMembersData(false); renderFeesDashboard(); }
+function feeAddGuest(si) { feeData(si).guestGroups.push({label:'게스트',count:0,amount:0}); saveMembersData(false); renderFeesDashboard(); }
+function feeAddExpense(si) { const sc=membersData.seasons[si].sessions.length||5; feeData(si).expenseItems.push({label:'항목',amounts:Array(sc).fill(0)}); saveMembersData(false); renderFeesDashboard(); }
+function feeRemoveIncome(si,gi) { feeData(si).incomeGroups.splice(gi,1); saveMembersData(false); renderFeesDashboard(); }
+function feeRemoveGuest(si,gi) { feeData(si).guestGroups.splice(gi,1); saveMembersData(false); renderFeesDashboard(); }
+function feeRemoveExpense(si,ei) { feeData(si).expenseItems.splice(ei,1); saveMembersData(false); renderFeesDashboard(); }
+function feeUpdateIncome(si,gi,field,val) { feeData(si).incomeGroups[gi][field]=field==='label'?val:Number(val)||0; saveMembersData(false); renderFeesDashboard(); }
+function feeUpdateGuest(si,gi,field,val) { feeData(si).guestGroups[gi][field]=field==='label'?val:Number(val)||0; saveMembersData(false); renderFeesDashboard(); }
+function feeUpdateExpenseLabel(si,ei,val) { feeData(si).expenseItems[ei].label=val; saveMembersData(false); renderFeesDashboard(); }
+function feeUpdateExpense(si,ei,ci,val) { const item=feeData(si).expenseItems[ei]; if(!item.amounts)item.amounts=[]; item.amounts[ci]=Number(val)||0; saveMembersData(false); renderFeesDashboard(); }
 
 function deleteSeason(i) {
   const name = membersData.seasons[i].name;
