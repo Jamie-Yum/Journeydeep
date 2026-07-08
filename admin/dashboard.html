@@ -2789,7 +2789,8 @@ async function loadHomepagePhotos() {
           : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--tl);font-size:.8rem">사진 없음</div>`
         }
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.35rem;flex-wrap:wrap;padding:.4rem;background:rgba(0,0,0,.45);opacity:0;transition:opacity .2s" class="hp-overlay">
-          ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">미리보기</button>` : ''}
+          <button onclick="event.stopPropagation();hpPagePreview('${slot.page}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">페이지 보기</button>
+          ${src ? `<button onclick="event.stopPropagation();hpPreview('${src}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">사진 보기</button>` : ''}
           <button onclick="event.stopPropagation();document.getElementById('card${slot.key}').click()" style="background:var(--ac);border:none;color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer">파일</button>
           <button onclick="event.stopPropagation();hpOpenAlbum('${slot.key}')" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .55rem;cursor:pointer;backdrop-filter:blur(4px)">앨범</button>
         </div>
@@ -2815,6 +2816,63 @@ function inlineUpload(file, targetId, previewId) {
     if (previewId) { const p = document.getElementById(previewId); if(p){p.src=url;p.style.display='block';} }
     toast('업로드 완료 ✓');
   });
+}
+
+function hpPagePreview(page) {
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:20000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem';
+  m.innerHTML = `
+    <div style="width:100%;max-width:1100px;display:flex;flex-direction:column;gap:.75rem">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="color:#fff;font-size:.85rem;font-weight:600;opacity:.8">${page}</div>
+        <div style="display:flex;gap:.5rem">
+          <button id="ppMobile" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;border-radius:0">모바일</button>
+          <button id="ppDesktop" style="background:var(--ac);border:none;color:#fff;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;border-radius:0">데스크탑</button>
+          <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;border-radius:0">✕ 닫기</button>
+        </div>
+      </div>
+      <div id="ppWrap" style="width:100%;background:#fff;overflow:hidden;box-shadow:0 12px 60px rgba(0,0,0,.5);position:relative" class="pp-desktop">
+        <iframe id="ppFrame" src="../${page}" style="border:none;display:block"></iframe>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+
+  const wrap = m.querySelector('#ppWrap');
+  const frame = m.querySelector('#ppFrame');
+  const btnM = m.querySelector('#ppMobile');
+  const btnD = m.querySelector('#ppDesktop');
+
+  function setDesktop() {
+    const W = Math.min(window.innerWidth - 80, 1100);
+    const H = Math.round(W * 9 / 16);
+    wrap.style.height = H + 'px';
+    frame.style.width = '1280px';
+    frame.style.height = Math.round(1280 * 9 / 16) + 'px';
+    const scale = W / 1280;
+    frame.style.transform = `scale(${scale})`;
+    frame.style.transformOrigin = 'top left';
+    wrap.style.width = '100%';
+    btnD.style.background = 'var(--ac)'; btnM.style.background = 'rgba(255,255,255,.15)';
+  }
+
+  function setMobile() {
+    const mW = 390, mH = 844;
+    wrap.style.width = '220px';
+    wrap.style.height = '476px';
+    wrap.style.margin = '0 auto';
+    frame.style.width = mW + 'px';
+    frame.style.height = mH + 'px';
+    const scale = 220 / mW;
+    frame.style.transform = `scale(${scale})`;
+    frame.style.transformOrigin = 'top left';
+    btnM.style.background = 'var(--ac)'; btnD.style.background = 'rgba(255,255,255,.15)';
+  }
+
+  setDesktop();
+  btnD.onclick = setDesktop;
+  btnM.onclick = setMobile;
 }
 
 function hpPreview(src) {
