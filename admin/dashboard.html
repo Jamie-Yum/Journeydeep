@@ -935,9 +935,12 @@ async function loadColumns() {
 let _allApplications = [];
 
 const SEASON_LABELS = {
-  'join/s9-member': '시즌 9 정규',
-  'join/s9-guest':  '시즌 9 게스트',
-  'join/s8-guest':  '시즌 8 게스트',
+  'join/s9-member':    '시즌 9 정규',
+  'join/s9-guest':     '시즌 9 게스트',
+  'join/s8-guest':     '시즌 8 게스트',
+  'program/s8-guest':  '시즌 8 게스트(프로그램)',
+  '시즌 9-member':     '시즌 9 정규',
+  '시즌 9-guest':      '시즌 9 게스트',
 };
 function seasonLabel(s) { return SEASON_LABELS[s] || s || '—'; }
 
