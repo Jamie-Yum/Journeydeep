@@ -2400,9 +2400,11 @@ function renderMemberTabs() {
   const tabs = document.getElementById('member_tabs');
   const summaryActive = currentSeasonIdx === 'summary';
   const feesActive = currentSeasonIdx === 'fees';
+  const feesSumActive = currentSeasonIdx === 'fees_summary';
   tabs.innerHTML =
     `<button class="m-tab ${summaryActive?'active':''}" onclick="switchToSummary()" style="font-weight:700">종합 현황</button>` +
     `<button class="m-tab ${feesActive?'active':''}" onclick="switchToFees()" style="font-weight:700">회비 관리</button>` +
+    `<button class="m-tab ${feesSumActive?'active':''}" onclick="switchToFeesSummary()" style="font-weight:700">회비 종합</button>` +
     membersData.seasons.map((s, i) =>
       `<button class="m-tab ${i===currentSeasonIdx?'active':''}" onclick="switchSeason(${i})" style="position:relative;padding-right:1.6rem">
         ${s.name}<br><small style="font-weight:400;opacity:.7">${s.period}</small>
@@ -2422,6 +2424,105 @@ function switchToFees() {
   currentSeasonIdx = 'fees';
   renderMemberTabs();
   renderFeesDashboard();
+}
+
+function switchToFeesSummary() {
+  currentSeasonIdx = 'fees_summary';
+  renderMemberTabs();
+  renderFeesSummary();
+}
+
+function renderFeesSummary() {
+  const seasons = membersData.seasons;
+  if (!seasons.length) { document.getElementById('member_content').innerHTML = '<p style="color:var(--tl)">시즌 데이터가 없어요.</p>'; return; }
+
+  // 각 시즌 계산
+  const rows = seasons.map(s => {
+    const fd = s.fees || { incomeGroups: [], guestGroups: [], expenseItems: [] };
+    const totalIncome = [...(fd.incomeGroups||[]), ...(fd.guestGroups||[])].reduce((sum, g) => sum + (g.count * g.amount || 0), 0);
+    const totalExpense = (fd.expenseItems||[]).reduce((sum, item) => sum + (item.amounts||[]).reduce((a, b) => a + (Number(b)||0), 0), 0);
+    const balance = totalIncome - totalExpense;
+    const sc = s.sessions ? s.sessions.length : 5;
+    // 회차별 지출 합계
+    const perSession = Array.from({length: sc}, (_, ci) =>
+      (fd.expenseItems||[]).reduce((sum, item) => sum + (Number((item.amounts||[])[ci]) || 0), 0)
+    );
+    return { name: s.name, period: s.period, totalIncome, totalExpense, balance, perSession, sc };
+  });
+
+  // 전체 합계
+  const grandIncome = rows.reduce((s, r) => s + r.totalIncome, 0);
+  const grandExpense = rows.reduce((s, r) => s + r.totalExpense, 0);
+  const grandBalance = grandIncome - grandExpense;
+
+  const maxSc = Math.max(...rows.map(r => r.sc), 1);
+
+  const headerCols = Array.from({length: maxSc}, (_, i) => `<th style="text-align:right;white-space:nowrap">${i+1}회차 지출</th>`).join('');
+
+  const tableRows = rows.map(r => {
+    const sessionCells = Array.from({length: maxSc}, (_, ci) => {
+      const v = r.perSession[ci] || 0;
+      return `<td style="text-align:right;font-size:.82rem">${v ? fmtW(v) : '-'}</td>`;
+    }).join('');
+    const balColor = r.balance >= 0 ? '#2563eb' : '#ef4444';
+    return `<tr>
+      <td style="font-weight:600;white-space:nowrap">${r.name}</td>
+      <td style="font-size:.78rem;color:var(--tl);white-space:nowrap">${r.period}</td>
+      <td style="text-align:right;color:var(--ac);font-weight:600">${r.totalIncome ? fmtW(r.totalIncome) : '-'}</td>
+      <td style="text-align:right;color:#ef4444;font-weight:600">${r.totalExpense ? fmtW(r.totalExpense) : '-'}</td>
+      <td style="text-align:right;font-weight:700;color:${balColor}">${r.totalIncome || r.totalExpense ? fmtW(r.balance) : '-'}</td>
+      ${sessionCells}
+    </tr>`;
+  }).join('');
+
+  const grandSessionCells = Array.from({length: maxSc}, (_, ci) => {
+    const total = rows.reduce((s, r) => s + (r.perSession[ci] || 0), 0);
+    return `<td style="text-align:right;font-weight:700;font-size:.82rem">${total ? fmtW(total) : '-'}</td>`;
+  }).join('');
+
+  document.getElementById('member_content').innerHTML = `
+    <div class="card">
+      <div class="card-title">전체 회비 종합</div>
+      <div style="display:flex;gap:2.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:.75rem 1rem;background:var(--surface2);border-radius:0">
+        <div style="text-align:center">
+          <div style="font-size:.72rem;color:var(--tl);margin-bottom:.2rem">총 수입 합계</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--ac)">${fmtW(grandIncome)}</div>
+        </div>
+        <div style="font-size:1.4rem;color:var(--tl);align-self:center">−</div>
+        <div style="text-align:center">
+          <div style="font-size:.72rem;color:var(--tl);margin-bottom:.2rem">총 지출 합계</div>
+          <div style="font-size:1.3rem;font-weight:700;color:#ef4444">${fmtW(grandExpense)}</div>
+        </div>
+        <div style="font-size:1.4rem;color:var(--tl);align-self:center">=</div>
+        <div style="text-align:center">
+          <div style="font-size:.72rem;color:var(--tl);margin-bottom:.2rem">누적 잔액</div>
+          <div style="font-size:1.4rem;font-weight:700;color:${grandBalance>=0?'#2563eb':'#ef4444'}">${fmtW(grandBalance)}</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="m-table">
+          <thead>
+            <tr>
+              <th>시즌</th><th>기간</th>
+              <th style="text-align:right">총 수입</th>
+              <th style="text-align:right">총 지출</th>
+              <th style="text-align:right">잔액</th>
+              ${headerCols}
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+          <tfoot>
+            <tr style="background:rgba(37,99,235,.06)">
+              <td colspan="2" style="font-weight:700">전체 합계</td>
+              <td style="text-align:right;font-weight:700;color:var(--ac)">${fmtW(grandIncome)}</td>
+              <td style="text-align:right;font-weight:700;color:#ef4444">${fmtW(grandExpense)}</td>
+              <td style="text-align:right;font-weight:700;color:${grandBalance>=0?'#2563eb':'#ef4444'}">${fmtW(grandBalance)}</td>
+              ${grandSessionCells}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>`;
 }
 
 function renderMemberSummary() {
