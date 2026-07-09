@@ -2237,13 +2237,18 @@ async function loadBooks() {
 
   function bkRenderTabs() {
     if (!tabsEl) return;
-    const all = ['전체', ...seasons, '추천책'];
+    const all = ['전체', ...seasons, '추천책', '추천 저자'];
     tabsEl.innerHTML = all.map(t =>
       `<button onclick="window._bkSetFilter('${t}')" data-bktab="${t}" style="padding:.2rem .55rem;font-size:.72rem;font-weight:600;border:1px solid var(--be);cursor:pointer;background:${t===_bkActiveFilter?'var(--ac)':'var(--bg)'};color:${t===_bkActiveFilter?'#fff':'var(--ts)'}">${t}</button>`
     ).join('');
   }
 
   function bkRenderList() {
+    if (_bkActiveFilter === '추천 저자') {
+      const saved = document.getElementById('bk_rec_author_input')?.value || '—';
+      list.innerHTML = `<div style="padding:2rem;color:var(--ts);font-size:.9rem">현재 저장된 추천 저자: <strong style="color:var(--dk)">${saved || '없음'}</strong></div>`;
+      return;
+    }
     const filtered = _bkActiveFilter === '전체' ? data
       : _bkActiveFilter === '추천책' ? data.filter(b => b.is_recommended)
       : data.filter(b => !b.is_recommended && (b.category || '기타') === _bkActiveFilter);
