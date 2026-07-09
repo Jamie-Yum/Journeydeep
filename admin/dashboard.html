@@ -499,6 +499,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
                 <label for="bk_recommended" style="font-size:.8rem;color:var(--ts);cursor:pointer">추천책으로 표시</label>
               </div>
             </div>
+            <div>
+              <label class="form-label">추천 저자</label>
+              <input class="form-input" id="bk_recommended_author" placeholder="예: 김범준">
+            </div>
             <div style="display:flex;gap:8px;align-items:flex-end;padding-top:1.35rem">
               <button class="btn btn-primary" onclick="saveBook()">저장</button>
               <button class="btn btn-ghost" onclick="bkClearForm()">초기화</button>
@@ -2264,6 +2268,7 @@ function editBook(b) {
   document.getElementById('bk_author').value = b.author || '';
   document.getElementById('bk_order').value = b.sort_order ?? 0;
   const recCb = document.getElementById('bk_recommended'); if (recCb) recCb.checked = !!b.is_recommended;
+  const recAuth = document.getElementById('bk_recommended_author'); if (recAuth) recAuth.value = b.recommended_author || '';
   // 프로그램 선택
   const catSel = document.getElementById('bk_category');
   catSel.value = b.category || '';
@@ -2292,6 +2297,7 @@ function bkClearForm() {
   document.getElementById('bk_date').value = '';
   document.getElementById('bk_order').value = 0;
   const recCb2 = document.getElementById('bk_recommended'); if (recCb2) recCb2.checked = false;
+  const recAuth2 = document.getElementById('bk_recommended_author'); if (recAuth2) recAuth2.value = '';
   _bkCoverBlob = null; _bkCoverUrl = null;
   const prev = document.getElementById('bk_cover_preview');
   prev.src = ''; prev.style.display = 'none';
@@ -2341,6 +2347,7 @@ async function saveBook() {
     date: document.getElementById('bk_date').value || null,
     sort_order: parseInt(document.getElementById('bk_order').value) || 0,
     is_recommended: !!(document.getElementById('bk_recommended')?.checked),
+    recommended_author: document.getElementById('bk_recommended_author')?.value.trim() || null,
     cover_url: cover_url || null,
   };
   let ok;
