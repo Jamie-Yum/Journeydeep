@@ -2204,7 +2204,7 @@ function bkOnSessionChange() {
 }
 
 async function loadBkRecAuthor() {
-  const res = await sbGet('JD_site_settings', 'key=eq.book_recommended_author');
+  const res = await sbGet('JD_site_settings', '&key=eq.book_recommended_author');
   const row = Array.isArray(res) ? res[0] : null;
   const el = document.getElementById('bk_rec_author_input');
   if (el && row?.value) { el.value = row.value; window._bkRefreshIfAuthor?.(); }
