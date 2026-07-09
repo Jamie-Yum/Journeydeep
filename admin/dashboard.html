@@ -2209,6 +2209,19 @@ async function loadBkRecAuthor() {
   const el = document.getElementById('bk_rec_author_input');
   if (el && row?.value) { el.value = row.value; window._bkRefreshIfAuthor?.(); }
 }
+async function deleteBkRecAuthor() {
+  if (!confirm('추천 저자를 삭제할까요?')) return;
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.book_recommended_author`, {
+    method: 'DELETE',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  if (res.ok) {
+    const el = document.getElementById('bk_rec_author_input');
+    if (el) el.value = '';
+    toast('삭제됐어요');
+    window._bkRefreshIfAuthor?.();
+  } else toast('삭제 실패', true);
+}
 async function saveBkRecAuthor() {
   const val = document.getElementById('bk_rec_author_input')?.value.trim() || '';
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
@@ -2249,7 +2262,11 @@ async function loadBooks() {
       list.innerHTML = saved
         ? `<div style="padding:3rem 2rem;text-align:center">
             <div style="font-size:.7rem;font-weight:700;color:var(--tl);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem">추천 저자</div>
-            <div style="font-size:1.6rem;font-weight:700;color:var(--dk)">${saved}</div>
+            <div style="font-size:1.6rem;font-weight:700;color:var(--dk);margin-bottom:1.25rem">${saved}</div>
+            <div style="display:flex;gap:.5rem;justify-content:center">
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bk_rec_author_input').focus()">수정</button>
+              <button class="btn btn-sm" style="background:#fee2e2;color:#ef4444;border:none" onclick="deleteBkRecAuthor()">삭제</button>
+            </div>
           </div>`
         : `<div style="padding:3rem 2rem;text-align:center;color:var(--tl);font-size:.88rem">
             추천 저자가 아직 입력되지 않았어요.<br>
