@@ -2207,7 +2207,7 @@ async function loadBkRecAuthor() {
   const res = await sbGet('JD_site_settings', 'key=eq.book_recommended_author');
   const row = Array.isArray(res) ? res[0] : null;
   const el = document.getElementById('bk_rec_author_input');
-  if (el && row?.value) el.value = row.value;
+  if (el && row?.value) { el.value = row.value; window._bkRefreshIfAuthor?.(); }
 }
 async function saveBkRecAuthor() {
   const val = document.getElementById('bk_rec_author_input')?.value.trim() || '';
@@ -2245,8 +2245,16 @@ async function loadBooks() {
 
   function bkRenderList() {
     if (_bkActiveFilter === '추천 저자') {
-      const saved = document.getElementById('bk_rec_author_input')?.value || '—';
-      list.innerHTML = `<div style="padding:2rem;color:var(--ts);font-size:.9rem">현재 저장된 추천 저자: <strong style="color:var(--dk)">${saved || '없음'}</strong></div>`;
+      const saved = document.getElementById('bk_rec_author_input')?.value.trim() || '';
+      list.innerHTML = saved
+        ? `<div style="padding:3rem 2rem;text-align:center">
+            <div style="font-size:.7rem;font-weight:700;color:var(--tl);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem">추천 저자</div>
+            <div style="font-size:1.6rem;font-weight:700;color:var(--dk)">${saved}</div>
+          </div>`
+        : `<div style="padding:3rem 2rem;text-align:center;color:var(--tl);font-size:.88rem">
+            추천 저자가 아직 입력되지 않았어요.<br>
+            <span style="font-size:.8rem;opacity:.7">위 탭 오른쪽 입력칸에서 저장해 주세요.</span>
+          </div>`;
       return;
     }
     const filtered = _bkActiveFilter === '전체' ? data
@@ -2281,6 +2289,9 @@ async function loadBooks() {
     _bkActiveFilter = tab;
     bkRenderTabs();
     bkRenderList();
+  };
+  window._bkRefreshIfAuthor = function() {
+    if (_bkActiveFilter === '추천 저자') bkRenderList();
   };
 
   bkRenderTabs();
