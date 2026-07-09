@@ -2216,7 +2216,7 @@ async function saveBkRecAuthor() {
     headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({ key: 'book_recommended_author', value: val, updated_at: new Date().toISOString() })
   });
-  if (res.ok) toast('추천 저자 저장됐어요 ✓');
+  if (res.ok) { toast('추천 저자 저장됐어요 ✓'); window._bkRefreshIfAuthor?.(); }
   else toast('저장 실패', true);
 }
 
