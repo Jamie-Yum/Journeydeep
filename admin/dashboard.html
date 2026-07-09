@@ -799,7 +799,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks(); loadBkRecAuthor();
+  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks().then(()=>loadBkRecAuthor());
 }
 
 // Nav
