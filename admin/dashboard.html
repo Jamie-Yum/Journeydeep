@@ -601,6 +601,17 @@ tr:hover td{background:rgba(37,99,235,.03)}
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Gallery Preview Modal -->
+<div id="gl_preview_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10000;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)glPreviewClose()">
+  <div style="position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:.75rem">
+    <button onclick="glPreviewClose()" style="position:absolute;top:-2.5rem;right:0;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1">✕</button>
+    <img id="gl_preview_img" src="" style="max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.5)">
+    <div style="text-align:center">
+      <div id="gl_preview_caption" style="color:#fff;font-size:.9rem;font-weight:500"></div>
+      <div id="gl_preview_meta" style="color:rgba(255,255,255,.5);font-size:.78rem;margin-top:.2rem"></div>
+    </div>
+  </div>
+</div>
 <!-- Gallery Move Modal -->
 <div id="gl_move_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:2rem" onclick="if(event.target===this)document.getElementById('gl_move_modal').style.display='none'">
   <div style="background:#fff;border-radius:12px;padding:1.5rem;min-width:280px;max-width:360px;width:100%">
@@ -1826,7 +1837,19 @@ function glToggleSelectMode() {
 }
 
 function glCardClick(id, e) {
-  if (_glSelectMode) { e.stopPropagation(); glToggleSelect(id); }
+  if (_glSelectMode) { e.stopPropagation(); glToggleSelect(id); return; }
+  const photo = _glAllPhotos.find(p => p.id === id);
+  if (!photo) return;
+  const modal = document.getElementById('gl_preview_modal');
+  document.getElementById('gl_preview_img').src = photo.image_url;
+  document.getElementById('gl_preview_caption').textContent = photo.caption || '';
+  document.getElementById('gl_preview_meta').textContent = [photo.season, photo.session].filter(Boolean).join(' · ');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function glPreviewClose() {
+  document.getElementById('gl_preview_modal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function glToggleSelect(id) {
