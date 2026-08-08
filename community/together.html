@@ -313,29 +313,31 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
 <script>
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
-  fetch(SU+'/rest/v1/JD_site_settings?key=eq.nav_config&select=value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+  function applyNavCfg(cfg){
+    cfg.items.forEach(function(item){
+      var span=document.querySelector('.nav-link-main[data-navid="'+item.id+'"]');
+      if(!span)return;
+      var li=span.closest('.nav-li');if(!li)return;
+      if(item.visible===false){li.style.display='none';}
+      else{li.style.display='';span.textContent=item.label;
+        if(item.children){item.children.forEach(function(child){
+          var el=document.querySelector('[data-navchild="'+child.id+'"]');if(!el)return;
+          if(child.visible===false){el.style.display='none';}
+          else{el.style.display='';el.textContent=child.label;}
+        });}
+      }
+    });
+  }
+  // 캐시된 설정 즉시 적용 (flash 방지)
+  try{var cached=localStorage.getItem('jd_nav_cfg');if(cached)applyNavCfg(JSON.parse(cached));}catch(e){}
+  // 최신 설정 비동기 로드 후 캐시 갱신
+  fetch(SU+'/rest/v1/JD_site_settings?key=eq.nav_config&select=value',
+    {headers:{'apikey':SK,'Authorization':'Bearer '+SK},cache:'no-store'})
     .then(function(r){return r.json();}).then(function(rows){
       if(!rows||!rows[0])return;
       var cfg=JSON.parse(rows[0].value);
-      cfg.items.forEach(function(item){
-        var span=document.querySelector('.nav-link-main[data-navid="'+item.id+'"]');
-        if(!span)return;
-        var li=span.closest('.nav-li');
-        if(!li)return;
-        if(item.visible===false){li.style.display='none';}
-        else{
-          li.style.display='';
-          span.textContent=item.label;
-          if(item.children){
-            item.children.forEach(function(child){
-              var el=document.querySelector('[data-navchild="'+child.id+'"]');
-              if(!el)return;
-              if(child.visible===false){el.style.display='none';}
-              else{el.style.display='';el.textContent=child.label;}
-            });
-          }
-        }
-      });
+      applyNavCfg(cfg);
+      try{localStorage.setItem('jd_nav_cfg',JSON.stringify(cfg));}catch(e){}
     }).catch(function(){});
 })();
 </script>
