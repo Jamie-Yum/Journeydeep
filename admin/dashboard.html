@@ -850,7 +850,8 @@ async function loadNavCfg() {
   const list = document.getElementById('navcfg-list');
   list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config&select=value`, {
-    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY},
+    cache: 'no-store'
   });
   const rows = await res.json();
   const items = (rows[0] ? JSON.parse(rows[0].value).items : NAV_DEFAULT);
@@ -891,25 +892,48 @@ async function saveNavConfig() {
   const list = document.getElementById('navcfg-list');
   const msg = document.getElementById('navcfg-msg');
   const items = JSON.parse(list.dataset.items || '[]');
-  const updated = items.map((item, i) => ({
-    ...item,
-    label: document.getElementById(`navcfg-label-${i}`)?.value.trim() || item.label,
-    visible: document.getElementById(`navcfg-vis-${i}`)?.checked ?? item.visible,
-    children: (item.children||[]).map((c, j) => ({
-      ...c,
-      label: document.getElementById(`navcfg-clabel-${i}-${j}`)?.value.trim() || c.label,
-      visible: document.getElementById(`navcfg-cvis-${i}-${j}`)?.checked ?? c.visible,
-    })),
-  }));
+  const updated = items.map((item, i) => {
+    const labelEl = document.getElementById(`navcfg-label-${i}`);
+    const visEl   = document.getElementById(`navcfg-vis-${i}`);
+    return {
+      ...item,
+      label:   labelEl ? (labelEl.value.trim() || item.label) : item.label,
+      visible: visEl   ? visEl.checked : item.visible,
+      children: (item.children||[]).map((c, j) => {
+        const cl = document.getElementById(`navcfg-clabel-${i}-${j}`);
+        const cv = document.getElementById(`navcfg-cvis-${i}-${j}`);
+        return {
+          ...c,
+          label:   cl ? (cl.value.trim() || c.label) : c.label,
+          visible: cv ? cv.checked : c.visible,
+        };
+      }),
+    };
+  });
+  msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config`, {
     method: 'PATCH',
     headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
               'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
     body: JSON.stringify({value: JSON.stringify({items: updated})})
   });
-  msg.textContent = res.ok ? '저장됐어요 ✓' : '저장 실패';
-  msg.style.color = res.ok ? '#10B981' : '#EF4444';
-  setTimeout(() => { msg.textContent = ''; }, 2500);
+  if (res.ok) {
+    // DB에서 재확인 후 렌더
+    const check = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config&select=value`, {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY},
+      cache: 'no-store'
+    });
+    const rows = await check.json();
+    const saved = rows[0] ? JSON.parse(rows[0].value).items : updated;
+    list.dataset.items = JSON.stringify(saved);
+    renderNavCfg(saved);
+    msg.textContent = '저장됐어요 ✓'; msg.style.color = '#10B981';
+  } else {
+    const errText = await res.text();
+    msg.textContent = `저장 실패 (${res.status})`; msg.style.color = '#EF4444';
+    console.error('nav save error:', errText);
+  }
+  setTimeout(() => { msg.textContent = ''; }, 3000);
 }
 
 // Supabase helpers
