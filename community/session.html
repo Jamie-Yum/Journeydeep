@@ -1,0 +1,546 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>회차별 활동 — 조니딥</title>
+<link rel="icon" href="https://www.journey-deep.kr/favicon.png" type="image/png">
+<meta property="og:title" content="회차별 활동 — 조니딥">
+<meta property="og:description" content="사전 질문, 한 마디, 발제문·성찰, 모임 써머리">
+<meta property="og:image" content="https://www.journey-deep.kr/og.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FA;--wh:#FFFFFF;--be:#E8ECF4;--sa:#D5DCF0;--ac:#2563EB;--te:#1A3A8F;--dk:#0F172A;--ol:#64748B;--tp:#0F172A;--ts:#334155;--tl:#64748B;--sw:rgba(15,23,42,.06);--sd:rgba(37,99,235,.18);--border:rgba(100,116,139,.3)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--tp);line-height:1.8}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 2.5rem;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(15,23,42,.92);backdrop-filter:blur(20px)}
+.nav-logo{display:flex;align-items:flex-start;flex-direction:column;text-decoration:none;color:#fff;line-height:1.15}
+.nav-logo-text{font-family:'DM Sans',sans-serif;font-weight:800;font-size:.95rem;color:#fff}
+.nav-logo-sub{font-family:'DM Sans',sans-serif;font-size:.7rem;color:rgba(255,255,255,.45);font-weight:400}
+.nav-links{display:flex;align-items:center;gap:0;list-style:none}
+.nav-li{position:relative}
+.nav-link-item{display:flex;flex-direction:column;align-items:center;text-decoration:none;padding:.5rem 1rem;cursor:pointer}
+.nav-link-main{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.06em;text-transform:uppercase;font-family:'DM Sans',sans-serif}
+.nav-li:hover .nav-link-main{color:#fff}
+.nav-dropdown{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);background:rgba(244,246,250,.98);backdrop-filter:blur(24px);border:1px solid rgba(37,99,235,.12);padding:.6rem;min-width:180px;box-shadow:0 20px 60px rgba(0,0,0,.18);opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-8px);transition:all .22s cubic-bezier(.4,0,.2,1);z-index:100}
+.nav-li:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.nav-dd-item{display:block;padding:.55rem 1rem;font-size:.85rem;color:var(--ts);text-decoration:none;transition:all .15s;white-space:nowrap;font-weight:500}
+.nav-dd-item:hover{background:rgba(37,99,235,.08);color:var(--ac)}
+.nav-dd-divider{height:1px;background:rgba(0,0,0,.08);margin:.4rem .6rem}
+.mobile-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;z-index:10000;position:relative}
+.mobile-toggle span{width:24px;height:2px;background:rgba(255,255,255,.85);border-radius:0;transition:transform .3s,opacity .3s}
+
+/* Page */
+.page-hero{padding:5.5rem 2rem 2rem;text-align:center;background:linear-gradient(160deg,#F4F6FA,#EEF2FF)}
+.page-hero h1{font-family:'DM Sans',sans-serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;color:var(--dk);margin-bottom:.4rem}
+.page-hero p{font-size:.9rem;color:var(--tl)}
+.bl-back{display:inline-flex;align-items:center;gap:.4rem;color:rgba(37,99,235,.7);text-decoration:none;font-size:.82rem;margin-bottom:1.2rem;transition:color .3s}
+.bl-back:hover{color:var(--ac)}
+
+.body-wrap{max-width:860px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* Season / Session selectors */
+.selector-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.sel-label{font-size:.78rem;font-weight:600;color:var(--tl);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.chip-btn{padding:.3rem .85rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--tl);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
+.chip-btn:hover{border-color:var(--ac);color:var(--ac)}
+.chip-btn.active{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+
+/* Section tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--be);margin-bottom:1.75rem;overflow-x:auto}
+.tab-btn{padding:.65rem 1.25rem;font-size:.85rem;font-weight:500;color:var(--tl);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;font-family:'Pretendard',sans-serif}
+.tab-btn:hover{color:var(--ac)}
+.tab-btn.active{color:var(--ac);font-weight:700;border-bottom-color:var(--ac)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Member picker */
+.member-bar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;padding:.75rem 1rem;background:var(--wh);border:1px solid var(--border);border-radius:0;margin-bottom:1.5rem}
+.member-bar-label{font-size:.78rem;color:var(--tl);font-weight:600;white-space:nowrap}
+.member-select{padding:.35rem .7rem;border:1px solid var(--border);background:var(--bg);font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--tp);outline:none;cursor:pointer}
+.member-select:focus{border-color:var(--ac)}
+
+/* Post form */
+.post-form{background:var(--wh);border:1px solid var(--border);padding:1.25rem;margin-bottom:1.5rem}
+.post-form textarea{width:100%;border:1px solid var(--border);padding:.65rem .85rem;font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--tp);resize:vertical;min-height:90px;outline:none;background:var(--bg);line-height:1.7}
+.post-form textarea:focus{border-color:var(--ac)}
+.post-form-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;gap:.5rem;flex-wrap:wrap}
+.post-form-meta{font-size:.75rem;color:var(--tl)}
+.btn-post{padding:.45rem 1.25rem;background:var(--ac);color:#fff;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:background .2s}
+.btn-post:hover{background:#1D4ED8}
+.btn-post:disabled{background:var(--be);color:var(--tl);cursor:not-allowed}
+
+/* Type selector for questions */
+.type-tabs{display:flex;gap:.4rem;margin-bottom:.85rem}
+.type-tab{padding:.3rem .85rem;border-radius:0;border:1px solid var(--border);background:transparent;color:var(--tl);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
+.type-tab.active{background:var(--te);border-color:var(--te);color:#fff;font-weight:600}
+
+/* Cards */
+.card-list{display:flex;flex-direction:column;gap:.75rem}
+.msg-card{background:var(--wh);border:1px solid var(--border);padding:1.1rem 1.25rem;transition:box-shadow .2s}
+.msg-card:hover{box-shadow:0 4px 20px var(--sw)}
+.msg-card-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.msg-author{font-size:.82rem;font-weight:700;color:var(--dk)}
+.msg-type-tag{font-size:.65rem;font-weight:700;letter-spacing:.06em;padding:.15rem .5rem;border-radius:10px}
+.tag-book{background:rgba(37,99,235,.12);color:var(--ac)}
+.tag-work{background:rgba(30,58,138,.12);color:var(--te)}
+.tag-greeting{background:rgba(100,116,139,.1);color:var(--ol)}
+.tag-summary{background:rgba(16,185,129,.12);color:#059669}
+.msg-time{font-size:.68rem;color:var(--tl);margin-left:auto}
+.msg-content{font-size:.88rem;color:var(--ts);line-height:1.8;white-space:pre-wrap}
+
+/* Summary special */
+.summary-card{background:linear-gradient(135deg,#EEF2FF,#F0FDF4);border:1px solid rgba(37,99,235,.2);padding:1.5rem;margin-bottom:1.25rem}
+.summary-card h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);margin-bottom:.75rem}
+.summary-content{font-size:.9rem;color:var(--ts);line-height:1.9;white-space:pre-wrap}
+
+/* Reflections / proposals */
+.rp-card{background:var(--wh);border:1px solid var(--border);padding:1.25rem 1.4rem}
+.rp-card+.rp-card{margin-top:.75rem}
+.rp-author{font-size:.82rem;font-weight:700;color:var(--dk);margin-bottom:.3rem}
+.rp-section{margin-top:.85rem}
+.rp-section-label{font-size:.7rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
+.rp-text{font-size:.88rem;color:var(--ts);line-height:1.85;white-space:pre-wrap}
+
+/* Reflection form */
+.refl-form{background:var(--wh);border:1px solid var(--border);padding:1.25rem;margin-bottom:1.5rem}
+.refl-form .field{margin-bottom:1rem}
+.refl-form label{display:block;font-size:.78rem;font-weight:600;color:var(--tl);margin-bottom:.35rem}
+.refl-form textarea{width:100%;border:1px solid var(--border);padding:.6rem .8rem;font-size:.86rem;font-family:'Pretendard',sans-serif;color:var(--tp);resize:vertical;min-height:80px;outline:none;background:var(--bg);line-height:1.7}
+.refl-form textarea:focus{border-color:var(--ac)}
+.refl-type-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.refl-type-tab{padding:.3rem .85rem;border-radius:0;border:1px solid var(--border);background:transparent;color:var(--tl);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
+.refl-type-tab.active{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--tl);font-size:.88rem}
+
+.footer{background:#0F172A;padding:2rem;text-align:center}
+.footer p{font-size:.8rem;color:rgba(255,255,255,.3)}
+
+@media(max-width:600px){
+  .nav{padding:0 1.25rem}
+  .mobile-toggle{display:flex}
+  .nav-links{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(15,23,42,.97);flex-direction:column;padding:1.5rem;gap:.5rem}
+  .nav-links.open{display:flex}
+  .nav-li{border-bottom:1px solid rgba(255,255,255,.08);padding:0}
+  .nav-link-item{display:block;padding:.65rem 0;color:rgba(255,255,255,.9);font-size:1rem;font-weight:600}
+  .nav-dropdown{display:none}
+  .nav-li.open .nav-dropdown{display:block;position:static;opacity:1;visibility:visible;transform:none;background:rgba(37,99,235,.05);border:1px solid rgba(37,99,235,.1);padding:.4rem;margin-top:.3rem;min-width:unset;box-shadow:none}
+  .nav-li.has-dropdown>.nav-link-item::after{content:'▾';margin-left:.35rem;font-size:.65rem;opacity:.6}
+  .nav-li.has-dropdown.open>.nav-link-item::after{content:'▴'}
+  .body-wrap{padding:1.25rem 1rem 4rem}
+  .tabs{gap:0}
+  .tab-btn{padding:.55rem .85rem;font-size:.8rem}
+}
+</style>
+</head><body>
+<nav class="nav" id="nav">
+  <a href="../index.html" class="nav-logo">
+    <span class="nav-logo-text">조니딥</span>
+    <span class="nav-logo-sub">JourneyDeep</span>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li class="nav-li"><a href="../index.html#about" class="nav-link-item"><span class="nav-link-main">About</span></a></li>
+    <li class="nav-li has-dropdown">
+      <a href="#" class="nav-link-item"><span class="nav-link-main">Journeys</span></a>
+      <div class="nav-dropdown"><a href="../program/jd.html" class="nav-dd-item">조니딥 시즌 9</a></div>
+    </li>
+    <li class="nav-li has-dropdown">
+      <a href="#" class="nav-link-item"><span class="nav-link-main">Together</span></a>
+      <div class="nav-dropdown">
+        <a href="session.html" class="nav-dd-item" style="color:var(--ac);font-weight:600">회차별 활동</a>
+        <div class="nav-dd-divider"></div>
+        <a href="proposals.html" class="nav-dd-item">발제문</a>
+        <a href="columns.html" class="nav-dd-item">칼럼</a>
+        <a href="reflections.html" class="nav-dd-item">성찰</a>
+      </div>
+    </li>
+    <li class="nav-li has-dropdown">
+      <a href="#" class="nav-link-item"><span class="nav-link-main">Trace</span></a>
+      <div class="nav-dropdown">
+        <a href="../archive/gallery.html" class="nav-dd-item">Gallery</a>
+        <div class="nav-dd-divider"></div>
+        <a href="../archive/books.html" class="nav-dd-item">Book List</a>
+      </div>
+    </li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <a href="../join/s9.html" class="nav-cta-btn" style="display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.4rem;background:var(--ac);color:#fff;text-decoration:none;font-size:.82rem;font-weight:700;letter-spacing:.04em;font-family:'DM Sans',sans-serif;transition:all .3s">시즌 9 신청 →</a>
+    <div class="mobile-toggle" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <a href="../index.html" class="bl-back">← 홈으로</a>
+  <h1>회차별 활동</h1>
+  <p>사전 질문, 한 마디, 발제문·성찰, 모임 써머리를 회차별로 모아볼 수 있어요.</p>
+</div>
+
+<div class="body-wrap">
+  <!-- 시즌 선택 -->
+  <div class="selector-row" style="margin-bottom:.5rem">
+    <span class="sel-label">시즌</span>
+    <div id="seasonChips"></div>
+  </div>
+  <!-- 회차 선택 -->
+  <div class="selector-row" style="margin-bottom:1.5rem">
+    <span class="sel-label">회차</span>
+    <div id="sessionChips"></div>
+  </div>
+
+  <!-- 멤버 선택 -->
+  <div class="member-bar">
+    <span class="member-bar-label">나는</span>
+    <select class="member-select" id="memberSelect">
+      <option value="">이름을 선택해주세요</option>
+    </select>
+    <span style="font-size:.75rem;color:var(--tl)">으로 참여할게요</span>
+  </div>
+
+  <!-- 섹션 탭 -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('before',this)">📋 모임 전</button>
+    <button class="tab-btn" onclick="switchTab('rp',this)">📝 발제문 · 성찰</button>
+    <button class="tab-btn" onclick="switchTab('after',this)">✨ 써머리</button>
+  </div>
+
+  <!-- 모임 전 -->
+  <div id="tab-before" class="tab-panel active">
+    <div style="margin-bottom:2rem">
+      <div style="font-size:.8rem;font-weight:700;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.85rem">사전 질문</div>
+      <div class="type-tabs">
+        <button class="type-tab active" onclick="setQType('question_book',this)">📖 책 관련</button>
+        <button class="type-tab" onclick="setQType('question_work',this)">💼 실무 관련</button>
+      </div>
+      <div class="post-form">
+        <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
+        <div class="post-form-footer">
+          <span class="post-form-meta" id="qMeta"></span>
+          <button class="btn-post" onclick="postMessage()">올리기</button>
+        </div>
+      </div>
+      <div id="questionList" class="card-list"></div>
+    </div>
+
+    <div style="margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--be)">
+      <div style="font-size:.8rem;font-weight:700;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.85rem">멤버 한 마디</div>
+      <div class="post-form">
+        <textarea id="greetInput" placeholder="모임 전 한 마디 남겨주세요. 요즘 근황, 기대되는 점, 뭐든 좋아요." rows="3"></textarea>
+        <div class="post-form-footer">
+          <span class="post-form-meta"></span>
+          <button class="btn-post" onclick="postGreeting()">올리기</button>
+        </div>
+      </div>
+      <div id="greetingList" class="card-list"></div>
+    </div>
+  </div>
+
+  <!-- 발제문 · 성찰 -->
+  <div id="tab-rp" class="tab-panel">
+    <div class="refl-type-tabs">
+      <button class="refl-type-tab active" onclick="setRpTab('reflection',this)">성찰</button>
+      <button class="refl-type-tab" onclick="setRpTab('proposal',this)">발제문</button>
+    </div>
+
+    <!-- 성찰 작성 -->
+    <div id="refl-form-wrap" class="refl-form">
+      <div class="field">
+        <label>모임 전 성찰 — 책을 읽으며</label>
+        <textarea id="refl_q1" placeholder="책을 읽으면서 어떤 생각이 들었나요?"></textarea>
+      </div>
+      <div class="field">
+        <label>모임 후 성찰 — 오늘의 배움</label>
+        <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?"></textarea>
+      </div>
+      <div class="post-form-footer" style="display:flex;justify-content:flex-end">
+        <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
+      </div>
+    </div>
+
+    <!-- 발제문 작성 -->
+    <div id="prop-form-wrap" class="refl-form" style="display:none">
+      <div class="field">
+        <label>발제 주제 / 제목</label>
+        <textarea id="prop_q1" placeholder="어떤 주제로 발제하시나요?" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label>발제 내용</label>
+        <textarea id="prop_q2" placeholder="발제문 본문을 적어주세요." rows="5"></textarea>
+      </div>
+      <div class="post-form-footer" style="display:flex;justify-content:flex-end">
+        <button class="btn-post" onclick="postProposal()">발제문 올리기</button>
+      </div>
+    </div>
+
+    <div id="rpList" class="card-list"></div>
+  </div>
+
+  <!-- 써머리 -->
+  <div id="tab-after" class="tab-panel">
+    <div id="summaryArea"></div>
+    <div class="empty-state" id="summaryEmpty" style="display:none">아직 써머리가 없어요. 모임 후 관리자가 업로드해요.</div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2022–2026 조니딥 JourneyDeep.</p></footer>
+
+<script>
+const SU='https://dvlrzbckneucpvlacdll.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+const H={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json'};
+
+let _seasons=[], _curSeason=null, _curSession=null, _curQType='question_book', _curRpTab='reflection';
+let _members=[];
+
+// ── 초기화 ──────────────────────────────────────────
+async function init() {
+  // 시즌/세션 목록 로드
+  const r = await fetch(`${SU}/rest/v1/JD_programs?select=badge,sessions,season_number&visible=eq.true&order=season_number.desc`, {headers:H});
+  _seasons = await r.json();
+  renderSeasonChips();
+
+  // 멤버 목록 로드
+  const sr = await fetch(`${SU}/rest/v1/JD_site_settings?key=eq.members_v1&select=value`, {headers:H});
+  const sd = await sr.json();
+  if (sd[0]) {
+    const v = JSON.parse(sd[0].value);
+    // 최신 시즌 멤버
+    const s9 = v.seasons[0];
+    _members = (s9.members||[]).filter(m=>m.name).map(m=>m.name);
+  }
+  renderMemberSelect();
+
+  if (_seasons.length) selectSeason(_seasons[0]);
+}
+
+function renderSeasonChips() {
+  document.getElementById('seasonChips').innerHTML = _seasons.map((s,i)=>
+    `<button class="chip-btn${i===0?' active':''}" onclick="selectSeason(_seasons[${i}],this)">${s.badge}</button>`
+  ).join('');
+}
+
+function selectSeason(s, btn) {
+  _curSeason = s;
+  if (btn) { document.querySelectorAll('#seasonChips .chip-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  // 회차 렌더
+  const sessions = s.sessions || [];
+  document.getElementById('sessionChips').innerHTML = sessions.map((ss,i)=>
+    `<button class="chip-btn${i===0?' active':''}" onclick="selectSession(${i},this)">${ss.n}</button>`
+  ).join('');
+  selectSession(0);
+}
+
+function selectSession(idx, btn) {
+  if (!_curSeason) return;
+  _curSession = (_curSeason.sessions||[])[idx];
+  if (btn) { document.querySelectorAll('#sessionChips .chip-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  loadAll();
+}
+
+function renderMemberSelect() {
+  const sel = document.getElementById('memberSelect');
+  const saved = localStorage.getItem('jd_member');
+  sel.innerHTML = '<option value="">이름을 선택해주세요</option>' +
+    _members.map(n=>`<option value="${n}"${n===saved?' selected':''}>${n}</option>`).join('');
+  sel.onchange = () => localStorage.setItem('jd_member', sel.value);
+}
+
+function getMember() { return document.getElementById('memberSelect').value; }
+function getSeasonLabel() { return _curSeason ? _curSeason.badge : ''; }
+function getSessionLabel() { return _curSession ? _curSession.n : ''; }
+
+// ── 탭 ──────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setQType(type, btn) {
+  _curQType = type;
+  document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const ph = type==='question_book'
+    ? '이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요.'
+    : '실무에서 맞닥뜨린 고민이나 함께 나누고 싶은 주제를 적어주세요.';
+  document.getElementById('qInput').placeholder = ph;
+}
+
+function setRpTab(tab, btn) {
+  _curRpTab = tab;
+  document.querySelectorAll('.refl-type-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('refl-form-wrap').style.display = tab==='reflection'?'':'none';
+  document.getElementById('prop-form-wrap').style.display = tab==='proposal'?'':'none';
+  loadRp();
+}
+
+// ── 데이터 로드 ──────────────────────────────────────
+async function loadAll() {
+  loadMessages();
+  loadRp();
+  loadSummary();
+}
+
+async function loadMessages() {
+  if (!_curSeason||!_curSession) return;
+  const season=getSeasonLabel(), session=getSessionLabel();
+  const r = await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(season)}&session_n=eq.${encodeURIComponent(session)}&order=created_at.asc`, {headers:H});
+  const msgs = await r.json();
+  const questions = msgs.filter(m=>m.type==='question_book'||m.type==='question_work');
+  const greetings = msgs.filter(m=>m.type==='greeting');
+  renderMsgList('questionList', questions);
+  renderMsgList('greetingList', greetings);
+}
+
+function renderMsgList(elId, msgs) {
+  const el = document.getElementById(elId);
+  if (!msgs.length) { el.innerHTML='<div class="empty-state">아직 아무도 남기지 않았어요.</div>'; return; }
+  el.innerHTML = msgs.map(m => {
+    const tagClass = m.type==='question_book'?'tag-book':m.type==='question_work'?'tag-work':'tag-greeting';
+    const tagText = m.type==='question_book'?'책':'실무';
+    const typeTag = (m.type==='question_book'||m.type==='question_work')
+      ? `<span class="msg-type-tag ${tagClass}">${tagText}</span>` : '';
+    return `<div class="msg-card">
+      <div class="msg-card-header">
+        <span class="msg-author">${esc(m.author)}</span>${typeTag}
+        <span class="msg-time">${timeAgo(m.created_at)}</span>
+      </div>
+      <div class="msg-content">${esc(m.content)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadRp() {
+  if (!_curSeason||!_curSession) return;
+  const season=getSeasonLabel(), session=getSessionLabel();
+  const sessionLabel = `${season} · ${session}`;
+  const rpEl = document.getElementById('rpList');
+
+  if (_curRpTab==='reflection') {
+    const r = await fetch(`${SU}/rest/v1/JD_reflections?session=ilike.*${encodeURIComponent(season)}*${encodeURIComponent(session)}*&order=submitted_at.asc`, {headers:H});
+    let items = await r.json();
+    // fallback: session field 형식이 다를 수 있으므로 전체에서 필터
+    if (!items.length) {
+      const r2 = await fetch(`${SU}/rest/v1/JD_reflections?order=submitted_at.asc`, {headers:H});
+      const all = await r2.json();
+      items = all.filter(x=>(x.session||'').includes(session) && (x.session||'').includes(season.replace('시즌 ','')));
+    }
+    if (!items.length) { rpEl.innerHTML='<div class="empty-state">아직 성찰이 없어요.</div>'; return; }
+    rpEl.innerHTML = items.map(m=>`<div class="rp-card">
+      <div class="rp-author">${esc(m.name)}</div>
+      ${m.q1_answer?`<div class="rp-section"><div class="rp-section-label">${esc(m.q1_label||'모임 전 성찰')}</div><div class="rp-text">${esc(m.q1_answer)}</div></div>`:''}
+      ${m.q2_answer?`<div class="rp-section"><div class="rp-section-label">${esc(m.q2_label||'모임 후 성찰')}</div><div class="rp-text">${esc(m.q2_answer)}</div></div>`:''}
+    </div>`).join('');
+  } else {
+    const r = await fetch(`${SU}/rest/v1/JD_proposals?order=created_at.asc`, {headers:H});
+    let items = await r.json();
+    // session 필드 기준 필터 (proposals에 season/session 필드 있으면)
+    if (!items.length) { rpEl.innerHTML='<div class="empty-state">아직 발제문이 없어요.</div>'; return; }
+    rpEl.innerHTML = items.map(m=>`<div class="rp-card">
+      <div class="rp-author">${esc(m.name||m.author||'')}</div>
+      ${m.q1_answer||m.title?`<div class="rp-section"><div class="rp-section-label">발제 주제</div><div class="rp-text">${esc(m.q1_answer||m.title||'')}</div></div>`:''}
+      ${m.q2_answer||m.content?`<div class="rp-section"><div class="rp-section-label">발제 내용</div><div class="rp-text">${esc(m.q2_answer||m.content||'')}</div></div>`:''}
+    </div>`).join('');
+  }
+}
+
+async function loadSummary() {
+  if (!_curSeason||!_curSession) return;
+  const season=getSeasonLabel(), session=getSessionLabel();
+  const r = await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(season)}&session_n=eq.${encodeURIComponent(session)}&type=eq.summary&order=created_at.desc&limit=1`, {headers:H});
+  const items = await r.json();
+  const area = document.getElementById('summaryArea');
+  const empty = document.getElementById('summaryEmpty');
+  if (!items.length) { area.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
+  area.innerHTML = items.map(m=>`<div class="summary-card">
+    <h3>📋 ${esc(session)} 모임 써머리</h3>
+    <div class="summary-content">${esc(m.content)}</div>
+    <div style="margin-top:.75rem;font-size:.72rem;color:var(--tl)">${timeAgo(m.created_at)}</div>
+  </div>`).join('');
+}
+
+// ── 포스팅 ───────────────────────────────────────────
+async function postMessage() {
+  const member=getMember(), content=document.getElementById('qInput').value.trim();
+  if (!member) { alert('먼저 이름을 선택해주세요.'); return; }
+  if (!content) { alert('내용을 입력해주세요.'); return; }
+  await fetch(`${SU}/rest/v1/JD_session_messages`, {
+    method:'POST', headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({season:getSeasonLabel(),session_n:getSessionLabel(),type:_curQType,author:member,content})
+  });
+  document.getElementById('qInput').value='';
+  loadMessages();
+}
+
+async function postGreeting() {
+  const member=getMember(), content=document.getElementById('greetInput').value.trim();
+  if (!member) { alert('먼저 이름을 선택해주세요.'); return; }
+  if (!content) { alert('내용을 입력해주세요.'); return; }
+  await fetch(`${SU}/rest/v1/JD_session_messages`, {
+    method:'POST', headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({season:getSeasonLabel(),session_n:getSessionLabel(),type:'greeting',author:member,content})
+  });
+  document.getElementById('greetInput').value='';
+  loadMessages();
+}
+
+async function postReflection() {
+  const member=getMember();
+  const q1=document.getElementById('refl_q1').value.trim();
+  const q2=document.getElementById('refl_q2').value.trim();
+  if (!member) { alert('먼저 이름을 선택해주세요.'); return; }
+  if (!q1 && !q2) { alert('내용을 입력해주세요.'); return; }
+  const session=getSeasonLabel()+' · '+getSessionLabel();
+  await fetch(`${SU}/rest/v1/JD_reflections`, {
+    method:'POST', headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({name:member, session,
+      q1_label:'모임 전 성찰', q1_answer:q1||null,
+      q2_label:'모임 후 성찰', q2_answer:q2||null})
+  });
+  document.getElementById('refl_q1').value='';
+  document.getElementById('refl_q2').value='';
+  loadRp();
+}
+
+async function postProposal() {
+  const member=getMember();
+  const q1=document.getElementById('prop_q1').value.trim();
+  const q2=document.getElementById('prop_q2').value.trim();
+  if (!member) { alert('먼저 이름을 선택해주세요.'); return; }
+  if (!q1) { alert('발제 주제를 입력해주세요.'); return; }
+  const session=getSeasonLabel()+' · '+getSessionLabel();
+  await fetch(`${SU}/rest/v1/JD_proposals`, {
+    method:'POST', headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({name:member, session,
+      q1_label:'발제 주제', q1_answer:q1,
+      q2_label:'발제 내용', q2_answer:q2||null, visible:true})
+  });
+  document.getElementById('prop_q1').value='';
+  document.getElementById('prop_q2').value='';
+  loadRp();
+}
+
+// ── 유틸 ─────────────────────────────────────────────
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+function timeAgo(iso){
+  if(!iso)return'';
+  const diff=Date.now()-new Date(iso).getTime();
+  const m=Math.floor(diff/60000);
+  if(m<1)return'방금';if(m<60)return m+'분 전';
+  const h=Math.floor(m/60);if(h<24)return h+'시간 전';
+  return new Date(iso).toLocaleDateString('ko',{month:'short',day:'numeric'});
+}
+
+function toggleMenu(){document.getElementById('navLinks')?.classList.toggle('open')}
+document.addEventListener('click',function(e){
+  if(window.innerWidth>600)return;
+  var li=e.target.closest('.nav-li.has-dropdown');
+  if(!li)return;
+  if(e.target.closest('.nav-dropdown'))return;
+  e.preventDefault();
+  var isOpen=li.classList.contains('open');
+  document.querySelectorAll('.nav-li.open').forEach(o=>o.classList.remove('open'));
+  if(!isOpen)li.classList.add('open');
+});
+
+init();
+</script>
+</body></html>
