@@ -225,6 +225,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item" onclick="showPanel('books')"><span class="nav-icon">📚</span><span class="nav-label">책 관리</span></div>
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
     <div class="nav-item" onclick="showPanel('members')"><span class="nav-icon">👥</span><span class="nav-label">회원 관리</span></div>
+    <div class="nav-item" onclick="showPanel('navcfg')"><span class="nav-icon">🧭</span><span class="nav-label">네비 설정</span></div>
   </nav>
   <div class="sidebar-footer">
     <a href="../index.html" class="back-btn">← 사이트로</a>
@@ -517,6 +518,19 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <div id="bk_list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- 네비 설정 -->
+  <div id="panel-navcfg" class="panel">
+    <div class="page-header">
+      <div class="page-title">네비게이션 설정</div>
+      <div class="page-sub">메뉴 이름을 변경하거나 숨길 수 있어요. 변경 즉시 모든 페이지에 반영돼요.</div>
+    </div>
+    <div style="max-width:520px">
+      <div id="navcfg-list" style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem"></div>
+      <button onclick="saveNavConfig()" style="padding:.6rem 1.75rem;background:var(--ac);color:#fff;border:none;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">저장하기</button>
+      <span id="navcfg-msg" style="margin-left:1rem;font-size:.82rem;color:var(--tl)"></span>
     </div>
   </div>
 
@@ -820,6 +834,58 @@ function showPanel(id) {
   event.currentTarget.classList.add('active');
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
   if (id === 'gallery') { loadGallery(); }
+  if (id === 'navcfg') { loadNavCfg(); }
+}
+
+// ── 네비 설정 ─────────────────────────────────────────
+const NAV_DEFAULT = [
+  {id:'about',    label:'About',    visible:true},
+  {id:'program',  label:'Program',  visible:true},
+  {id:'activity', label:'Activity', visible:true},
+  {id:'contents', label:'Contents', visible:true},
+  {id:'archive',  label:'Archive',  visible:true},
+];
+
+async function loadNavCfg() {
+  const list = document.getElementById('navcfg-list');
+  list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config&select=value`, {
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+  });
+  const rows = await res.json();
+  const items = (rows[0] ? JSON.parse(rows[0].value).items : NAV_DEFAULT);
+  list.innerHTML = items.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--sf);border:1px solid var(--bd)">
+      <span style="font-size:.7rem;font-weight:700;color:var(--tl);width:70px;letter-spacing:.06em;text-transform:uppercase">${item.id}</span>
+      <input id="navcfg-label-${i}" value="${item.label}"
+        style="flex:1;border:1px solid var(--bd);background:var(--bg);padding:.4rem .7rem;font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--tp)">
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--tl);cursor:pointer;white-space:nowrap">
+        <input type="checkbox" id="navcfg-vis-${i}" ${item.visible ? 'checked' : ''}
+          style="width:15px;height:15px;cursor:pointer">
+        표시
+      </label>
+    </div>`).join('');
+  list.dataset.items = JSON.stringify(items);
+}
+
+async function saveNavConfig() {
+  const list = document.getElementById('navcfg-list');
+  const msg = document.getElementById('navcfg-msg');
+  const items = JSON.parse(list.dataset.items || '[]');
+  const updated = items.map((item, i) => ({
+    id: item.id,
+    label: document.getElementById(`navcfg-label-${i}`).value.trim() || item.label,
+    visible: document.getElementById(`navcfg-vis-${i}`).checked,
+  }));
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config`, {
+    method: 'PATCH',
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+              'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
+    body: JSON.stringify({value: JSON.stringify({items: updated})})
+  });
+  msg.textContent = res.ok ? '저장됐어요 ✓' : '저장 실패';
+  msg.style.color = res.ok ? '#10B981' : '#EF4444';
+  setTimeout(() => { msg.textContent = ''; }, 2500);
 }
 
 // Supabase helpers
@@ -3398,5 +3464,24 @@ async function hpPickFromAlbum(url) {
     openCropModal(file, b => hpUploadAndSave(b, key));
   } catch(e) { toast('이미지를 불러오지 못했어요.', true); }
 }
+</script>
+
+<script>
+(function(){
+  var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  fetch(SU+'/rest/v1/JD_site_settings?key=eq.nav_config&select=value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!rows||!rows[0])return;
+      var cfg=JSON.parse(rows[0].value);
+      cfg.items.forEach(function(item){
+        var span=document.querySelector('.nav-link-main[data-navid="'+item.id+'"]');
+        if(!span)return;
+        var li=span.closest('.nav-li');
+        if(!li)return;
+        if(item.visible===false){li.style.display='none';}
+        else{li.style.display='';span.textContent=item.label;}
+      });
+    }).catch(function(){});
+})();
 </script>
 </body></html>

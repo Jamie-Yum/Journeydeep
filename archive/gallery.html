@@ -65,13 +65,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <span class="nav-logo-sub">JourneyDeep</span>
   </a>
   <ul class="nav-links" id="navLinks">
-    <li class="nav-li"><a href="../index.html#about" class="nav-link-item"><span class="nav-link-main">About</span></a></li>
+    <li class="nav-li"><a href="../index.html#about" class="nav-link-item"><span class="nav-link-main" data-navid="about">About</span></a></li>
     <li class="nav-li has-dropdown">
-      <a href="../index.html#journeys" class="nav-link-item"><span class="nav-link-main">Program</span></a>
+      <a href="../index.html#journeys" class="nav-link-item"><span class="nav-link-main" data-navid="program">Program</span></a>
       <div class="nav-dropdown"><a href="../program/jd.html" class="nav-dd-item">조니딥 시즌 9</a></div>
     </li>
     <li class="nav-li has-dropdown">
-      <a href="../index.html#together" class="nav-link-item"><span class="nav-link-main">Activity</span></a>
+      <a href="#contents" class="nav-link-item"><span class="nav-link-main" data-navid="contents">Contents</span></a>
+      <div class="nav-dropdown"><a href="../community/columns.html" class="nav-dd-item">칼럼</a></div>
+    </li>
+    <li class="nav-li has-dropdown">
+      <a href="../index.html#together" class="nav-link-item"><span class="nav-link-main" data-navid="activity">Activity</span></a>
       <div class="nav-dropdown">
         <a href="../community/session.html" class="nav-dd-item">회차별 활동</a>
         <div class="nav-dd-divider"></div>
@@ -81,7 +85,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       </div>
     </li>
     <li class="nav-li has-dropdown">
-      <a href="../index.html#trace" class="nav-link-item"><span class="nav-link-main">Archive</span></a>
+      <a href="../index.html#trace" class="nav-link-item"><span class="nav-link-main" data-navid="archive">Archive</span></a>
       <div class="nav-dropdown">
         <a href="../archive/gallery.html" class="nav-dd-item" style="color:var(--ac);font-weight:600">Gallery</a>
         <div class="nav-dd-divider"></div>
@@ -196,5 +200,24 @@ fetch(SU+'/rest/v1/JD_gallery?select=image_url,caption,season,sort_order&visible
   document.getElementById('glCount').textContent='사진을 불러오지 못했습니다.';
 });
 (function(){var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}).then(function(rows){if(!Array.isArray(rows))return;rows.forEach(function(row){if(row.key==='hero_gallery'&&row.value){var el=document.querySelector('.gl-hero');if(el){el.style.backgroundImage='url('+row.value+')';el.style.backgroundSize='cover';el.style.backgroundPosition='center';}}});}).catch(function(){});})();
+</script>
+
+<script>
+(function(){
+  var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  fetch(SU+'/rest/v1/JD_site_settings?key=eq.nav_config&select=value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!rows||!rows[0])return;
+      var cfg=JSON.parse(rows[0].value);
+      cfg.items.forEach(function(item){
+        var span=document.querySelector('.nav-link-main[data-navid="'+item.id+'"]');
+        if(!span)return;
+        var li=span.closest('.nav-li');
+        if(!li)return;
+        if(item.visible===false){li.style.display='none';}
+        else{li.style.display='';span.textContent=item.label;}
+      });
+    }).catch(function(){});
+})();
 </script>
 </body></html>
