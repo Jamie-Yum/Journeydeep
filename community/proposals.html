@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>발제문 — 조니딥 JourneyDeep</title>
+<title>발제문 · 성찰 — 조니딥 JourneyDeep</title>
 <link rel="icon" href="../favicon.png" type="image/png">
 <meta name="description" content="모임에서 나눈 발제와 질문들을 기록합니다.">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -201,7 +201,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
         <div class="nav-dd-divider"></div>
         <a href="../community/proposals.html" class="nav-dd-item">발제문</a>
         <a href="../community/columns.html" class="nav-dd-item">칼럼</a>
-        <a href="../community/reflections.html" class="nav-dd-item">성찰</a>
+        
       </div>
     </li>
     <li class="nav-li has-dropdown">
@@ -217,15 +217,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <div id="ph-hero" style="width:100%;height:0;overflow:hidden;background-size:cover;background-position:center;transition:height .3s ease"></div>
 <div style="max-width:780px;margin:0 auto;padding:7rem 1.5rem 5rem">
   <a href="../index.html" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--tl);text-decoration:none;font-size:.85rem;margin-bottom:2.5rem">← 홈으로</a>
-  <div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.75rem">JourneyDeep · Proposal</div>
-  <h1 style="font-family:'DM Sans',sans-serif;font-size:2.2rem;font-weight:600;color:var(--dk);line-height:1.3;margin-bottom:.75rem">발제문</h1>
-  <p style="font-size:.97rem;color:var(--tl);line-height:1.8;margin-bottom:3rem">모임에서 나눈 발제와 질문들을 기록합니다.</p>
+  <div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.75rem">JourneyDeep · Together</div>
+  <h1 style="font-family:'DM Sans',sans-serif;font-size:2.2rem;font-weight:600;color:var(--dk);line-height:1.3;margin-bottom:.75rem">발제문 · 성찰</h1>
+  <p style="font-size:.97rem;color:var(--tl);line-height:1.8;margin-bottom:2.5rem">모임에서 나눈 발제와 생각들을 기록합니다.</p>
 
-  <!-- 시즌 필터 -->
-  <div id="season-filter" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem"></div>
+  <!-- 탭 -->
+  <div style="display:flex;gap:0;border-bottom:2px solid var(--be);margin-bottom:2rem">
+    <button id="tab-btn-proposal" onclick="switchMainTab('proposal')" style="padding:.65rem 1.4rem;font-size:.88rem;font-weight:700;color:var(--ac);background:none;border:none;border-bottom:2px solid var(--ac);margin-bottom:-2px;cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .2s">발제문</button>
+    <button id="tab-btn-reflection" onclick="switchMainTab('reflection')" style="padding:.65rem 1.4rem;font-size:.88rem;font-weight:500;color:var(--tl);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .2s">성찰</button>
+  </div>
 
-  <!-- 동적 발제문 목록 -->
-  <div id="proposals-list"></div>
+  <!-- 발제문 탭 -->
+  <div id="tab-proposal">
+    <div id="season-filter" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem"></div>
+    <div id="proposals-list"></div>
+  </div>
+
+  <!-- 성찰 탭 -->
+  <div id="tab-reflection" style="display:none">
+    <div id="refl-season-filter" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem"></div>
+    <div id="reflections-list"></div>
+  </div>
 
 </div>
 
@@ -309,6 +321,112 @@ function toggleProposal(el,id){
 }
 
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── 탭 전환 ──────────────────────────────────────────
+var _activeTab = 'proposal';
+function switchMainTab(tab) {
+  _activeTab = tab;
+  document.getElementById('tab-proposal').style.display = tab==='proposal'?'':'none';
+  document.getElementById('tab-reflection').style.display = tab==='reflection'?'':'none';
+  var pb = document.getElementById('tab-btn-proposal');
+  var rb = document.getElementById('tab-btn-reflection');
+  pb.style.color = tab==='proposal'?'var(--ac)':'var(--tl)';
+  pb.style.fontWeight = tab==='proposal'?'700':'500';
+  pb.style.borderBottomColor = tab==='proposal'?'var(--ac)':'transparent';
+  rb.style.color = tab==='reflection'?'var(--ac)':'var(--tl)';
+  rb.style.fontWeight = tab==='reflection'?'700':'500';
+  rb.style.borderBottomColor = tab==='reflection'?'var(--ac)':'transparent';
+  if (tab==='reflection' && !_reflLoaded) loadReflections();
+}
+
+// ── 성찰 로드 ─────────────────────────────────────────
+var allReflections=[], activeReflSeason='전체', _reflLoaded=false;
+function loadReflections(){
+  _reflLoaded=true;
+  fetch(SU+'/rest/v1/JD_reflections?select=*&order=submitted_at.desc',{
+    headers:{'apikey':SK,'Authorization':'Bearer '+SK}
+  }).then(function(r){return r.json();}).then(function(data){
+    if(!Array.isArray(data)){renderReflections([]);return;}
+    allReflections=data;
+    buildReflSeasonFilter(data);
+    renderReflections(data);
+  }).catch(function(){renderReflections([]);});
+}
+
+function buildReflSeasonFilter(data){
+  var seasons=[];
+  data.forEach(function(r){
+    var s=extractSeason(r.session);
+    if(s&&seasons.indexOf(s)<0)seasons.push(s);
+  });
+  if(seasons.length<2)return;
+  var wrap=document.getElementById('refl-season-filter');
+  var allBtn=document.createElement('button');
+  allBtn.textContent='전체'; allBtn.className='sf-btn active';
+  allBtn.style.cssText='padding:.35rem .9rem;border:1px solid rgba(37,99,235,.4);background:rgba(37,99,235,.1);color:#2563EB;font-size:.8rem;font-weight:700;cursor:pointer;letter-spacing:.04em;';
+  allBtn.onclick=function(){filterReflSeason(this,'전체');};
+  wrap.appendChild(allBtn);
+  seasons.forEach(function(s){
+    var btn=document.createElement('button');
+    btn.textContent=s; btn.className='sf-btn';
+    btn.style.cssText='padding:.35rem .9rem;border:1px solid rgba(100,116,139,.3);background:transparent;color:var(--tl);font-size:.8rem;font-weight:600;cursor:pointer;letter-spacing:.04em;';
+    btn.onclick=function(){filterReflSeason(this,s);};
+    wrap.appendChild(btn);
+  });
+}
+
+function extractSeason(session){
+  if(!session)return'';
+  var m=session.match(/시즌\s*\d+/);
+  return m?m[0]:'';
+}
+
+function filterReflSeason(btn,season){
+  document.querySelectorAll('#refl-season-filter .sf-btn').forEach(function(b){
+    b.style.background='transparent';b.style.color='var(--tl)';b.style.borderColor='rgba(100,116,139,.3)';
+  });
+  btn.style.background='rgba(37,99,235,.1)';btn.style.color='#2563EB';btn.style.borderColor='rgba(37,99,235,.4)';
+  activeReflSeason=season;
+  var filtered=season==='전체'?allReflections:allReflections.filter(function(r){return extractSeason(r.session)===season;});
+  renderReflections(filtered);
+}
+
+function renderReflections(data){
+  var list=document.getElementById('reflections-list');
+  if(!data.length){
+    list.innerHTML='<p style="color:var(--tl);font-size:.9rem;padding:1rem 0">아직 등록된 성찰이 없어요.</p>';
+    return;
+  }
+  list.innerHTML=data.map(function(r){
+    var qs=['q1','q2','q3','q4'].filter(function(k){return r[k+'_answer'];});
+    var body=qs.map(function(k){
+      return '<div style="margin-bottom:.85rem">'
+        +(r[k+'_label']?'<div style="font-size:.7rem;font-weight:700;color:var(--ac);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem">'+escHtml(r[k+'_label'])+'</div>':'')
+        +'<div style="font-size:.9rem;color:var(--ts);line-height:1.85;white-space:pre-wrap">'+escHtml(r[k+'_answer'])+'</div>'
+        +'</div>';
+    }).join('');
+    return '<div style="padding:1.5rem 2rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);margin-bottom:1rem;cursor:pointer;transition:all .3s" onclick="toggleRefl(this)" onmouseover="this.style.borderColor=\'#2563EB\'" onmouseout="if(!this.classList.contains(\'open\'))this.style.borderColor=\'rgba(100,116,139,.3)\'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">'
+      +'<div>'
+      +'<div style="font-size:.72rem;font-weight:700;color:#2563EB;letter-spacing:.1em;margin-bottom:.4rem">'+escHtml(r.session||'')+'</div>'
+      +'<h3 style="font-family:\'DM Sans\',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dk);line-height:1.5;margin-bottom:.25rem">'+escHtml(r.name)+'</h3>'
+      +'</div>'
+      +'<span class="refl-arrow" style="font-size:1.2rem;color:var(--tl);transition:transform .3s;flex-shrink:0">+</span>'
+      +'</div>'
+      +'<div class="refl-body" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(100,116,139,.15)">'+body+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleRefl(el){
+  var body=el.querySelector('.refl-body');
+  var arrow=el.querySelector('.refl-arrow');
+  var isOpen=el.classList.contains('open');
+  el.classList.toggle('open');
+  body.style.display=isOpen?'none':'block';
+  arrow.textContent=isOpen?'+':'×';
+  el.style.borderColor=isOpen?'rgba(100,116,139,.3)':'#2563EB';
+}
 
 loadProposals();
 (function(){var SU='https://dvlrzbckneucpvlacdll.supabase.co',SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(function(r){return r.json();}).then(function(rows){if(!Array.isArray(rows))return;rows.forEach(function(row){if(row.key==='hero_proposals'&&row.value){var el=document.getElementById('ph-hero');if(el){el.style.backgroundImage='url('+row.value+')';el.style.height='220px';}}});}).catch(function(){});})();
