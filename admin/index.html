@@ -600,7 +600,18 @@ async function toggleFinePaid(id,current){
         var li=span.closest('.nav-li');
         if(!li)return;
         if(item.visible===false){li.style.display='none';}
-        else{li.style.display='';span.textContent=item.label;}
+        else{
+          li.style.display='';
+          span.textContent=item.label;
+          if(item.children){
+            item.children.forEach(function(child){
+              var el=document.querySelector('[data-navchild="'+child.id+'"]');
+              if(!el)return;
+              if(child.visible===false){el.style.display='none';}
+              else{el.style.display='';el.textContent=child.label;}
+            });
+          }
+        }
       });
     }).catch(function(){});
 })();

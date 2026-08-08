@@ -854,18 +854,37 @@ async function loadNavCfg() {
   });
   const rows = await res.json();
   const items = (rows[0] ? JSON.parse(rows[0].value).items : NAV_DEFAULT);
-  list.innerHTML = items.map((item, i) => `
-    <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--sf);border:1px solid var(--bd)">
-      <span style="font-size:.7rem;font-weight:700;color:var(--tl);width:70px;letter-spacing:.06em;text-transform:uppercase">${item.id}</span>
-      <input id="navcfg-label-${i}" value="${item.label}"
-        style="flex:1;border:1px solid var(--bd);background:var(--bg);padding:.4rem .7rem;font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--tp)">
-      <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--tl);cursor:pointer;white-space:nowrap">
-        <input type="checkbox" id="navcfg-vis-${i}" ${item.visible ? 'checked' : ''}
-          style="width:15px;height:15px;cursor:pointer">
-        표시
-      </label>
-    </div>`).join('');
   list.dataset.items = JSON.stringify(items);
+  renderNavCfg(items);
+}
+
+function renderNavCfg(items) {
+  const list = document.getElementById('navcfg-list');
+  list.innerHTML = items.map((item, i) => {
+    const childRows = (item.children||[]).map((c, j) => `
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.6rem .85rem .6rem 2.5rem;background:var(--bg);border-bottom:1px solid var(--bd)">
+        <span style="font-size:.68rem;color:var(--tl);width:60px;letter-spacing:.04em">↳ ${c.id}</span>
+        <input id="navcfg-clabel-${i}-${j}" value="${c.label}"
+          style="flex:1;border:1px solid var(--bd);background:var(--wh);padding:.3rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--tp)">
+        <label style="display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--tl);cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="navcfg-cvis-${i}-${j}" ${c.visible!==false?'checked':''}
+            style="width:14px;height:14px;cursor:pointer"> 표시
+        </label>
+      </div>`).join('');
+    return `
+    <div style="border:1px solid var(--bd);margin-bottom:.5rem;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--sf);border-bottom:${item.children&&item.children.length?'1px solid var(--bd)':'none'}">
+        <span style="font-size:.7rem;font-weight:700;color:var(--ac);width:70px;letter-spacing:.06em;text-transform:uppercase">${item.id}</span>
+        <input id="navcfg-label-${i}" value="${item.label}"
+          style="flex:1;border:1px solid var(--bd);background:var(--bg);padding:.4rem .7rem;font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--tp);font-weight:600">
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--tl);cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="navcfg-vis-${i}" ${item.visible!==false?'checked':''}
+            style="width:15px;height:15px;cursor:pointer"> 표시
+        </label>
+      </div>
+      ${childRows}
+    </div>`;
+  }).join('');
 }
 
 async function saveNavConfig() {
@@ -873,9 +892,14 @@ async function saveNavConfig() {
   const msg = document.getElementById('navcfg-msg');
   const items = JSON.parse(list.dataset.items || '[]');
   const updated = items.map((item, i) => ({
-    id: item.id,
-    label: document.getElementById(`navcfg-label-${i}`).value.trim() || item.label,
-    visible: document.getElementById(`navcfg-vis-${i}`).checked,
+    ...item,
+    label: document.getElementById(`navcfg-label-${i}`)?.value.trim() || item.label,
+    visible: document.getElementById(`navcfg-vis-${i}`)?.checked ?? item.visible,
+    children: (item.children||[]).map((c, j) => ({
+      ...c,
+      label: document.getElementById(`navcfg-clabel-${i}-${j}`)?.value.trim() || c.label,
+      visible: document.getElementById(`navcfg-cvis-${i}-${j}`)?.checked ?? c.visible,
+    })),
   }));
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.nav_config`, {
     method: 'PATCH',
@@ -3479,7 +3503,18 @@ async function hpPickFromAlbum(url) {
         var li=span.closest('.nav-li');
         if(!li)return;
         if(item.visible===false){li.style.display='none';}
-        else{li.style.display='';span.textContent=item.label;}
+        else{
+          li.style.display='';
+          span.textContent=item.label;
+          if(item.children){
+            item.children.forEach(function(child){
+              var el=document.querySelector('[data-navchild="'+child.id+'"]');
+              if(!el)return;
+              if(child.visible===false){el.style.display='none';}
+              else{el.style.display='';el.textContent=child.label;}
+            });
+          }
+        }
       });
     }).catch(function(){});
 })();

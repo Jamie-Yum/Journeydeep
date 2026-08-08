@@ -192,28 +192,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <li class="nav-li"><a href="#about" class="nav-link-item"><span class="nav-link-main" data-navid="about">About</span></a></li>
     <li class="nav-li has-dropdown">
       <a href="#journeys" class="nav-link-item"><span class="nav-link-main" data-navid="program">Program</span></a>
-      <div class="nav-dropdown"><a href="../program/jd.html" class="nav-dd-item">조니딥 시즌 9</a></div>
+      <div class="nav-dropdown">
+        <a href="../community/columns.html" class="nav-dd-item" data-navchild="columns">칼럼</a>
+        <a href="../program/jd.html" class="nav-dd-item" data-navchild="jd-s9">조니딥 시즌 9</a></div>
     </li>
     <li class="nav-li has-dropdown">
       <a href="#together" class="nav-link-item"><span class="nav-link-main" data-navid="activity">Activity</span></a>
       <div class="nav-dropdown">
-        <a href="../community/session.html" class="nav-dd-item">회차별 활동</a>
-        <div class="nav-dd-divider"></div>
-        <a href="../community/proposals.html" class="nav-dd-item">발제문</a>
-        <a href="../community/columns.html" class="nav-dd-item">칼럼</a>
+        <a href="../community/columns.html" class="nav-dd-item" data-navchild="columns">칼럼</a>
         
-      </div>
+        <a href="../community/session.html" class="nav-dd-item" data-navchild="session">회차별 활동</a>
+        <div class="nav-dd-divider"></div>
+        <a href="../community/proposals.html" class="nav-dd-item" data-navchild="proposals">발제문</a>
+        </div>
     </li>
     <li class="nav-li has-dropdown">
       <a href="#contents" class="nav-link-item"><span class="nav-link-main" data-navid="contents">Contents</span></a>
-      <div class="nav-dropdown"><a href="../community/columns.html" class="nav-dd-item">칼럼</a></div>
+      <div class="nav-dropdown">
+        <a href="../community/columns.html" class="nav-dd-item" data-navchild="columns">칼럼</a>
+        
+        </div>
     </li>
     <li class="nav-li has-dropdown">
       <a href="#trace" class="nav-link-item"><span class="nav-link-main" data-navid="archive">Archive</span></a>
       <div class="nav-dropdown">
-        <a href="../archive/gallery.html" class="nav-dd-item">Gallery</a>
+        <a href="../archive/gallery.html" class="nav-dd-item" data-navchild="gallery">Gallery</a>
         <div class="nav-dd-divider"></div>
-        <a href="../archive/books.html" class="nav-dd-item">Book List</a>
+        <a href="../archive/books.html" class="nav-dd-item" data-navchild="books">Book List</a>
       </div>
     </li>
   </ul>
@@ -413,7 +418,18 @@ if(!document.getElementById('shakeStyle')){var ss=document.createElement('style'
         var li=span.closest('.nav-li');
         if(!li)return;
         if(item.visible===false){li.style.display='none';}
-        else{li.style.display='';span.textContent=item.label;}
+        else{
+          li.style.display='';
+          span.textContent=item.label;
+          if(item.children){
+            item.children.forEach(function(child){
+              var el=document.querySelector('[data-navchild="'+child.id+'"]');
+              if(!el)return;
+              if(child.visible===false){el.style.display='none';}
+              else{el.style.display='';el.textContent=child.label;}
+            });
+          }
+        }
       });
     }).catch(function(){});
 })();
