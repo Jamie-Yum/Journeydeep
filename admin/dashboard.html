@@ -956,23 +956,24 @@ async function saveNavConfig() {
 
 // ── S9 회차 관리 ──────────────────────────────────────
 let _s9ProgId = null;
+let _s9Locks = {}; // { "1회차": false } = 잠금, true/없음 = 열림
 
 async function loadS9Sessions() {
   const list = document.getElementById('s9sess-list');
   if (!list) return;
   list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
-  const [progRes, booksRes] = await Promise.all([
-    fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.시즌 9&select=id,sessions`, {
-      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}, cache: 'no-store'
-    }),
-    fetch(`${SUPA_URL}/rest/v1/JD_books?category=eq.시즌 9&is_recommended=eq.false&select=title,author,session&order=sort_order.asc`, {
-      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
-    })
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  const [progRes, booksRes, lockRes] = await Promise.all([
+    fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.시즌 9&select=id,sessions`, {headers:H, cache:'no-store'}),
+    fetch(`${SUPA_URL}/rest/v1/JD_books?category=eq.시즌 9&is_recommended=eq.false&select=title,author,session&order=sort_order.asc`, {headers:H}),
+    fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_session_locks&select=value`, {headers:H, cache:'no-store'})
   ]);
   const progs = await progRes.json();
   const books = await booksRes.json();
+  const locks = await lockRes.json();
   if (!progs[0]) { list.innerHTML = '<div style="color:var(--red)">시즌 9 프로그램을 먼저 등록해 주세요.</div>'; return; }
   _s9ProgId = progs[0].id;
+  _s9Locks = locks[0] ? JSON.parse(locks[0].value) : {};
   const sessions = progs[0].sessions || [];
   list.dataset.sessions = JSON.stringify(sessions);
   list.dataset.books = JSON.stringify(books);
@@ -986,8 +987,9 @@ function renderS9Sessions(sessions, books) {
     const bk = (books||[]).find(b => b.session === s.n) || {};
     const status = s.d < today ? '완료' : s.d === today ? '오늘' : '예정';
     const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
+    const isOpen = _s9Locks[s.n] !== false;
     return `
-    <div style="border:1px solid rgba(100,116,139,.2);padding:1rem;background:var(--bg);display:grid;grid-template-columns:auto 1fr 1fr;gap:.85rem;align-items:center">
+    <div style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05)">
       <div>
         <div style="font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.06em">${s.n}</div>
         <div style="font-size:.7rem;color:${statusColor};margin-top:.15rem;font-weight:600">${status}</div>
@@ -995,15 +997,47 @@ function renderS9Sessions(sessions, books) {
       <div>
         <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">날짜</label>
         <input type="date" id="s9s-date-${i}" value="${s.d||''}"
-          style="width:100%;padding:.4rem .6rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+          style="width:100%;padding:.4rem .6rem;background:var(--bg);border:1.5px solid rgba(120,120,160,.2);border-radius:var(--r-sm);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
       </div>
       <div>
         <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">연결된 도서</label>
         <div style="font-size:.82rem;color:${bk.title?'var(--dk)':'var(--tl)'};padding:.4rem 0">${bk.title||'— 책 관리에서 차수 지정'}</div>
         ${bk.author?`<div style="font-size:.72rem;color:var(--tl)">${bk.author}</div>`:''}
       </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
+        <label style="font-size:.7rem;font-weight:600;color:var(--ts)">기록</label>
+        <button onclick="toggleS9Lock('${s.n}')" id="s9lock-btn-${i}"
+          style="padding:.38rem .9rem;border-radius:var(--r-pill);border:none;cursor:pointer;font-size:.78rem;font-weight:700;font-family:'Pretendard',sans-serif;transition:all .2s;
+            background:${isOpen?'rgba(16,185,129,.12)':'rgba(239,68,68,.1)'};
+            color:${isOpen?'#059669':'#DC2626'}">
+          ${isOpen?'🔓 열림':'🔒 잠금'}
+        </button>
+      </div>
     </div>`;
   }).join('');
+}
+
+async function toggleS9Lock(sessionLabel) {
+  const sessions = JSON.parse(document.getElementById('s9sess-list').dataset.sessions || '[]');
+  const isOpen = _s9Locks[sessionLabel] !== false;
+  _s9Locks[sessionLabel] = !isOpen; // 열림↔잠금 토글
+  await saveS9Locks();
+  renderS9Sessions(sessions, JSON.parse(document.getElementById('s9sess-list').dataset.books || '[]'));
+}
+
+async function saveS9Locks() {
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+             'Content-Type': 'application/json', 'Prefer': 'return=minimal'};
+  const existing = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_session_locks&select=key`, {
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+  });
+  const rows = await existing.json();
+  const body = JSON.stringify({key:'s9_session_locks', value: JSON.stringify(_s9Locks)});
+  if (rows.length > 0) {
+    await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_session_locks`, {method:'PATCH', headers:H, body});
+  } else {
+    await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {method:'POST', headers:H, body});
+  }
 }
 
 async function saveS9Sessions() {

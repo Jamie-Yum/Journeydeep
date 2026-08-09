@@ -402,14 +402,14 @@ const SEASON='시즌 9';
 let _me='';
 let _sessions=[], _curN=1;
 let _qType='question_book';
-let _goals={}, _memberNames=[];
+let _goals={}, _memberNames=[], _locks={};
 
 // ── 초기화 ─────────────────────────────────────────
 async function init(){
   const [progRes, booksRes, settRes] = await Promise.all([
     fetch(`${SU}/rest/v1/JD_programs?badge=eq.%EC%8B%9C%EC%A6%8C%209&select=sessions&limit=1`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_site_settings?key=in.(members_v1,s9_goals)&select=key,value`,{headers:H})
+    fetch(`${SU}/rest/v1/JD_site_settings?key=in.(members_v1,s9_goals,s9_session_locks)&select=key,value`,{headers:H})
   ]);
   const [progs, books, settRows] = await Promise.all([progRes.json(), booksRes.json(), settRes.json()]);
 
@@ -429,6 +429,8 @@ async function init(){
     if(s9&&s9.members) _memberNames=s9.members.map(m=>m.name);
   }
   _goals=goalrow?JSON.parse(goalrow.value):{};
+  const lockrow=settRows.find(r=>r.key==='s9_session_locks');
+  _locks=lockrow?JSON.parse(lockrow.value):{};
 
   renderNameGrid(_memberNames);
   renderGoals();
@@ -476,15 +478,22 @@ function updateIdentityUI(){
 }
 
 function updateFormLock(){
+  const curLabel=_sessions[_curN-1]?.label||'';
+  const sessionLocked=_locks[curLabel]===false;
   ['qBox','refl-form-wrap'].forEach(id=>{
     const box=document.getElementById(id);
     if(!box)return;
-    const locked=!_me;
+    const locked=!_me||sessionLocked;
     box.classList.toggle('locked',locked);
     box.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
     box.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
     const fields=box.querySelector('#refl-fields');
     if(fields) fields.style.display=locked?'none':'';
+    const lockMsg=box.querySelector('.lock-msg');
+    if(lockMsg){
+      if(sessionLocked) lockMsg.textContent='이 회차는 기록이 마감되었어요';
+      else lockMsg.textContent=id==='qBox'?'이름을 선택하면 질문을 올릴 수 있어요':'이름을 선택하면 성찰을 기록할 수 있어요';
+    }
   });
   // 목표 입력창
   document.getElementById('goalLockedMsg').style.display=_me?'none':'';
@@ -583,6 +592,7 @@ function setSession(n){
     }
     document.getElementById('sessionDate').textContent=s.label+' · '+formatFullDate(s.date);
   }
+  updateFormLock();
   loadAll();
 }
 
