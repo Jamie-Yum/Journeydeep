@@ -60,7 +60,13 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .goal-input-wrap{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:1.25rem}
 .goal-input-wrap textarea{flex:1;border:1px solid var(--bd);padding:.6rem .8rem;font-size:.86rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:none;outline:none;background:var(--bg);line-height:1.7;transition:border-color .2s}
 .goal-input-wrap textarea:focus{border-color:var(--ac)}
-.goal-save-btn{padding:.55rem 1.1rem;background:var(--ac);color:#fff;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;white-space:nowrap;flex-shrink:0}
+.goal-row-label{font-size:.72rem;font-weight:700;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem}
+.goal-monthly-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem}
+.goal-month-item{display:flex;flex-direction:column;gap:.3rem}
+.goal-month-label{font-size:.72rem;font-weight:600;color:var(--ac)}
+.goal-month-item textarea{width:100%;border:1px solid var(--bd);padding:.5rem .7rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:none;outline:none;background:var(--bg);line-height:1.6;transition:border-color .2s}
+.goal-month-item textarea:focus{border-color:var(--ac)}
+.goal-save-btn{padding:.55rem 1.25rem;background:var(--ac);color:#fff;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif}
 .goal-save-btn:disabled{opacity:.5;cursor:default}
 .goal-list{display:flex;flex-wrap:wrap;gap:.6rem}
 .goal-item{display:flex;flex-direction:column;gap:.2rem;padding:.65rem 1rem;background:var(--bg);border:1px solid var(--bd);min-width:160px;flex:1}
@@ -253,9 +259,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
     </div>
     <div class="goal-my" id="goalMy">
       <div class="goal-locked-msg" id="goalLockedMsg">이름을 선택하면 목표를 입력할 수 있어요</div>
-      <div class="goal-input-wrap" id="goalInputWrap" style="display:none">
-        <textarea id="goalInput" placeholder="이번 시즌 나의 목표를 한 문장으로..." rows="2"></textarea>
-        <button class="goal-save-btn" onclick="saveGoal()" id="goalSaveBtn">저장</button>
+      <div id="goalInputWrap" style="display:none">
+        <div class="goal-row-label">시즌 목표</div>
+        <div class="goal-input-wrap">
+          <textarea id="goalInput" placeholder="이번 시즌 나의 목표를 한 문장으로..." rows="2"></textarea>
+        </div>
+        <div class="goal-row-label" style="margin-top:1rem">월별 목표</div>
+        <div id="goalMonthly" class="goal-monthly-grid"></div>
+        <button class="goal-save-btn" onclick="saveGoal()" id="goalSaveBtn" style="margin-top:1rem">저장</button>
       </div>
     </div>
     <div class="goal-list" id="goalList"></div>
@@ -436,28 +447,45 @@ function updateFormLock(){
   });
   // 목표 입력창
   document.getElementById('goalLockedMsg').style.display=_me?'none':'';
-  document.getElementById('goalInputWrap').style.display=_me?'flex':'none';
+  document.getElementById('goalInputWrap').style.display=_me?'block':'none';
   if(_me){
-    document.getElementById('goalInput').value=_goals[_me]||'';
+    const myGoal=_goals[_me];
+    document.getElementById('goalInput').value=(typeof myGoal==='object'?myGoal.season:myGoal)||'';
+    renderMonthlyGoalInputs(typeof myGoal==='object'?myGoal.monthly:{});
   }
 }
 
 // ── 목표 ─────────────────────────────────────────────
-function renderGoals(){
-  document.getElementById('goalList').innerHTML='';
+function renderGoals(){ document.getElementById('goalList').innerHTML=''; }
+
+function renderMonthlyGoalInputs(monthly={}){
+  const months=[...new Set(_sessions.map(s=>s.date.slice(0,7)))];
+  const MONTH_KO={'01':'1월','02':'2월','03':'3월','04':'4월','05':'5월','06':'6월','07':'7월','08':'8월','09':'9월','10':'10월','11':'11월','12':'12월'};
+  document.getElementById('goalMonthly').innerHTML=months.map(m=>{
+    const mm=m.slice(5,7);
+    return `<div class="goal-month-item">
+      <div class="goal-month-label">${m.slice(0,4)}년 ${MONTH_KO[mm]}</div>
+      <textarea id="goalM-${m}" rows="2" placeholder="${MONTH_KO[mm]} 목표...">${monthly[m]||''}</textarea>
+    </div>`;
+  }).join('');
 }
 
 async function saveGoal(){
   if(!_me)return;
-  const txt=document.getElementById('goalInput').value.trim();
+  const season=document.getElementById('goalInput').value.trim();
+  const months=[...new Set(_sessions.map(s=>s.date.slice(0,7)))];
+  const monthly={};
+  months.forEach(m=>{
+    const v=document.getElementById(`goalM-${m}`)?.value.trim();
+    if(v) monthly[m]=v;
+  });
   const btn=document.getElementById('goalSaveBtn');
   btn.disabled=true; btn.textContent='저장 중…';
 
-  // 현재 값 가져와서 병합
   const res=await fetch(`${SU}/rest/v1/JD_site_settings?key=eq.s9_goals&select=value`,{headers:H});
   const rows=await res.json();
   const current=rows[0]?JSON.parse(rows[0].value):{};
-  current[_me]=txt;
+  current[_me]={season, monthly};
   _goals=current;
 
   if(rows[0]){
@@ -473,7 +501,6 @@ async function saveGoal(){
   }
   btn.disabled=false; btn.textContent='저장됐어요 ✓';
   setTimeout(()=>{btn.textContent='저장';},2000);
-  renderGoals();
 }
 
 // ── Timeline ────────────────────────────────────────
