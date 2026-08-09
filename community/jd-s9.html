@@ -444,17 +444,7 @@ function updateFormLock(){
 
 // ── 목표 ─────────────────────────────────────────────
 function renderGoals(){
-  const el=document.getElementById('goalList');
-  if(!_memberNames.length){el.innerHTML='';return;}
-  el.innerHTML=_memberNames.map(name=>{
-    const txt=_goals[name]||'';
-    const mine=name===_me;
-    if(mine) return ''; // 내 목표는 입력창으로 표시
-    return `<div class="goal-item${mine?' mine':''}">
-      <div class="goal-item-name">${escH(name)}</div>
-      ${txt?`<div class="goal-item-text">${escH(txt)}</div>`:`<div class="goal-item-empty">아직 목표 없음</div>`}
-    </div>`;
-  }).join('');
+  document.getElementById('goalList').innerHTML='';
 }
 
 async function saveGoal(){
