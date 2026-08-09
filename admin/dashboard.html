@@ -534,6 +534,13 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <button onclick="document.getElementById('s9content-card').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--tl);padding:.25rem;line-height:1">✕</button>
       </div>
+      <!-- 탭 -->
+      <div style="display:flex;gap:.25rem;margin-bottom:1.25rem;border-bottom:1.5px solid var(--bd);padding-bottom:0">
+        <button id="s9tab-content" onclick="switchS9Tab('content')" style="padding:.45rem 1rem;border:none;border-bottom:2.5px solid var(--ac);background:none;cursor:pointer;font-size:.82rem;font-weight:700;color:var(--ac);font-family:'Pretendard',sans-serif;margin-bottom:-1.5px">발제문·아카이빙</button>
+        <button id="s9tab-records" onclick="switchS9Tab('records')" style="padding:.45rem 1rem;border:none;border-bottom:2.5px solid transparent;background:none;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--tl);font-family:'Pretendard',sans-serif;margin-bottom:-1.5px">기록 관리</button>
+      </div>
+      <!-- 발제문·아카이빙 탭 -->
+      <div id="s9pane-content">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
         <div>
           <div style="font-size:.75rem;font-weight:700;color:#2D6BE4;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem">📝 발제문</div>
@@ -553,6 +560,24 @@ tr:hover td{background:rgba(37,99,235,.03)}
           <div style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
             <button class="btn btn-primary btn-sm" onclick="saveS9Content('archive')">저장</button>
             <span id="s9archive-msg" style="font-size:.8rem;color:var(--tl)"></span>
+          </div>
+        </div>
+      </div>
+      </div><!-- /s9pane-content -->
+      <!-- 기록 관리 탭 -->
+      <div id="s9pane-records" style="display:none">
+        <div style="display:flex;gap:1.5rem">
+          <div style="flex:1">
+            <div style="font-size:.75rem;font-weight:700;color:#6B63D8;margin-bottom:.75rem">💬 사전 질문</div>
+            <div id="s9rec-questions" style="display:flex;flex-direction:column;gap:.5rem">
+              <div style="font-size:.82rem;color:var(--tl)">회차를 선택하면 불러와요.</div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;margin-bottom:.75rem">✍️ 성찰</div>
+            <div id="s9rec-reflections" style="display:flex;flex-direction:column;gap:.5rem">
+              <div style="font-size:.82rem;color:var(--tl)">회차를 선택하면 불러와요.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1071,6 +1096,65 @@ async function saveS9Locks() {
 
 let _s9SelSession = null;
 
+function switchS9Tab(tab) {
+  const isContent = tab === 'content';
+  document.getElementById('s9pane-content').style.display = isContent ? '' : 'none';
+  document.getElementById('s9pane-records').style.display = isContent ? 'none' : '';
+  document.getElementById('s9tab-content').style.borderBottomColor = isContent ? 'var(--ac)' : 'transparent';
+  document.getElementById('s9tab-content').style.color = isContent ? 'var(--ac)' : 'var(--tl)';
+  document.getElementById('s9tab-records').style.borderBottomColor = isContent ? 'transparent' : 'var(--ac)';
+  document.getElementById('s9tab-records').style.color = isContent ? 'var(--tl)' : 'var(--ac)';
+  if (!isContent && _s9SelSession) loadS9Records(_s9SelSession.n);
+}
+
+async function loadS9Records(n) {
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  const qEl = document.getElementById('s9rec-questions');
+  const rEl = document.getElementById('s9rec-reflections');
+  qEl.innerHTML = '<div style="font-size:.82rem;color:var(--tl)">불러오는 중…</div>';
+  rEl.innerHTML = '<div style="font-size:.82rem;color:var(--tl)">불러오는 중…</div>';
+
+  const [qRes, rRes] = await Promise.all([
+    fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(question_book,question_work)&order=created_at.asc`, {headers: H}),
+    fetch(`${SUPA_URL}/rest/v1/JD_reflections?session=eq.${encodeURIComponent('시즌 9 ' + n + '회차')}&order=submitted_at.asc`, {headers: H})
+  ]);
+  const questions = await qRes.json();
+  const reflections = await rRes.json();
+
+  const typeLabel = t => t === 'question_book' ? '책관련' : '실무관련';
+  qEl.innerHTML = questions.length
+    ? questions.map(q => `
+      <div style="display:flex;align-items:flex-start;gap:.6rem;padding:.6rem .75rem;background:var(--bg);border-radius:var(--r-sm)">
+        <div style="flex:1;min-width:0">
+          <span style="font-size:.65rem;font-weight:700;color:var(--ac)">${typeLabel(q.type)}</span>
+          <span style="font-size:.7rem;color:var(--tl);margin-left:.4rem">${q.author}</span>
+          <div style="font-size:.83rem;color:var(--dk);margin-top:.2rem;line-height:1.5">${q.content}</div>
+        </div>
+        <button onclick="deleteS9Record('JD_session_messages','${q.id}','questions',${n})"
+          style="flex-shrink:0;padding:.25rem .55rem;border:1px solid #fca5a5;border-radius:6px;background:#fee2e2;color:#dc2626;font-size:.7rem;cursor:pointer;font-family:'Pretendard',sans-serif">삭제</button>
+      </div>`).join('')
+    : '<div style="font-size:.82rem;color:var(--tl)">질문이 없어요.</div>';
+
+  rEl.innerHTML = reflections.length
+    ? reflections.map(r => `
+      <div style="display:flex;align-items:flex-start;gap:.6rem;padding:.6rem .75rem;background:var(--bg);border-radius:var(--r-sm)">
+        <div style="flex:1;min-width:0">
+          <span style="font-size:.7rem;font-weight:700;color:var(--dk)">${r.name}</span>
+          <div style="font-size:.83rem;color:var(--dk);margin-top:.2rem;line-height:1.5">${r.q2_answer || ''}</div>
+        </div>
+        <button onclick="deleteS9Record('JD_reflections','${r.id}','reflections',${n})"
+          style="flex-shrink:0;padding:.25rem .55rem;border:1px solid #fca5a5;border-radius:6px;background:#fee2e2;color:#dc2626;font-size:.7rem;cursor:pointer;font-family:'Pretendard',sans-serif">삭제</button>
+      </div>`).join('')
+    : '<div style="font-size:.82rem;color:var(--tl)">성찰이 없어요.</div>';
+}
+
+async function deleteS9Record(table, id, kind, n) {
+  if (!confirm('이 기록을 삭제할까요?')) return;
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, {method: 'DELETE', headers: H});
+  loadS9Records(n);
+}
+
 async function selectS9Session(label, n) {
   _s9SelSession = {label, n};
   // 행 배경 강조 업데이트
@@ -1085,6 +1169,7 @@ async function selectS9Session(label, n) {
   document.getElementById('s9archive-msg').textContent = '';
   document.getElementById('s9proposal-input').value = '';
   document.getElementById('s9archive-input').value = '';
+  switchS9Tab('content');
 
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
   const r = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(proposal,archive)&order=created_at.desc`, {headers: H});
