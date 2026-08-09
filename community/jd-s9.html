@@ -359,16 +359,22 @@ let _qType='question_book', _rpTab='reflection';
 
 // ── 초기화 ─────────────────────────────────────────
 async function init(){
-  // 병렬 로드
-  const [settingsRes, membersRes] = await Promise.all([
+  const [settingsRes, booksRes] = await Promise.all([
     fetch(`${SU}/rest/v1/JD_site_settings?key=in.(s9_sessions,members_v1)&select=key,value`,{headers:H}),
-    null
+    fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H})
   ]);
   const settings = await settingsRes.json();
+  const books = await booksRes.json();
+
   const s9row = settings.find(r=>r.key==='s9_sessions');
   const memrow = settings.find(r=>r.key==='members_v1');
 
-  if(s9row) _sessions=JSON.parse(s9row.value);
+  if(s9row){
+    _sessions=JSON.parse(s9row.value).map(s=>{
+      const bk=books.find(b=>Number(b.session)===s.n)||{};
+      return {...s, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
+    });
+  }
 
   // 멤버 목록
   let memberNames=[];
