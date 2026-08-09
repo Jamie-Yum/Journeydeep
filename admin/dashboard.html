@@ -961,15 +961,22 @@ const S9_STATUS_OPTIONS = [
   {value:'today',    label:'오늘'},
 ];
 
+let _s9Books = [];
+
 async function loadS9Sessions() {
   const list = document.getElementById('s9sess-list');
   if (!list) return;
   list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions&select=value`, {
-    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY},
-    cache: 'no-store'
-  });
-  const rows = await res.json();
+  const [settRes, bkRes] = await Promise.all([
+    fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions&select=value`, {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}, cache: 'no-store'
+    }),
+    fetch(`${SUPA_URL}/rest/v1/JD_books?select=id,title,author&order=sort_order.asc,created_at.asc`, {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+    })
+  ]);
+  const rows = await settRes.json();
+  _s9Books = await bkRes.json();
   const sessions = rows[0] ? JSON.parse(rows[0].value) : [];
   list.dataset.sessions = JSON.stringify(sessions);
   renderS9Sessions(sessions);
@@ -977,28 +984,28 @@ async function loadS9Sessions() {
 
 function renderS9Sessions(sessions) {
   const list = document.getElementById('s9sess-list');
+  const bookOpts = `<option value="">— 선택 안 함 —</option>` +
+    _s9Books.map(b => `<option value="${b.title}">${b.title}${b.author ? ' — ' + b.author : ''}</option>`).join('');
   list.innerHTML = sessions.map((s, i) => {
     const statusOpts = S9_STATUS_OPTIONS.map(o =>
       `<option value="${o.value}"${s.status===o.value?' selected':''}>${o.label}</option>`
     ).join('');
+    const bookSel = bookOpts.replace(`value="${s.book}"`, `value="${s.book}" selected`);
     return `
     <div style="border:1px solid rgba(100,116,139,.2);padding:1rem;background:var(--bg)">
       <div style="font-size:.78rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;letter-spacing:.06em">${s.label}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.6rem;align-items:end">
+      <div style="display:grid;grid-template-columns:120px 1fr auto;gap:.6rem;align-items:end">
         <div>
           <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">날짜</label>
           <input id="s9s-date-${i}" value="${s.date||''}" placeholder="2026-08-08"
             style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
         </div>
         <div>
-          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">도서명</label>
-          <input id="s9s-book-${i}" value="${s.book||''}" placeholder="책 제목"
+          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">도서 선택</label>
+          <select id="s9s-book-${i}" onchange="s9SyncAuthor(${i})"
             style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
-        </div>
-        <div>
-          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">저자</label>
-          <input id="s9s-author-${i}" value="${s.author||''}" placeholder="저자명"
-            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+            ${bookSel}
+          </select>
         </div>
         <div>
           <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">상태</label>
@@ -1008,21 +1015,34 @@ function renderS9Sessions(sessions) {
           </select>
         </div>
       </div>
+      <div style="margin-top:.5rem;font-size:.75rem;color:var(--tl)" id="s9s-authorlabel-${i}">${s.author ? '저자: ' + s.author : ''}</div>
     </div>`;
   }).join('');
+}
+
+function s9SyncAuthor(i) {
+  const sel = document.getElementById(`s9s-book-${i}`);
+  const title = sel.value;
+  const book = _s9Books.find(b => b.title === title);
+  const label = document.getElementById(`s9s-authorlabel-${i}`);
+  if (label) label.textContent = book?.author ? '저자: ' + book.author : '';
 }
 
 async function saveS9Sessions() {
   const list = document.getElementById('s9sess-list');
   const msg  = document.getElementById('s9sess-msg');
   const sessions = JSON.parse(list.dataset.sessions || '[]');
-  const updated = sessions.map((s, i) => ({
-    ...s,
-    date:   document.getElementById(`s9s-date-${i}`)?.value.trim()   || s.date,
-    book:   document.getElementById(`s9s-book-${i}`)?.value.trim()   || s.book,
-    author: document.getElementById(`s9s-author-${i}`)?.value.trim() || s.author,
-    status: document.getElementById(`s9s-status-${i}`)?.value        || s.status,
-  }));
+  const updated = sessions.map((s, i) => {
+    const bookTitle = document.getElementById(`s9s-book-${i}`)?.value || '';
+    const bookObj = _s9Books.find(b => b.title === bookTitle);
+    return {
+      ...s,
+      date:   document.getElementById(`s9s-date-${i}`)?.value.trim() || s.date,
+      book:   bookTitle || s.book,
+      author: bookObj?.author || s.author,
+      status: document.getElementById(`s9s-status-${i}`)?.value      || s.status,
+    };
+  });
   msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions`, {
     method: 'PATCH',
