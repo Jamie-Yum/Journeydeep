@@ -539,7 +539,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
   <div id="panel-s9sessions" class="panel">
     <div class="page-header">
       <div class="page-title">시즌 9 회차 관리</div>
-      <div class="page-sub">각 회차의 날짜·도서·저자·상태를 수정해요. 변경 즉시 활동 페이지에 반영돼요.</div>
+      <div class="page-sub">각 회차의 날짜를 수정해요. 도서는 <b>책 관리</b>에서, 멤버는 <b>회원 관리</b>에서 설정하면 자동 반영돼요.</div>
     </div>
     <div class="card">
       <div class="card-title">회차 목록 <button class="btn btn-ghost btn-sm" onclick="loadS9Sessions()">새로고침</button></div>
@@ -955,49 +955,53 @@ async function saveNavConfig() {
 }
 
 // ── S9 회차 관리 ──────────────────────────────────────
-const S9_STATUS_OPTIONS = [
-  {value:'upcoming', label:'예정'},
-  {value:'done',     label:'완료'},
-  {value:'today',    label:'오늘'},
-];
+let _s9ProgId = null;
 
 async function loadS9Sessions() {
   const list = document.getElementById('s9sess-list');
   if (!list) return;
   list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions&select=value`, {
-    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}, cache: 'no-store'
-  });
-  const rows = await res.json();
-  const sessions = rows[0] ? JSON.parse(rows[0].value) : [];
+  const [progRes, booksRes] = await Promise.all([
+    fetch(`${SUPA_URL}/rest/v1/JD_programs?badge=eq.시즌 9&select=id,sessions`, {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}, cache: 'no-store'
+    }),
+    fetch(`${SUPA_URL}/rest/v1/JD_books?category=eq.시즌 9&is_recommended=eq.false&select=title,author,session&order=sort_order.asc`, {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+    })
+  ]);
+  const progs = await progRes.json();
+  const books = await booksRes.json();
+  if (!progs[0]) { list.innerHTML = '<div style="color:var(--red)">시즌 9 프로그램을 먼저 등록해 주세요.</div>'; return; }
+  _s9ProgId = progs[0].id;
+  const sessions = progs[0].sessions || [];
   list.dataset.sessions = JSON.stringify(sessions);
-  renderS9Sessions(sessions);
+  list.dataset.books = JSON.stringify(books);
+  renderS9Sessions(sessions, books);
 }
 
-function renderS9Sessions(sessions) {
+function renderS9Sessions(sessions, books) {
   const list = document.getElementById('s9sess-list');
+  const today = new Date().toISOString().slice(0,10);
   list.innerHTML = sessions.map((s, i) => {
-    const statusOpts = S9_STATUS_OPTIONS.map(o =>
-      `<option value="${o.value}"${s.status===o.value?' selected':''}>${o.label}</option>`
-    ).join('');
+    const bk = (books||[]).find(b => b.session === s.n) || {};
+    const status = s.d < today ? '완료' : s.d === today ? '오늘' : '예정';
+    const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
     return `
-    <div style="border:1px solid rgba(100,116,139,.2);padding:1rem;background:var(--bg)">
-      <div style="font-size:.78rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;letter-spacing:.06em">${s.label}</div>
-      <div style="display:grid;grid-template-columns:160px 1fr;gap:.6rem;align-items:end">
-        <div>
-          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">날짜</label>
-          <input id="s9s-date-${i}" value="${s.date||''}" placeholder="2026-08-08"
-            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
-        </div>
-        <div>
-          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">상태</label>
-          <select id="s9s-status-${i}"
-            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
-            ${statusOpts}
-          </select>
-        </div>
+    <div style="border:1px solid rgba(100,116,139,.2);padding:1rem;background:var(--bg);display:grid;grid-template-columns:auto 1fr 1fr;gap:.85rem;align-items:center">
+      <div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.06em">${s.n}</div>
+        <div style="font-size:.7rem;color:${statusColor};margin-top:.15rem;font-weight:600">${status}</div>
       </div>
-      <div style="margin-top:.6rem;font-size:.75rem;color:var(--tl)">📚 도서는 <b>책 관리</b>에서 프로그램·차수를 지정하면 자동 연동돼요.</div>
+      <div>
+        <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">날짜</label>
+        <input type="date" id="s9s-date-${i}" value="${s.d||''}"
+          style="width:100%;padding:.4rem .6rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+      </div>
+      <div>
+        <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">연결된 도서</label>
+        <div style="font-size:.82rem;color:${bk.title?'var(--dk)':'var(--tl)'};padding:.4rem 0">${bk.title||'— 책 관리에서 차수 지정'}</div>
+        ${bk.author?`<div style="font-size:.72rem;color:var(--tl)">${bk.author}</div>`:''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -1007,20 +1011,19 @@ async function saveS9Sessions() {
   const msg  = document.getElementById('s9sess-msg');
   const sessions = JSON.parse(list.dataset.sessions || '[]');
   const updated = sessions.map((s, i) => ({
-    n: s.n, label: s.label,
-    date:   document.getElementById(`s9s-date-${i}`)?.value.trim() || s.date,
-    status: document.getElementById(`s9s-status-${i}`)?.value      || s.status,
+    ...s,
+    d: document.getElementById(`s9s-date-${i}`)?.value || s.d,
   }));
   msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
-  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions`, {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_programs?id=eq.${_s9ProgId}`, {
     method: 'PATCH',
     headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
               'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
-    body: JSON.stringify({value: JSON.stringify(updated)})
+    body: JSON.stringify({sessions: updated})
   });
   if (res.ok) {
     list.dataset.sessions = JSON.stringify(updated);
-    renderS9Sessions(updated);
+    renderS9Sessions(updated, JSON.parse(list.dataset.books || '[]'));
     msg.textContent = '저장됐어요 ✓'; msg.style.color = '#10B981';
   } else {
     msg.textContent = `저장 실패 (${res.status})`; msg.style.color = '#EF4444';

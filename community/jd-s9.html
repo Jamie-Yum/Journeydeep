@@ -359,34 +359,33 @@ let _qType='question_book', _rpTab='reflection';
 
 // ── 초기화 ─────────────────────────────────────────
 async function init(){
-  const [settingsRes, booksRes] = await Promise.all([
-    fetch(`${SU}/rest/v1/JD_site_settings?key=in.(s9_sessions,members_v1)&select=key,value`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H})
+  const [progRes, booksRes, memRes] = await Promise.all([
+    fetch(`${SU}/rest/v1/JD_programs?badge=eq.%EC%8B%9C%EC%A6%8C%209&select=sessions&limit=1`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_site_settings?key=eq.members_v1&select=value`,{headers:H})
   ]);
-  const settings = await settingsRes.json();
-  const books = await booksRes.json();
+  const [progs, books, memRows] = await Promise.all([progRes.json(), booksRes.json(), memRes.json()]);
 
-  const s9row = settings.find(r=>r.key==='s9_sessions');
-  const memrow = settings.find(r=>r.key==='members_v1');
-
-  if(s9row){
-    _sessions=JSON.parse(s9row.value).map(s=>{
-      const bk=books.find(b=>Number(b.session)===s.n)||{};
-      return {...s, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
-    });
-  }
+  const today=new Date().toISOString().slice(0,10);
+  const rawSessions=progs[0]?.sessions||[];
+  _sessions=rawSessions.map((s,i)=>{
+    const bk=books.find(b=>b.session===s.n)||{};
+    const status=s.d<today?'done':s.d===today?'today':'upcoming';
+    return {n:i+1, label:s.n, date:s.d, status, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
+  });
 
   // 멤버 목록
   let memberNames=[];
+  const memrow=memRows[0];
   if(memrow){
     const mv=JSON.parse(memrow.value);
-    const s9=(mv.seasons||[]).find(s=>s.name&&s.name.includes('9')||(s.members&&s.members.length>0));
+    const s9=(mv.seasons||[]).find(s=>s.name&&s.name.includes('9'));
     if(s9&&s9.members) memberNames=s9.members.map(m=>m.name);
   }
 
   renderNameGrid(memberNames);
   renderTimeline();
-  setSession(_sessions[0]?.n||1);
+  setSession(1);
   updateIdentityUI();
 }
 
