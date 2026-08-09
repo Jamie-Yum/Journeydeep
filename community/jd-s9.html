@@ -491,7 +491,7 @@ function updateFormLock(){
     if(fields) fields.style.display=locked?'none':'';
     const lockMsg=box.querySelector('.lock-msg');
     if(lockMsg){
-      if(sessionLocked) lockMsg.textContent='이 회차는 기록이 마감되었어요';
+      if(sessionLocked) lockMsg.textContent='모임 날짜 이후에 기록할 수 있어요';
       else lockMsg.textContent=id==='qBox'?'이름을 선택하면 질문을 올릴 수 있어요':'이름을 선택하면 성찰을 기록할 수 있어요';
     }
   });
