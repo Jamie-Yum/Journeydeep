@@ -1036,7 +1036,7 @@ function renderS9Sessions(sessions, books) {
     const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
     const lk = normalizeLock(_s9Locks[s.n]);
     return `
-    <div onclick="selectS9Session('${s.n}', ${i+1})" style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(120,120,160,.18)'"
+    <div onclick="selectS9Session('${s.n}', ${i+1})" style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(120,120,160,.18)'">
       <div>
         <div style="font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.06em">${s.n}</div>
         <div style="font-size:.7rem;color:${statusColor};margin-top:.15rem;font-weight:600">${status}</div>
