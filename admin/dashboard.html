@@ -956,7 +956,13 @@ async function saveNavConfig() {
 
 // ── S9 회차 관리 ──────────────────────────────────────
 let _s9ProgId = null;
-let _s9Locks = {}; // { "1회차": false } = 잠금, true/없음 = 열림
+let _s9Locks = {}; // {"1회차": {record:bool, proposal:bool, archive:bool}}
+
+function normalizeLock(val) {
+  if (!val || val === false) return {record:false, proposal:false, archive:false};
+  if (val === true) return {record:true, proposal:true, archive:true};
+  return {record:true, proposal:false, archive:false, ...val};
+}
 
 async function loadS9Sessions() {
   const list = document.getElementById('s9sess-list');
@@ -973,11 +979,23 @@ async function loadS9Sessions() {
   const locks = await lockRes.json();
   if (!progs[0]) { list.innerHTML = '<div style="color:var(--red)">시즌 9 프로그램을 먼저 등록해 주세요.</div>'; return; }
   _s9ProgId = progs[0].id;
-  _s9Locks = locks[0] ? JSON.parse(locks[0].value) : {};
+  const raw = locks[0] ? JSON.parse(locks[0].value) : {};
+  // normalize all entries to object format
+  Object.keys(raw).forEach(k => { _s9Locks[k] = normalizeLock(raw[k]); });
   const sessions = progs[0].sessions || [];
   list.dataset.sessions = JSON.stringify(sessions);
   list.dataset.books = JSON.stringify(books);
   renderS9Sessions(sessions, books);
+}
+
+function lockBtn(label, field, isOpen) {
+  const bg = isOpen ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.1)';
+  const color = isOpen ? '#059669' : '#DC2626';
+  const icon = isOpen ? '🔓' : '🔒';
+  return `<button onclick="toggleS9Lock('${label}','${field}')"
+    style="padding:.32rem .75rem;border-radius:var(--r-pill);border:none;cursor:pointer;font-size:.75rem;font-weight:700;font-family:'Pretendard',sans-serif;transition:all .2s;background:${bg};color:${color};white-space:nowrap">
+    ${icon} ${isOpen?'열림':'잠금'}
+  </button>`;
 }
 
 function renderS9Sessions(sessions, books) {
@@ -987,7 +1005,7 @@ function renderS9Sessions(sessions, books) {
     const bk = (books||[]).find(b => b.session === s.n) || {};
     const status = s.d < today ? '완료' : s.d === today ? '오늘' : '예정';
     const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
-    const isOpen = _s9Locks[s.n] !== false;
+    const lk = normalizeLock(_s9Locks[s.n]);
     return `
     <div style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05)">
       <div>
@@ -1004,23 +1022,29 @@ function renderS9Sessions(sessions, books) {
         <div style="font-size:.82rem;color:${bk.title?'var(--dk)':'var(--tl)'};padding:.4rem 0">${bk.title||'— 책 관리에서 차수 지정'}</div>
         ${bk.author?`<div style="font-size:.72rem;color:var(--tl)">${bk.author}</div>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem">
-        <label style="font-size:.7rem;font-weight:600;color:var(--ts)">기록</label>
-        <button onclick="toggleS9Lock('${s.n}')" id="s9lock-btn-${i}"
-          style="padding:.38rem .9rem;border-radius:var(--r-pill);border:none;cursor:pointer;font-size:.78rem;font-weight:700;font-family:'Pretendard',sans-serif;transition:all .2s;
-            background:${isOpen?'rgba(16,185,129,.12)':'rgba(239,68,68,.1)'};
-            color:${isOpen?'#059669':'#DC2626'}">
-          ${isOpen?'🔓 열림':'🔒 잠금'}
-        </button>
+      <div style="display:flex;flex-direction:column;gap:.4rem;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">기록</span>
+          ${lockBtn(s.n,'record',lk.record)}
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">발제문</span>
+          ${lockBtn(s.n,'proposal',lk.proposal)}
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">아카이빙</span>
+          ${lockBtn(s.n,'archive',lk.archive)}
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
-async function toggleS9Lock(sessionLabel) {
+async function toggleS9Lock(sessionLabel, field) {
   const sessions = JSON.parse(document.getElementById('s9sess-list').dataset.sessions || '[]');
-  const isOpen = _s9Locks[sessionLabel] !== false;
-  _s9Locks[sessionLabel] = !isOpen; // 열림↔잠금 토글
+  const lk = normalizeLock(_s9Locks[sessionLabel]);
+  lk[field] = !lk[field];
+  _s9Locks[sessionLabel] = lk;
   await saveS9Locks();
   renderS9Sessions(sessions, JSON.parse(document.getElementById('s9sess-list').dataset.books || '[]'));
 }

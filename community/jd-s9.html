@@ -343,22 +343,32 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
     </div>
     <div class="section-body">
-      <div class="sub-cat-label">
-        <div class="sub-cat-dot blue"></div>
-        <div class="sub-cat-name">카테고리 선택</div>
+      <div class="sub-tabs" id="before-tabs">
+        <button class="sub-tab active" onclick="setBeforeTab('question_book',this)">📖 책 관련</button>
+        <button class="sub-tab" onclick="setBeforeTab('question_work',this)">💼 실무 관련</button>
+        <button class="sub-tab" id="tab-proposal" style="display:none" onclick="setBeforeTab('proposal',this)">📝 발제문</button>
       </div>
-      <div class="sub-tabs">
-        <button class="sub-tab active" onclick="setQType('question_book',this)">📖 책 관련</button>
-        <button class="sub-tab" onclick="setQType('question_work',this)">💼 실무 관련</button>
-      </div>
-      <div class="post-box" id="qBox">
-        <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
-        <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
-        <div class="post-box-footer">
-          <button class="btn-post" onclick="postMessage()">올리기</button>
+      <!-- 사전질문 영역 -->
+      <div id="area-question">
+        <div class="post-box" id="qBox">
+          <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
+          <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
+          <div class="post-box-footer">
+            <button class="btn-post" onclick="postMessage()">올리기</button>
+          </div>
         </div>
+        <div id="questionList" class="card-list"></div>
       </div>
-      <div id="questionList" class="card-list"></div>
+      <!-- 발제문 영역 -->
+      <div id="area-proposal" style="display:none">
+        <div class="post-box" id="proposalBox" style="display:none">
+          <textarea id="proposalInput" placeholder="발제문 내용을 입력해주세요." rows="5"></textarea>
+          <div class="post-box-footer">
+            <button class="btn-post" onclick="postProposal()">올리기</button>
+          </div>
+        </div>
+        <div id="proposalList" class="card-list"></div>
+      </div>
     </div>
   </div>
 
@@ -372,20 +382,33 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
     </div>
     <div class="section-body">
-      <div class="sub-cat-label">
-        <div class="sub-cat-dot teal"></div>
-        <div class="sub-cat-name">오늘의 배움을 기록해요</div>
+      <div class="sub-tabs" id="after-tabs">
+        <button class="sub-tab active" onclick="setAfterTab('reflection',this)">💭 성찰</button>
+        <button class="sub-tab" id="tab-archive" style="display:none" onclick="setAfterTab('archive',this)">📋 아카이빙</button>
       </div>
-      <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
-        <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
-        <div id="refl-fields">
-          <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
+      <!-- 성찰 영역 -->
+      <div id="area-reflection">
+        <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
+          <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
+          <div id="refl-fields">
+            <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
+          </div>
+          <div class="post-box-footer">
+            <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
+          </div>
         </div>
-        <div class="post-box-footer">
-          <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
-        </div>
+        <div id="rpList" class="card-list"></div>
       </div>
-      <div id="rpList" class="card-list"></div>
+      <!-- 아카이빙 영역 -->
+      <div id="area-archive" style="display:none">
+        <div class="post-box" id="archiveBox" style="display:none">
+          <textarea id="archiveInput" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요." rows="5"></textarea>
+          <div class="post-box-footer">
+            <button class="btn-post" onclick="postArchive()">올리기</button>
+          </div>
+        </div>
+        <div id="archiveList" class="card-list"></div>
+      </div>
     </div>
   </div>
 
@@ -430,7 +453,13 @@ async function init(){
   }
   _goals=goalrow?JSON.parse(goalrow.value):{};
   const lockrow=settRows.find(r=>r.key==='s9_session_locks');
-  _locks=lockrow?JSON.parse(lockrow.value):{};
+  const rawLocks=lockrow?JSON.parse(lockrow.value):{};
+  // normalize: old boolean format → object format
+  Object.keys(rawLocks).forEach(k=>{
+    const v=rawLocks[k];
+    if(typeof v==='boolean') _locks[k]={record:v,proposal:false,archive:false};
+    else _locks[k]={record:true,proposal:false,archive:false,...v};
+  });
 
   renderNameGrid(_memberNames);
   renderGoals();
@@ -477,13 +506,33 @@ function updateIdentityUI(){
   renderGoals();
 }
 
+const _isAdmin=()=>sessionStorage.getItem('jd_admin')==='1';
+
 function updateFormLock(){
   const curLabel=_sessions[_curN-1]?.label||'';
-  const sessionLocked=_locks[curLabel]===false;
+  const lk=_locks[curLabel]||{};
+  const recordLocked=lk.record===false;
+  const proposalOpen=lk.proposal===true;
+  const archiveOpen=lk.archive===true;
+
+  // 발제문 탭 show/hide
+  const tabP=document.getElementById('tab-proposal');
+  if(tabP) tabP.style.display=(proposalOpen||_isAdmin())?'':'none';
+  // 아카이빙 탭 show/hide
+  const tabA=document.getElementById('tab-archive');
+  if(tabA) tabA.style.display=(archiveOpen||_isAdmin())?'':'none';
+
+  // 발제문/아카이빙 관리자 입력창 show/hide
+  const pBox=document.getElementById('proposalBox');
+  if(pBox) pBox.style.display=_isAdmin()?'':'none';
+  const aBox=document.getElementById('archiveBox');
+  if(aBox) aBox.style.display=_isAdmin()?'':'none';
+
+  // 기록 잠금 (사전질문 + 성찰)
   ['qBox','refl-form-wrap'].forEach(id=>{
     const box=document.getElementById(id);
     if(!box)return;
-    const locked=!_me||sessionLocked;
+    const locked=!_me||recordLocked;
     box.classList.toggle('locked',locked);
     box.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
     box.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
@@ -491,7 +540,7 @@ function updateFormLock(){
     if(fields) fields.style.display=locked?'none':'';
     const lockMsg=box.querySelector('.lock-msg');
     if(lockMsg){
-      if(sessionLocked) lockMsg.textContent='모임 날짜 이후에 기록할 수 있어요';
+      if(recordLocked) lockMsg.textContent='모임 날짜 이후에 기록할 수 있어요';
       else lockMsg.textContent=id==='qBox'?'이름을 선택하면 질문을 올릴 수 있어요':'이름을 선택하면 성찰을 기록할 수 있어요';
     }
   });
@@ -607,10 +656,37 @@ function formatFullDate(d){
   return `${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일`;
 }
 
+// ── 탭 전환 ─────────────────────────────────────────
+let _beforeTab='question_book';
+let _afterTab='reflection';
+
+function setBeforeTab(tab, btn){
+  _beforeTab=tab;
+  document.querySelectorAll('#before-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('area-question').style.display=(tab==='proposal')?'none':'';
+  document.getElementById('area-proposal').style.display=(tab==='proposal')?'':'none';
+  if(tab!=='proposal') _qType=tab;
+  if(tab==='proposal') loadProposal();
+  else loadMessages();
+}
+
+function setAfterTab(tab, btn){
+  _afterTab=tab;
+  document.querySelectorAll('#after-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('area-reflection').style.display=(tab==='archive')?'none':'';
+  document.getElementById('area-archive').style.display=(tab==='archive')?'':'none';
+  if(tab==='archive') loadArchive();
+  else loadReflections();
+}
+
 // ── 데이터 로드 ─────────────────────────────────────
 async function loadAll(){
   loadMessages();
   loadReflections();
+  if(_beforeTab==='proposal') loadProposal();
+  if(_afterTab==='archive') loadArchive();
 }
 
 async function loadMessages(){
@@ -620,6 +696,30 @@ async function loadMessages(){
   const questions=data.filter(m=>m.type===_qType);
   renderQuestions(questions);
   document.getElementById('before-count').textContent=data.length?`${data.length}개`:'';
+}
+
+async function loadProposal(){
+  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.proposal&order=created_at.asc`,{headers:H});
+  const data=await r.json();
+  const el=document.getElementById('proposalList');
+  if(!el)return;
+  if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아직 발제문이 없어요.</div>';return;}
+  el.innerHTML=data.map(m=>`<div class="msg-card">
+    <div class="card-body">${escH(m.content)}</div>
+    <div style="font-size:.7rem;color:var(--tl);margin-top:.5rem;text-align:right">${m.author} · ${new Date(m.created_at).toLocaleDateString('ko')}</div>
+  </div>`).join('');
+}
+
+async function loadArchive(){
+  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H});
+  const data=await r.json();
+  const el=document.getElementById('archiveList');
+  if(!el)return;
+  if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아카이빙 내용이 아직 없어요.</div>';return;}
+  el.innerHTML=data.map(m=>`<div class="msg-card">
+    <div class="card-body">${escH(m.content)}</div>
+    <div style="font-size:.7rem;color:var(--tl);margin-top:.5rem;text-align:right">${m.author} · ${new Date(m.created_at).toLocaleDateString('ko')}</div>
+  </div>`).join('');
 }
 
 function renderQuestions(data){
@@ -715,13 +815,37 @@ async function postReflection(){
   loadReflections();
 }
 
-// ── UI helpers ──────────────────────────────────────
-function setQType(type,btn){
-  _qType=type;
-  document.querySelectorAll('.sub-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  loadMessages();
+async function postProposal(){
+  if(!_isAdmin())return;
+  const txt=document.getElementById('proposalInput').value.trim();
+  if(!txt)return;
+  const btn=document.querySelector('#proposalBox .btn-post');
+  btn.disabled=true;btn.textContent='올리는 중…';
+  await fetch(`${SU}/rest/v1/JD_session_messages`,{
+    method:'POST',headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({season:SEASON,session_n:_curN,type:'proposal',author:'관리자',content:txt})
+  });
+  document.getElementById('proposalInput').value='';
+  btn.disabled=false;btn.textContent='올리기';
+  loadProposal();
 }
+
+async function postArchive(){
+  if(!_isAdmin())return;
+  const txt=document.getElementById('archiveInput').value.trim();
+  if(!txt)return;
+  const btn=document.querySelector('#archiveBox .btn-post');
+  btn.disabled=true;btn.textContent='올리는 중…';
+  await fetch(`${SU}/rest/v1/JD_session_messages`,{
+    method:'POST',headers:{...H,'Prefer':'return=minimal'},
+    body:JSON.stringify({season:SEASON,session_n:_curN,type:'archive',author:'관리자',content:txt})
+  });
+  document.getElementById('archiveInput').value='';
+  btn.disabled=false;btn.textContent='올리기';
+  loadArchive();
+}
+
+// ── UI helpers ──────────────────────────────────────
 
 
 function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
