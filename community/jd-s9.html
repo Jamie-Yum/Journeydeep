@@ -594,8 +594,8 @@ function renderTimeline(){
       ${isVisible?`onclick="setSession(${s.n})"`:''} ${!isVisible?'disabled':''}>
       <div class="sn-dot"></div>
       <div class="sn-label">${s.label}</div>
-      <div class="sn-date">${isVisible?formatDate(s.date):'🔒'}</div>
-      ${isVisible&&s.book?`<div class="sn-book">${s.book}</div>`:''}
+      <div class="sn-date">${formatDate(s.date)}${!isVisible?' 🔒':''}</div>
+      ${s.book?`<div class="sn-book">${s.book}</div>`:''}
     </button>`;
   }).join('');
 }
