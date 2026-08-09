@@ -70,7 +70,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .session-card{max-width:860px;margin:.75rem auto 0;padding:0 1.5rem}
 .session-info{background:var(--wh);border:1px solid var(--bd);padding:1rem 1.25rem;display:flex;align-items:center;gap:1.25rem}
 .session-info-book{display:flex;align-items:center;gap:.85rem;flex:1;min-width:0}
-.book-thumb{width:40px;height:56px;background:linear-gradient(135deg,var(--be),var(--ac));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.book-thumb{width:40px;height:56px;background:linear-gradient(135deg,var(--be),var(--ac));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden}
+.book-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .book-info-title{font-size:.9rem;font-weight:600;color:var(--dk);line-height:1.4}
 .book-info-author{font-size:.75rem;color:var(--tl);margin-top:.15rem}
 .session-info-date{font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--tl);white-space:nowrap;flex-shrink:0}
@@ -230,7 +231,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <div class="session-card">
   <div class="session-info" id="sessionInfo">
     <div class="session-info-book">
-      <div class="book-thumb">📚</div>
+      <div class="book-thumb" id="bookThumb">📚</div>
       <div>
         <div class="book-info-title" id="bookTitle"><span class="no-book">도서 미정</span></div>
         <div class="book-info-author" id="bookAuthor"></div>
@@ -468,6 +469,9 @@ function setSession(n){
     const hasBook=s.book&&s.book.trim();
     document.getElementById('bookTitle').innerHTML=hasBook?escH(s.book):'<span class="no-book">도서 미정</span>';
     document.getElementById('bookAuthor').textContent=s.author||'';
+    const thumb=document.getElementById('bookThumb');
+    if(s.cover_url){thumb.innerHTML=`<img src="${s.cover_url}" alt="">`;}
+    else{thumb.innerHTML='📚';}
     document.getElementById('sessionDate').textContent=s.label+' · '+formatFullDate(s.date);
   }
   loadAll();
