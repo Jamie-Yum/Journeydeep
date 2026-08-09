@@ -49,6 +49,26 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .greeting-name{font-size:.92rem;font-weight:700;color:var(--ac)}
 .greeting-change{font-size:.75rem;color:var(--tl);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 
+/* ── Goal section ── */
+.goal-section{background:var(--wh);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin-top:2rem}
+.goal-section-inner{max-width:860px;margin:0 auto;padding:1.5rem 1.5rem}
+.goal-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem}
+.goal-header-icon{width:32px;height:32px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
+.goal-header-title{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk)}
+.goal-header-sub{font-size:.75rem;color:var(--tl);margin-top:.1rem}
+.goal-locked-msg{font-size:.82rem;color:var(--tl);padding:.5rem 0;font-style:italic}
+.goal-input-wrap{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:1.25rem}
+.goal-input-wrap textarea{flex:1;border:1px solid var(--bd);padding:.6rem .8rem;font-size:.86rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:none;outline:none;background:var(--bg);line-height:1.7;transition:border-color .2s}
+.goal-input-wrap textarea:focus{border-color:var(--ac)}
+.goal-save-btn{padding:.55rem 1.1rem;background:var(--ac);color:#fff;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;white-space:nowrap;flex-shrink:0}
+.goal-save-btn:disabled{opacity:.5;cursor:default}
+.goal-list{display:flex;flex-wrap:wrap;gap:.6rem}
+.goal-item{display:flex;flex-direction:column;gap:.2rem;padding:.65rem 1rem;background:var(--bg);border:1px solid var(--bd);min-width:160px;flex:1}
+.goal-item.mine{border-color:var(--ac);background:rgba(37,99,235,.04)}
+.goal-item-name{font-size:.72rem;font-weight:700;color:var(--ac);letter-spacing:.04em}
+.goal-item-text{font-size:.84rem;color:var(--dk);line-height:1.5}
+.goal-item-empty{font-size:.78rem;color:var(--tl);font-style:italic}
+
 /* ── Timeline ── */
 .timeline-wrap{max-width:860px;margin:2.5rem auto 0;padding:0 1.5rem}
 .timeline-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tl);margin-bottom:1rem}
@@ -204,7 +224,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <div class="identity-section">
   <div class="identity-eyebrow">JourneyDeep · Season 9</div>
   <h1 class="identity-title">시즌 9 활동</h1>
-  <p class="identity-sub">사전 질문, 한 마디, 발제문·성찰, 모임 써머리를 한 곳에서</p>
+  <p class="identity-sub">목표, 사전 질문, 성찰을 한 곳에서</p>
 
   <!-- 이름 선택 -->
   <div class="name-prompt" id="namePicker">
@@ -218,6 +238,27 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
     <span class="greeting-name" id="greetingName"></span>
     <span style="font-size:.88rem;color:var(--ts)">님!</span>
     <span class="greeting-change" onclick="changeName()">변경</span>
+  </div>
+</div>
+
+<!-- 목표 -->
+<div class="goal-section" id="goalSection">
+  <div class="goal-section-inner">
+    <div class="goal-header">
+      <div class="goal-header-icon">🎯</div>
+      <div>
+        <div class="goal-header-title">시즌 9 목표</div>
+        <div class="goal-header-sub">이번 시즌 나의 목표를 적어보세요</div>
+      </div>
+    </div>
+    <div class="goal-my" id="goalMy">
+      <div class="goal-locked-msg" id="goalLockedMsg">이름을 선택하면 목표를 입력할 수 있어요</div>
+      <div class="goal-input-wrap" id="goalInputWrap" style="display:none">
+        <textarea id="goalInput" placeholder="이번 시즌 나의 목표를 한 문장으로..." rows="2"></textarea>
+        <button class="goal-save-btn" onclick="saveGoal()" id="goalSaveBtn">저장</button>
+      </div>
+    </div>
+    <div class="goal-list" id="goalList"></div>
   </div>
 </div>
 
@@ -269,31 +310,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       <div id="questionList" class="card-list"></div>
     </div>
 
-    <!-- 한 마디 -->
-    <div>
-      <div style="font-size:.75rem;font-weight:700;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.7rem">멤버 한 마디</div>
-      <div class="post-box" id="greetBox">
-        <span class="lock-msg">이름을 선택하면 한 마디를 남길 수 있어요</span>
-        <textarea id="greetInput" placeholder="모임 전 한 마디 남겨주세요. 요즘 근황, 기대되는 점, 뭐든 좋아요 :)" rows="3"></textarea>
-        <div class="post-box-footer">
-          <button class="btn-post" onclick="postGreeting()">올리기</button>
-        </div>
-      </div>
-      <div id="greetingList" class="card-list"></div>
-    </div>
   </div>
 
-  <!-- 발제문 · 성찰 -->
+  <!-- 모임 후 · 성찰 -->
   <div class="content-section" id="sec-rp">
     <div class="section-heading">
       <div class="section-heading-icon">📝</div>
-      <h2>발제문 · 성찰</h2>
+      <h2>모임 후</h2>
       <span class="section-heading-sub" id="rp-count"></span>
-    </div>
-
-    <div class="sub-tabs">
-      <button class="sub-tab active" onclick="setRpTab('reflection',this)">성찰</button>
-      <button class="sub-tab" onclick="setRpTab('proposal',this)">발제문</button>
     </div>
 
     <!-- 성찰 작성 -->
@@ -301,10 +325,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
       <div id="refl-fields">
         <div style="margin-bottom:.85rem">
-          <div style="font-size:.72rem;font-weight:600;color:var(--tl);margin-bottom:.35rem">모임 전 — 책을 읽으며</div>
-          <textarea id="refl_q1" placeholder="책을 읽으면서 어떤 생각이 들었나요?" rows="3"></textarea>
-        </div>
-        <div style="margin-bottom:.6rem">
           <div style="font-size:.72rem;font-weight:600;color:var(--tl);margin-bottom:.35rem">모임 후 — 오늘의 배움</div>
           <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
         </div>
@@ -314,34 +334,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
     </div>
 
-    <!-- 발제문 작성 -->
-    <div id="prop-form-wrap" class="post-box" style="display:none;margin-bottom:1.25rem">
-      <span class="lock-msg">이름을 선택하면 발제문을 올릴 수 있어요</span>
-      <div id="prop-fields">
-        <div style="margin-bottom:.85rem">
-          <div style="font-size:.72rem;font-weight:600;color:var(--tl);margin-bottom:.35rem">발제 주제 / 제목</div>
-          <textarea id="prop_q1" placeholder="어떤 주제로 발제하시나요?" rows="2"></textarea>
-        </div>
-        <div style="margin-bottom:.6rem">
-          <div style="font-size:.72rem;font-weight:600;color:var(--tl);margin-bottom:.35rem">발제 내용</div>
-          <textarea id="prop_q2" placeholder="발제문 본문을 적어주세요." rows="5"></textarea>
-        </div>
-      </div>
-      <div class="post-box-footer">
-        <button class="btn-post" onclick="postProposal()">발제문 올리기</button>
-      </div>
-    </div>
-
     <div id="rpList" class="card-list"></div>
-  </div>
-
-  <!-- 써머리 -->
-  <div class="content-section" id="sec-summary">
-    <div class="section-heading">
-      <div class="section-heading-icon">✨</div>
-      <h2>모임 써머리</h2>
-    </div>
-    <div id="summaryArea"></div>
   </div>
 
 </div>
@@ -356,16 +349,17 @@ const SEASON='시즌 9';
 
 let _me=localStorage.getItem('jd_member')||'';
 let _sessions=[], _curN=1;
-let _qType='question_book', _rpTab='reflection';
+let _qType='question_book';
+let _goals={}, _memberNames=[];
 
 // ── 초기화 ─────────────────────────────────────────
 async function init(){
-  const [progRes, booksRes, memRes] = await Promise.all([
+  const [progRes, booksRes, settRes] = await Promise.all([
     fetch(`${SU}/rest/v1/JD_programs?badge=eq.%EC%8B%9C%EC%A6%8C%209&select=sessions&limit=1`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_site_settings?key=eq.members_v1&select=value`,{headers:H})
+    fetch(`${SU}/rest/v1/JD_site_settings?key=in.(members_v1,s9_goals)&select=key,value`,{headers:H})
   ]);
-  const [progs, books, memRows] = await Promise.all([progRes.json(), booksRes.json(), memRes.json()]);
+  const [progs, books, settRows] = await Promise.all([progRes.json(), booksRes.json(), settRes.json()]);
 
   const today=new Date().toISOString().slice(0,10);
   const rawSessions=progs[0]?.sessions||[];
@@ -375,16 +369,17 @@ async function init(){
     return {n:i+1, label:s.n, date:s.d, status, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
   });
 
-  // 멤버 목록
-  let memberNames=[];
-  const memrow=memRows[0];
+  const memrow=settRows.find(r=>r.key==='members_v1');
+  const goalrow=settRows.find(r=>r.key==='s9_goals');
   if(memrow){
     const mv=JSON.parse(memrow.value);
     const s9=(mv.seasons||[]).find(s=>s.name&&s.name.includes('9'));
-    if(s9&&s9.members) memberNames=s9.members.map(m=>m.name);
+    if(s9&&s9.members) _memberNames=s9.members.map(m=>m.name);
   }
+  _goals=goalrow?JSON.parse(goalrow.value):{};
 
-  renderNameGrid(memberNames);
+  renderNameGrid(_memberNames);
+  renderGoals();
   renderTimeline();
   setSession(1);
   updateIdentityUI();
@@ -424,21 +419,71 @@ function updateIdentityUI(){
     picker.style.display='';
     bar.classList.remove('show');
   }
-  // 폼 잠금/해제
   updateFormLock();
+  renderGoals();
 }
 
 function updateFormLock(){
-  ['qBox','greetBox','refl-form-wrap','prop-form-wrap'].forEach(id=>{
+  ['qBox','refl-form-wrap'].forEach(id=>{
     const box=document.getElementById(id);
     if(!box)return;
     const locked=!_me;
     box.classList.toggle('locked',locked);
     box.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
     box.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
-    const fields=box.querySelector('#refl-fields,#prop-fields');
+    const fields=box.querySelector('#refl-fields');
     if(fields) fields.style.display=locked?'none':'';
   });
+  // 목표 입력창
+  document.getElementById('goalLockedMsg').style.display=_me?'none':'';
+  document.getElementById('goalInputWrap').style.display=_me?'flex':'none';
+  if(_me){
+    document.getElementById('goalInput').value=_goals[_me]||'';
+  }
+}
+
+// ── 목표 ─────────────────────────────────────────────
+function renderGoals(){
+  const el=document.getElementById('goalList');
+  if(!_memberNames.length){el.innerHTML='';return;}
+  el.innerHTML=_memberNames.map(name=>{
+    const txt=_goals[name]||'';
+    const mine=name===_me;
+    if(mine) return ''; // 내 목표는 입력창으로 표시
+    return `<div class="goal-item${mine?' mine':''}">
+      <div class="goal-item-name">${escH(name)}</div>
+      ${txt?`<div class="goal-item-text">${escH(txt)}</div>`:`<div class="goal-item-empty">아직 목표 없음</div>`}
+    </div>`;
+  }).join('');
+}
+
+async function saveGoal(){
+  if(!_me)return;
+  const txt=document.getElementById('goalInput').value.trim();
+  const btn=document.getElementById('goalSaveBtn');
+  btn.disabled=true; btn.textContent='저장 중…';
+
+  // 현재 값 가져와서 병합
+  const res=await fetch(`${SU}/rest/v1/JD_site_settings?key=eq.s9_goals&select=value`,{headers:H});
+  const rows=await res.json();
+  const current=rows[0]?JSON.parse(rows[0].value):{};
+  current[_me]=txt;
+  _goals=current;
+
+  if(rows[0]){
+    await fetch(`${SU}/rest/v1/JD_site_settings?key=eq.s9_goals`,{
+      method:'PATCH',headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({value:JSON.stringify(current)})
+    });
+  } else {
+    await fetch(`${SU}/rest/v1/JD_site_settings`,{
+      method:'POST',headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({key:'s9_goals',value:JSON.stringify(current)})
+    });
+  }
+  btn.disabled=false; btn.textContent='저장됐어요 ✓';
+  setTimeout(()=>{btn.textContent='저장';},2000);
+  renderGoals();
 }
 
 // ── Timeline ────────────────────────────────────────
@@ -452,7 +497,7 @@ function renderTimeline(){
       <div class="sn-dot"></div>
       <div class="sn-label">${s.label}</div>
       <div class="sn-date">${formatDate(s.date)}</div>
-      <div class="sn-book">${s.book||'도서 미정'}</div>
+      ${s.book?`<div class="sn-book">${s.book}</div>`:''}
     </button>`;
   }).join('');
 }
@@ -497,32 +542,22 @@ function formatFullDate(d){
 // ── 데이터 로드 ─────────────────────────────────────
 async function loadAll(){
   loadMessages();
-  loadReflAndProposals();
-  loadSummary();
+  loadReflections();
 }
 
 async function loadMessages(){
-  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&order=created_at.asc`,{headers:H});
+  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work)&order=created_at.asc`,{headers:H});
   const data=await r.json();
   if(!Array.isArray(data))return;
-  const questions=data.filter(m=>m.type==='question_book'||m.type==='question_work');
-  const greetings=data.filter(m=>m.type==='greeting');
-  renderQuestions(questions.filter(m=>m.type===_qType));
-  renderGreetings(greetings);
-  const cnt=questions.length+greetings.length;
-  document.getElementById('before-count').textContent=cnt?`${cnt}개`:'';
+  const questions=data.filter(m=>m.type===_qType);
+  renderQuestions(questions);
+  document.getElementById('before-count').textContent=data.length?`${data.length}개`:'';
 }
 
 function renderQuestions(data){
   const el=document.getElementById('questionList');
   if(!data.length){el.innerHTML='<div class="empty-note">아직 질문이 없어요. 첫 번째로 올려보세요!</div>';return;}
   el.innerHTML=data.map(m=>msgCard(m,_qType==='question_book'?'tag-book 📖 책':'tag-work 💼 실무')).join('');
-}
-
-function renderGreetings(data){
-  const el=document.getElementById('greetingList');
-  if(!data.length){el.innerHTML='<div class="empty-note">아직 한 마디가 없어요.</div>';return;}
-  el.innerHTML=data.map(m=>msgCard(m,'tag-greet 💬')).join('');
 }
 
 function msgCard(m,tagInfo){
@@ -540,37 +575,19 @@ function msgCard(m,tagInfo){
   </div>`;
 }
 
-async function loadReflAndProposals(){
-  const [reflRes,propRes]=await Promise.all([
-    fetch(`${SU}/rest/v1/JD_reflections?session=eq.${encodeURIComponent(SEASON+' '+_curN+'회차')}&order=submitted_at.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_proposals?season=eq.${encodeURIComponent(SEASON)}&session_number=eq.${encodeURIComponent(_curN+'회차')}&visible=eq.true&order=created_at.asc`,{headers:H})
-  ]);
-  const refls=await reflRes.json();
-  const props=await propRes.json();
-  _allRefls=Array.isArray(refls)?refls:[];
-  _allProps=Array.isArray(props)?props:[];
-  const total=_allRefls.length+_allProps.length;
-  document.getElementById('rp-count').textContent=total?`${total}개`:'';
-  renderRpList();
-}
-
-let _allRefls=[], _allProps=[];
-
-function renderRpList(){
+async function loadReflections(){
+  const r=await fetch(`${SU}/rest/v1/JD_reflections?session=eq.${encodeURIComponent(SEASON+' '+_curN+'회차')}&order=submitted_at.asc`,{headers:H});
+  const refls=await r.json();
+  const data=Array.isArray(refls)?refls:[];
+  document.getElementById('rp-count').textContent=data.length?`${data.length}개`:'';
   const el=document.getElementById('rpList');
-  if(_rpTab==='reflection'){
-    if(!_allRefls.length){el.innerHTML='<div class="empty-note">아직 성찰이 없어요.</div>';return;}
-    el.innerHTML=_allRefls.map(r=>reflCard(r)).join('');
-  } else {
-    if(!_allProps.length){el.innerHTML='<div class="empty-note">아직 발제문이 없어요.</div>';return;}
-    el.innerHTML=_allProps.map(p=>propCard(p)).join('');
-  }
+  if(!data.length){el.innerHTML='<div class="empty-note">아직 성찰이 없어요.</div>';return;}
+  el.innerHTML=data.map(r=>reflCard(r)).join('');
 }
 
 function reflCard(r){
   const mine=_me&&r.name===_me;
   const fields=[
-    {label:r.q1_label||'모임 전 성찰',text:r.q1_answer},
     {label:r.q2_label||'모임 후 성찰',text:r.q2_answer},
     {label:r.q3_label,text:r.q3_answer},
     {label:r.q4_label,text:r.q4_answer},
@@ -578,26 +595,10 @@ function reflCard(r){
   return `<div class="rp-card${mine?' mine':''}" id="rpc-${r.id}">
     <div class="rp-header" onclick="toggleRp('rpc-${r.id}')">
       <span class="rp-author">${escH(r.name)}</span>
-      <span class="rp-session" style="font-size:.7rem;color:var(--tl)">${escH(r.session||'')}</span>
       <span class="rp-toggle">+</span>
     </div>
     <div class="rp-body">
       ${fields.map(f=>`<div class="rp-field"><div class="rp-field-label">${escH(f.label)}</div><div class="rp-field-text">${escH(f.text)}</div></div>`).join('')}
-    </div>
-  </div>`;
-}
-
-function propCard(p){
-  const mine=_me&&p.author_name===_me;
-  return `<div class="rp-card${mine?' mine':''}" id="ppc-${p.id}">
-    <div class="rp-header" onclick="toggleRp('ppc-${p.id}')">
-      <span class="rp-author">${escH(p.author_name||'익명')}</span>
-      <span class="rp-session">${escH(p.book_title||'')}</span>
-      <span class="rp-toggle">+</span>
-    </div>
-    <div class="rp-body">
-      ${p.content?`<div class="rp-field"><div class="rp-field-text">${escH(p.content)}</div></div>`:''}
-      ${p.file_url?`<a href="${p.file_url}" target="_blank" style="font-size:.8rem;color:var(--ac);text-decoration:none">첨부파일 보기 →</a>`:''}
     </div>
   </div>`;
 }
@@ -610,16 +611,6 @@ function toggleRp(id){
   toggle.textContent=open?'×':'+';
 }
 
-async function loadSummary(){
-  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.summary&order=created_at.desc&limit=1`,{headers:H});
-  const data=await r.json();
-  const el=document.getElementById('summaryArea');
-  if(Array.isArray(data)&&data.length){
-    el.innerHTML=`<div class="summary-box"><h3>📋 ${_curN}회차 써머리</h3><div class="summary-text">${escH(data[0].content)}</div></div>`;
-  } else {
-    el.innerHTML='<div class="empty-note">모임 후 써머리가 올라올 예정이에요.</div>';
-  }
-}
 
 // ── 작성 ────────────────────────────────────────────
 async function postMessage(){
@@ -637,62 +628,23 @@ async function postMessage(){
   loadMessages();
 }
 
-async function postGreeting(){
-  if(!_me)return;
-  const txt=document.getElementById('greetInput').value.trim();
-  if(!txt)return;
-  const btn=document.querySelector('#greetBox .btn-post');
-  btn.disabled=true;btn.textContent='올리는 중…';
-  await fetch(`${SU}/rest/v1/JD_session_messages`,{
-    method:'POST',headers:{...H,'Prefer':'return=minimal'},
-    body:JSON.stringify({season:SEASON,session_n:_curN,type:'greeting',author:_me,content:txt})
-  });
-  document.getElementById('greetInput').value='';
-  btn.disabled=false;btn.textContent='올리기';
-  loadMessages();
-}
 
 async function postReflection(){
   if(!_me)return;
-  const q1=document.getElementById('refl_q1').value.trim();
   const q2=document.getElementById('refl_q2').value.trim();
-  if(!q1&&!q2)return;
+  if(!q2)return;
   const btn=document.querySelector('#refl-form-wrap .btn-post');
   btn.disabled=true;btn.textContent='올리는 중…';
   await fetch(`${SU}/rest/v1/JD_reflections`,{
     method:'POST',headers:{...H,'Prefer':'return=minimal'},
     body:JSON.stringify({
       name:_me,session:SEASON+' '+_curN+'회차',
-      q1_label:'모임 전 — 책을 읽으며',q1_answer:q1,
       q2_label:'모임 후 — 오늘의 배움',q2_answer:q2,
     })
   });
-  document.getElementById('refl_q1').value='';
   document.getElementById('refl_q2').value='';
   btn.disabled=false;btn.textContent='성찰 올리기';
-  loadReflAndProposals();
-}
-
-async function postProposal(){
-  if(!_me)return;
-  const q1=document.getElementById('prop_q1').value.trim();
-  const q2=document.getElementById('prop_q2').value.trim();
-  if(!q1&&!q2)return;
-  const btn=document.querySelector('#prop-form-wrap .btn-post');
-  btn.disabled=true;btn.textContent='올리는 중…';
-  const s=_sessions.find(x=>x.n===_curN);
-  await fetch(`${SU}/rest/v1/JD_proposals`,{
-    method:'POST',headers:{...H,'Prefer':'return=minimal'},
-    body:JSON.stringify({
-      season:SEASON,session_number:_curN+'회차',
-      book_title:s?.book||q1,author_name:_me,
-      content:q2,visible:true
-    })
-  });
-  document.getElementById('prop_q1').value='';
-  document.getElementById('prop_q2').value='';
-  btn.disabled=false;btn.textContent='발제문 올리기';
-  loadReflAndProposals();
+  loadReflections();
 }
 
 // ── UI helpers ──────────────────────────────────────
@@ -703,16 +655,6 @@ function setQType(type,btn){
   loadMessages();
 }
 
-function setRpTab(tab,btn){
-  _rpTab=tab;
-  document.querySelectorAll('#sec-rp .sub-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const rw=document.getElementById('refl-form-wrap');
-  const pw=document.getElementById('prop-form-wrap');
-  rw.style.display=tab==='reflection'?'':'none';
-  pw.style.display=tab==='proposal'?'':'none';
-  renderRpList();
-}
 
 function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
 
