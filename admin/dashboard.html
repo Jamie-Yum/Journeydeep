@@ -226,6 +226,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
     <div class="nav-item" onclick="showPanel('members')"><span class="nav-icon">👥</span><span class="nav-label">회원 관리</span></div>
     <div class="nav-item" onclick="showPanel('navcfg')"><span class="nav-icon">🧭</span><span class="nav-label">네비 설정</span></div>
+    <div class="nav-item" onclick="showPanel('s9sessions')"><span class="nav-icon">📅</span><span class="nav-label">S9 회차 관리</span></div>
   </nav>
   <div class="sidebar-footer">
     <a href="../index.html" class="back-btn">← 사이트로</a>
@@ -534,6 +535,22 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
   </div>
 
+  <!-- S9 회차 관리 -->
+  <div id="panel-s9sessions" class="panel">
+    <div class="page-header">
+      <div class="page-title">시즌 9 회차 관리</div>
+      <div class="page-sub">각 회차의 날짜·도서·저자·상태를 수정해요. 변경 즉시 활동 페이지에 반영돼요.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">회차 목록 <button class="btn btn-ghost btn-sm" onclick="loadS9Sessions()">새로고침</button></div>
+      <div id="s9sess-list" style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem"></div>
+      <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem">
+        <button onclick="saveS9Sessions()" style="padding:.6rem 1.75rem;background:var(--ac);color:#fff;border:none;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">저장하기</button>
+        <span id="s9sess-msg" style="font-size:.82rem;color:var(--tl)"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- 회원 관리 -->
   <div id="panel-members" class="panel">
     <div class="page-header">
@@ -835,6 +852,7 @@ function showPanel(id) {
   if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
   if (id === 'gallery') { loadGallery(); }
   if (id === 'navcfg') { loadNavCfg(); }
+  if (id === 's9sessions') { loadS9Sessions(); }
 }
 
 // ── 네비 설정 ─────────────────────────────────────────
@@ -932,6 +950,92 @@ async function saveNavConfig() {
     const errText = await res.text();
     msg.textContent = `저장 실패 (${res.status})`; msg.style.color = '#EF4444';
     console.error('nav save error:', errText);
+  }
+  setTimeout(() => { msg.textContent = ''; }, 3000);
+}
+
+// ── S9 회차 관리 ──────────────────────────────────────
+const S9_STATUS_OPTIONS = [
+  {value:'upcoming', label:'예정'},
+  {value:'done',     label:'완료'},
+  {value:'today',    label:'오늘'},
+];
+
+async function loadS9Sessions() {
+  const list = document.getElementById('s9sess-list');
+  if (!list) return;
+  list.innerHTML = '<div style="color:var(--tl);font-size:.85rem">불러오는 중…</div>';
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions&select=value`, {
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY},
+    cache: 'no-store'
+  });
+  const rows = await res.json();
+  const sessions = rows[0] ? JSON.parse(rows[0].value) : [];
+  list.dataset.sessions = JSON.stringify(sessions);
+  renderS9Sessions(sessions);
+}
+
+function renderS9Sessions(sessions) {
+  const list = document.getElementById('s9sess-list');
+  list.innerHTML = sessions.map((s, i) => {
+    const statusOpts = S9_STATUS_OPTIONS.map(o =>
+      `<option value="${o.value}"${s.status===o.value?' selected':''}>${o.label}</option>`
+    ).join('');
+    return `
+    <div style="border:1px solid rgba(100,116,139,.2);padding:1rem;background:var(--bg)">
+      <div style="font-size:.78rem;font-weight:700;color:var(--ac);margin-bottom:.75rem;letter-spacing:.06em">${s.label}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.6rem;align-items:end">
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">날짜</label>
+          <input id="s9s-date-${i}" value="${s.date||''}" placeholder="2026-08-08"
+            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">도서명</label>
+          <input id="s9s-book-${i}" value="${s.book||''}" placeholder="책 제목"
+            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">저자</label>
+          <input id="s9s-author-${i}" value="${s.author||''}" placeholder="저자명"
+            style="width:100%;padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+        </div>
+        <div>
+          <label style="font-size:.72rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.25rem">상태</label>
+          <select id="s9s-status-${i}"
+            style="padding:.45rem .65rem;background:var(--wh);border:1px solid rgba(100,116,139,.3);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+            ${statusOpts}
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function saveS9Sessions() {
+  const list = document.getElementById('s9sess-list');
+  const msg  = document.getElementById('s9sess-msg');
+  const sessions = JSON.parse(list.dataset.sessions || '[]');
+  const updated = sessions.map((s, i) => ({
+    ...s,
+    date:   document.getElementById(`s9s-date-${i}`)?.value.trim()   || s.date,
+    book:   document.getElementById(`s9s-book-${i}`)?.value.trim()   || s.book,
+    author: document.getElementById(`s9s-author-${i}`)?.value.trim() || s.author,
+    status: document.getElementById(`s9s-status-${i}`)?.value        || s.status,
+  }));
+  msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.s9_sessions`, {
+    method: 'PATCH',
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+              'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
+    body: JSON.stringify({value: JSON.stringify(updated)})
+  });
+  if (res.ok) {
+    list.dataset.sessions = JSON.stringify(updated);
+    renderS9Sessions(updated);
+    msg.textContent = '저장됐어요 ✓'; msg.style.color = '#10B981';
+  } else {
+    msg.textContent = `저장 실패 (${res.status})`; msg.style.color = '#EF4444';
   }
   setTimeout(() => { msg.textContent = ''; }, 3000);
 }
