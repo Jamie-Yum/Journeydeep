@@ -951,9 +951,9 @@ let _s9ProgId = null;
 let _s9Locks = {}; // {"1회차": {record:bool, proposal:bool, archive:bool}}
 
 function normalizeLock(val) {
-  if (!val || val === false) return {record:false, proposal:false, archive:false};
-  if (val === true) return {record:true, proposal:true, archive:true};
-  return {record:true, proposal:false, archive:false, ...val};
+  if (!val || val === false) return {locked:false, record:false, proposal:false, archive:false};
+  if (val === true) return {locked:false, record:true, proposal:true, archive:true};
+  return {locked:false, record:true, proposal:false, archive:false, ...val};
 }
 
 async function loadS9Sessions() {
@@ -1015,6 +1015,10 @@ function renderS9Sessions(sessions, books) {
         ${bk.author?`<div style="font-size:.72rem;color:var(--tl)">${bk.author}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;gap:.4rem;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">공개</span>
+          ${lockBtn(s.n,'visible',lk.visible!==false)}
+        </div>
         <div style="display:flex;align-items:center;gap:.5rem">
           <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">기록</span>
           ${lockBtn(s.n,'record',lk.record)}

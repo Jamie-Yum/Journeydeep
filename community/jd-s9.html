@@ -93,6 +93,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .session-node:hover{border-top-color:rgba(45,107,228,.4);background:rgba(45,107,228,.03)}
 .session-node.active{border-top-color:var(--ac);background:rgba(45,107,228,.06)}
 .session-node.done{border-top-color:rgba(45,107,228,.35)}
+.session-node.locked{cursor:not-allowed;opacity:.45;border-top-color:var(--be)!important;background:none!important}
+.session-node.locked:hover{border-top-color:var(--be)!important;background:none!important}
 .sn-label{font-size:.72rem;font-weight:700;color:var(--tl);letter-spacing:.06em;margin-bottom:.2rem}
 .session-node.active .sn-label{color:var(--ac)}
 .sn-date{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.3rem}
@@ -440,7 +442,7 @@ async function init(){
   Object.keys(rawLocks).forEach(k=>{
     const v=rawLocks[k];
     if(typeof v==='boolean') _locks[k]={record:v,proposal:false,archive:false};
-    else _locks[k]={record:true,proposal:false,archive:false,...v};
+    else _locks[k]={record:true,proposal:false,archive:false,visible:true,...v};
   });
 
   renderNameGrid(_memberNames);
@@ -586,12 +588,14 @@ function renderTimeline(){
   track.innerHTML=_sessions.map(s=>{
     const isDone=s.status==='done';
     const isActive=s.n===_curN;
-    return `<button class="session-node${isDone?' done':''}${isActive?' active':''}"
-      onclick="setSession(${s.n})">
+    const lk=_locks[s.label]||{};
+    const isVisible=lk.visible!==false;
+    return `<button class="session-node${isDone?' done':''}${isActive?' active':''}${!isVisible?' locked':''}"
+      ${isVisible?`onclick="setSession(${s.n})"`:''} ${!isVisible?'disabled':''}>
       <div class="sn-dot"></div>
       <div class="sn-label">${s.label}</div>
-      <div class="sn-date">${formatDate(s.date)}</div>
-      ${s.book?`<div class="sn-book">${s.book}</div>`:''}
+      <div class="sn-date">${isVisible?formatDate(s.date):'🔒'}</div>
+      ${isVisible&&s.book?`<div class="sn-book">${s.book}</div>`:''}
     </button>`;
   }).join('');
 }
