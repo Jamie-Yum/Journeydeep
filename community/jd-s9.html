@@ -334,23 +334,11 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <!-- 발제문 / 아카이빙 -->
 <div class="extra-blocks" id="extraBlocks" style="max-width:860px;margin:.75rem auto 0;padding:0 1.5rem;display:flex;flex-direction:column;gap:.75rem">
   <div id="block-proposal" style="display:none">
-    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;padding-left:.25rem">
-      <span style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2D6BE4">📝 발제문</span>
-    </div>
-    <div id="proposalAdminBox" class="post-box" style="display:none;margin-bottom:.65rem">
-      <textarea id="proposalInput" placeholder="발제문 내용을 입력해주세요." rows="4"></textarea>
-      <div class="post-box-footer"><button class="btn-post" onclick="postProposal()">올리기</button></div>
-    </div>
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2D6BE4;margin-bottom:.6rem;padding-left:.25rem">📝 발제문</div>
     <div id="proposalList" class="card-list"></div>
   </div>
   <div id="block-archive" style="display:none">
-    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;padding-left:.25rem">
-      <span style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0A8A5C">📋 아카이빙</span>
-    </div>
-    <div id="archiveAdminBox" class="post-box" style="display:none;margin-bottom:.65rem">
-      <textarea id="archiveInput" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요." rows="4"></textarea>
-      <div class="post-box-footer"><button class="btn-post" onclick="postArchive()">올리기</button></div>
-    </div>
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0A8A5C;margin-bottom:.6rem;padding-left:.25rem">📋 아카이빙</div>
     <div id="archiveList" class="card-list"></div>
   </div>
 </div>
@@ -500,7 +488,6 @@ function updateIdentityUI(){
   renderGoals();
 }
 
-const _isAdmin=()=>sessionStorage.getItem('jd_admin')==='1';
 
 function updateFormLock(){
   const curLabel=_sessions[_curN-1]?.label||'';
@@ -511,17 +498,13 @@ function updateFormLock(){
 
   // 발제문 블록 show/hide
   const blockP=document.getElementById('block-proposal');
-  if(blockP) blockP.style.display=(proposalOpen||_isAdmin())?'':'none';
-  if(proposalOpen||_isAdmin()) loadProposal();
-  const pAdminBox=document.getElementById('proposalAdminBox');
-  if(pAdminBox) pAdminBox.style.display=_isAdmin()?'':'none';
+  if(blockP) blockP.style.display=proposalOpen?'':'none';
+  if(proposalOpen) loadProposal();
 
   // 아카이빙 블록 show/hide
   const blockA=document.getElementById('block-archive');
-  if(blockA) blockA.style.display=(archiveOpen||_isAdmin())?'':'none';
-  if(archiveOpen||_isAdmin()) loadArchive();
-  const aAdminBox=document.getElementById('archiveAdminBox');
-  if(aAdminBox) aAdminBox.style.display=_isAdmin()?'':'none';
+  if(blockA) blockA.style.display=archiveOpen?'':'none';
+  if(archiveOpen) loadArchive();
 
   // 기록 잠금 (사전질문 + 성찰)
   ['qBox','refl-form-wrap'].forEach(id=>{
@@ -791,35 +774,6 @@ async function postReflection(){
   loadReflections();
 }
 
-async function postProposal(){
-  if(!_isAdmin())return;
-  const txt=document.getElementById('proposalInput').value.trim();
-  if(!txt)return;
-  const btn=document.querySelector('#proposalAdminBox .btn-post');
-  btn.disabled=true;btn.textContent='올리는 중…';
-  await fetch(`${SU}/rest/v1/JD_session_messages`,{
-    method:'POST',headers:{...H,'Prefer':'return=minimal'},
-    body:JSON.stringify({season:SEASON,session_n:_curN,type:'proposal',author:'관리자',content:txt})
-  });
-  document.getElementById('proposalInput').value='';
-  btn.disabled=false;btn.textContent='올리기';
-  loadProposal();
-}
-
-async function postArchive(){
-  if(!_isAdmin())return;
-  const txt=document.getElementById('archiveInput').value.trim();
-  if(!txt)return;
-  const btn=document.querySelector('#archiveAdminBox .btn-post');
-  btn.disabled=true;btn.textContent='올리는 중…';
-  await fetch(`${SU}/rest/v1/JD_session_messages`,{
-    method:'POST',headers:{...H,'Prefer':'return=minimal'},
-    body:JSON.stringify({season:SEASON,session_n:_curN,type:'archive',author:'관리자',content:txt})
-  });
-  document.getElementById('archiveInput').value='';
-  btn.disabled=false;btn.textContent='올리기';
-  loadArchive();
-}
 
 // ── UI helpers ──────────────────────────────────────
 

@@ -539,14 +539,43 @@ tr:hover td{background:rgba(37,99,235,.03)}
   <div id="panel-s9sessions" class="panel">
     <div class="page-header">
       <div class="page-title">시즌 9 회차 관리</div>
-      <div class="page-sub">각 회차의 날짜를 수정해요. 도서는 <b>책 관리</b>에서, 멤버는 <b>회원 관리</b>에서 설정하면 자동 반영돼요.</div>
+      <div class="page-sub">각 회차의 날짜·공개 여부를 설정하고, 발제문과 아카이빙 내용을 작성해요.</div>
     </div>
     <div class="card">
       <div class="card-title">회차 목록 <button class="btn btn-ghost btn-sm" onclick="loadS9Sessions()">새로고침</button></div>
       <div id="s9sess-list" style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem"></div>
       <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem">
-        <button onclick="saveS9Sessions()" style="padding:.6rem 1.75rem;background:var(--ac);color:#fff;border:none;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">저장하기</button>
+        <button onclick="saveS9Sessions()" class="btn btn-primary">날짜 저장</button>
         <span id="s9sess-msg" style="font-size:.82rem;color:var(--tl)"></span>
+      </div>
+    </div>
+    <!-- 발제문 / 아카이빙 작성 -->
+    <div class="card" id="s9content-card" style="display:none">
+      <div class="card-title">
+        <span id="s9content-title">내용 작성</span>
+        <span style="font-size:.75rem;font-weight:400;color:var(--tl)" id="s9content-sub"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem">
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:#2D6BE4;margin-bottom:.5rem">📝 발제문</div>
+          <textarea id="s9proposal-input" rows="5" placeholder="발제문 내용을 입력해주세요."
+            style="width:100%;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
+            onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
+          <div style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
+            <button class="btn btn-primary btn-sm" onclick="saveS9Content('proposal')">올리기</button>
+            <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;color:#0A8A5C;margin-bottom:.5rem">📋 아카이빙</div>
+          <textarea id="s9archive-input" rows="5" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
+            style="width:100%;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
+            onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
+          <div style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
+            <button class="btn btn-primary btn-sm" onclick="saveS9Content('archive')">올리기</button>
+            <span id="s9archive-msg" style="font-size:.8rem;color:var(--tl)"></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1007,7 +1036,7 @@ function renderS9Sessions(sessions, books) {
     const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
     const lk = normalizeLock(_s9Locks[s.n]);
     return `
-    <div style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05)">
+    <div onclick="selectS9Session('${s.n}', ${i+1})" style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(120,120,160,.18)'">`
       <div>
         <div style="font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.06em">${s.n}</div>
         <div style="font-size:.7rem;color:${statusColor};margin-top:.15rem;font-weight:600">${status}</div>
@@ -1062,6 +1091,46 @@ async function saveS9Locks() {
   } else {
     await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {method:'POST', headers:H, body});
   }
+}
+
+let _s9SelSession = null;
+
+async function selectS9Session(label, n) {
+  _s9SelSession = {label, n};
+  const card = document.getElementById('s9content-card');
+  card.style.display = '';
+  document.getElementById('s9content-title').textContent = label + ' — 내용 작성';
+  document.getElementById('s9content-sub').textContent = '공개 토글을 켜야 멤버들에게 보여요';
+  document.getElementById('s9proposal-msg').textContent = '';
+  document.getElementById('s9archive-msg').textContent = '';
+
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  const r = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(proposal,archive)&order=created_at.desc`, {headers: H});
+  const rows = await r.json();
+  const proposal = rows.find(r => r.type === 'proposal');
+  const archive = rows.find(r => r.type === 'archive');
+  document.getElementById('s9proposal-input').value = proposal?.content || '';
+  document.getElementById('s9archive-input').value = archive?.content || '';
+  card.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+async function saveS9Content(type) {
+  if (!_s9SelSession) return;
+  const input = document.getElementById(`s9${type}-input`);
+  const msg = document.getElementById(`s9${type}-msg`);
+  const txt = input.value.trim();
+  if (!txt) return;
+  msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'};
+  // 기존 항목 삭제 후 새로 삽입 (덮어쓰기)
+  await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${_s9SelSession.n}&type=eq.${type}`, {method:'DELETE', headers:H});
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages`, {
+    method: 'POST', headers: H,
+    body: JSON.stringify({season:'시즌 9', session_n: _s9SelSession.n, type, author:'관리자', content: txt})
+  });
+  if (res.ok) { msg.textContent = '저장됐어요 ✓'; msg.style.color = '#10B981'; }
+  else { msg.textContent = '저장 실패'; msg.style.color = '#EF4444'; }
+  setTimeout(() => { msg.textContent = ''; }, 3000);
 }
 
 async function saveS9Sessions() {
