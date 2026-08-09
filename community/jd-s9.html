@@ -467,11 +467,17 @@ function setSession(n){
   // 세션 카드 업데이트
   if(s){
     const hasBook=s.book&&s.book.trim();
-    document.getElementById('bookTitle').innerHTML=hasBook?escH(s.book):'<span class="no-book">도서 미정</span>';
-    document.getElementById('bookAuthor').textContent=s.author||'';
-    const thumb=document.getElementById('bookThumb');
-    if(s.cover_url){thumb.innerHTML=`<img src="${s.cover_url}" alt="">`;}
-    else{thumb.innerHTML='📚';}
+    const bookInfo=document.querySelector('.session-info-book');
+    if(hasBook){
+      bookInfo.style.display='flex';
+      document.getElementById('bookTitle').textContent=s.book;
+      document.getElementById('bookAuthor').textContent=s.author||'';
+      const thumb=document.getElementById('bookThumb');
+      if(s.cover_url){thumb.innerHTML=`<img src="${s.cover_url}" alt="">`;}
+      else{thumb.innerHTML='📚';}
+    } else {
+      bookInfo.style.display='none';
+    }
     document.getElementById('sessionDate').textContent=s.label+' · '+formatFullDate(s.date);
   }
   loadAll();
