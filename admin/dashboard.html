@@ -504,38 +504,54 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-title">시즌 9 회차 관리</div>
       <div class="page-sub">각 회차의 날짜·공개 여부를 설정하고, 발제문과 아카이빙 내용을 작성해요.</div>
     </div>
-    <div class="card">
-      <div class="card-title">회차 목록 <button class="btn btn-ghost btn-sm" onclick="loadS9Sessions()">새로고침</button></div>
-      <div id="s9sess-list" style="display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem"></div>
-      <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem">
-        <button onclick="saveS9Sessions()" class="btn btn-primary">날짜 저장</button>
-        <span id="s9sess-msg" style="font-size:.82rem;color:var(--tl)"></span>
+    <div class="card" style="padding:0;overflow:hidden">
+      <!-- 테이블 헤더 -->
+      <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 56px 64px 36px;gap:0;padding:.65rem 1.25rem;background:var(--bg);border-bottom:1.5px solid var(--bd);align-items:center">
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">회차</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">날짜</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">도서</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">공개</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">기록</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">발제문</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">아카이빙</div>
+        <div></div>
+      </div>
+      <!-- 회차 행 목록 -->
+      <div id="s9sess-list"></div>
+      <!-- 날짜 저장 푸터 -->
+      <div style="padding:.85rem 1.25rem;border-top:1.5px solid var(--bd);display:flex;align-items:center;gap:1rem;background:var(--bg)">
+        <button onclick="saveS9Sessions()" class="btn btn-primary btn-sm">날짜 저장</button>
+        <span id="s9sess-msg" style="font-size:.8rem;color:var(--tl)"></span>
+        <button class="btn btn-ghost btn-sm" onclick="loadS9Sessions()" style="margin-left:auto">새로고침</button>
       </div>
     </div>
-    <!-- 발제문 / 아카이빙 작성 -->
-    <div class="card" id="s9content-card" style="display:none">
-      <div class="card-title">
-        <span id="s9content-title">내용 작성</span>
-        <span style="font-size:.75rem;font-weight:400;color:var(--tl)" id="s9content-sub"></span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:1.5rem">
+    <!-- 인라인 편집 패널 (선택 시 표시) -->
+    <div class="card" id="s9content-card" style="display:none;border:2px solid var(--ac)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
         <div>
-          <div style="font-size:.78rem;font-weight:700;color:#2D6BE4;margin-bottom:.5rem">📝 발제문</div>
-          <textarea id="s9proposal-input" rows="5" placeholder="발제문 내용을 입력해주세요."
-            style="width:100%;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
+          <div class="card-title" id="s9content-title" style="margin-bottom:.2rem">내용 작성</div>
+          <div style="font-size:.75rem;color:var(--tl)" id="s9content-sub"></div>
+        </div>
+        <button onclick="document.getElementById('s9content-card').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--tl);padding:.25rem;line-height:1">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div>
+          <div style="font-size:.75rem;font-weight:700;color:#2D6BE4;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem">📝 발제문</div>
+          <textarea id="s9proposal-input" rows="6" placeholder="발제문 내용을 입력해주세요."
+            style="width:100%;box-sizing:border-box;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
             onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
           <div style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
-            <button class="btn btn-primary btn-sm" onclick="saveS9Content('proposal')">올리기</button>
+            <button class="btn btn-primary btn-sm" onclick="saveS9Content('proposal')">저장</button>
             <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
         <div>
-          <div style="font-size:.78rem;font-weight:700;color:#0A8A5C;margin-bottom:.5rem">📋 아카이빙</div>
-          <textarea id="s9archive-input" rows="5" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
-            style="width:100%;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
+          <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem">📋 아카이빙</div>
+          <textarea id="s9archive-input" rows="6" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
+            style="width:100%;box-sizing:border-box;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
             onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
           <div style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
-            <button class="btn btn-primary btn-sm" onclick="saveS9Content('archive')">올리기</button>
+            <button class="btn btn-primary btn-sm" onclick="saveS9Content('archive')">저장</button>
             <span id="s9archive-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
@@ -980,13 +996,13 @@ async function loadS9Sessions() {
   renderS9Sessions(sessions, books);
 }
 
-function lockBtn(label, field, isOpen) {
-  const bg = isOpen ? 'rgba(16,185,129,.12)' : 'rgba(239,68,68,.1)';
-  const color = isOpen ? '#059669' : '#DC2626';
-  const icon = isOpen ? '🔓' : '🔒';
-  return `<button onclick="toggleS9Lock('${label}','${field}')"
-    style="padding:.32rem .75rem;border-radius:var(--r-pill);border:none;cursor:pointer;font-size:.75rem;font-weight:700;font-family:'Pretendard',sans-serif;transition:all .2s;background:${bg};color:${color};white-space:nowrap">
-    ${icon} ${isOpen?'열림':'잠금'}
+function swToggle(sessionLabel, field, isOn) {
+  const id = `sw-${sessionLabel.replace(/\s/g,'_')}-${field}`;
+  return `<button id="${id}" onclick="event.stopPropagation();toggleS9Lock('${sessionLabel}','${field}')"
+    title="${isOn?'켜짐 (클릭하여 끄기)':'꺼짐 (클릭하여 켜기)'}"
+    style="display:block;width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:background .2s;position:relative;flex-shrink:0;
+      background:${isOn?'#2D6BE4':'rgba(120,120,160,.25)'}">
+    <span style="position:absolute;top:3px;left:${isOn?'19px':'3px'};width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)"></span>
   </button>`;
 }
 
@@ -996,41 +1012,34 @@ function renderS9Sessions(sessions, books) {
   list.innerHTML = sessions.map((s, i) => {
     const bk = (books||[]).find(b => b.session === s.n) || {};
     const status = s.d < today ? '완료' : s.d === today ? '오늘' : '예정';
-    const statusColor = s.d < today ? 'var(--green)' : s.d === today ? 'var(--ac)' : 'var(--tl)';
+    const statusBg = s.d < today ? 'rgba(16,185,129,.12)' : s.d === today ? 'rgba(45,107,228,.12)' : 'rgba(120,120,160,.1)';
+    const statusColor = s.d < today ? '#059669' : s.d === today ? 'var(--ac)' : 'var(--tl)';
     const lk = normalizeLock(_s9Locks[s.n]);
+    const isSelected = _s9SelSession?.label === s.n;
     return `
-    <div onclick="selectS9Session('${s.n}', ${i+1})" style="border-radius:var(--r-sm);border:1.5px solid rgba(120,120,160,.18);padding:1rem 1.25rem;background:var(--wh);display:grid;grid-template-columns:auto 1fr 1fr auto;gap:1rem;align-items:center;box-shadow:0 1px 6px rgba(26,26,46,.05);cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(120,120,160,.18)'">
+    <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 56px 64px 36px;gap:0;padding:.75rem 1.25rem;align-items:center;border-bottom:1px solid var(--bd);background:${isSelected?'rgba(45,107,228,.04)':'var(--wh)'};transition:background .15s">
       <div>
-        <div style="font-size:.78rem;font-weight:700;color:var(--ac);letter-spacing:.06em">${s.n}</div>
-        <div style="font-size:.7rem;color:${statusColor};margin-top:.15rem;font-weight:600">${status}</div>
+        <div style="font-size:.82rem;font-weight:700;color:var(--dk)">${s.n}</div>
+        <span style="font-size:.65rem;font-weight:700;padding:.1rem .45rem;border-radius:6px;background:${statusBg};color:${statusColor}">${status}</span>
       </div>
       <div>
-        <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">날짜</label>
         <input type="date" id="s9s-date-${i}" value="${s.d||''}"
-          style="width:100%;padding:.4rem .6rem;background:var(--bg);border:1.5px solid rgba(120,120,160,.2);border-radius:var(--r-sm);font-size:.85rem;font-family:'Pretendard',sans-serif;color:var(--dk)">
+          style="padding:.35rem .55rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;width:130px"
+          onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'">
       </div>
-      <div>
-        <label style="font-size:.7rem;font-weight:600;color:var(--ts);display:block;margin-bottom:.2rem">연결된 도서</label>
-        <div style="font-size:.82rem;color:${bk.title?'var(--dk)':'var(--tl)'};padding:.4rem 0">${bk.title||'— 책 관리에서 차수 지정'}</div>
-        ${bk.author?`<div style="font-size:.72rem;color:var(--tl)">${bk.author}</div>`:''}
+      <div style="font-size:.8rem;color:${bk.title?'var(--dk)':'var(--tl)'};padding-right:.5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${bk.title||''}">
+        ${bk.title||'—'}${bk.author?`<span style="color:var(--tl);font-size:.72rem"> · ${bk.author}</span>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;gap:.4rem;align-items:flex-start">
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">공개</span>
-          ${lockBtn(s.n,'visible',lk.visible!==false)}
-        </div>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">기록</span>
-          ${lockBtn(s.n,'record',lk.record)}
-        </div>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">발제문</span>
-          ${lockBtn(s.n,'proposal',lk.proposal)}
-        </div>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <span style="font-size:.7rem;font-weight:600;color:var(--ts);width:44px">아카이빙</span>
-          ${lockBtn(s.n,'archive',lk.archive)}
-        </div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'visible',lk.visible!==false)}</div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'record',lk.record)}</div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'proposal',lk.proposal)}</div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'archive',lk.archive)}</div>
+      <div style="display:flex;justify-content:center">
+        <button onclick="selectS9Session('${s.n}', ${i+1})"
+          title="발제문·아카이빙 작성"
+          style="width:28px;height:28px;border-radius:8px;border:1.5px solid var(--bd);background:${isSelected?'var(--ac)':'var(--bg)'};color:${isSelected?'#fff':'var(--ts)'};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s">
+          ✏️
+        </button>
       </div>
     </div>`;
   }).join('');
@@ -1064,12 +1073,18 @@ let _s9SelSession = null;
 
 async function selectS9Session(label, n) {
   _s9SelSession = {label, n};
+  // 행 배경 강조 업데이트
+  const sessions = JSON.parse(document.getElementById('s9sess-list').dataset.sessions || '[]');
+  renderS9Sessions(sessions, JSON.parse(document.getElementById('s9sess-list').dataset.books || '[]'));
+
   const card = document.getElementById('s9content-card');
   card.style.display = '';
   document.getElementById('s9content-title').textContent = label + ' — 내용 작성';
-  document.getElementById('s9content-sub').textContent = '공개 토글을 켜야 멤버들에게 보여요';
+  document.getElementById('s9content-sub').textContent = '발제문·아카이빙을 작성하고 토글로 공개 여부를 제어하세요';
   document.getElementById('s9proposal-msg').textContent = '';
   document.getElementById('s9archive-msg').textContent = '';
+  document.getElementById('s9proposal-input').value = '';
+  document.getElementById('s9archive-input').value = '';
 
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
   const r = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(proposal,archive)&order=created_at.desc`, {headers: H});
@@ -1078,7 +1093,7 @@ async function selectS9Session(label, n) {
   const archive = rows.find(r => r.type === 'archive');
   document.getElementById('s9proposal-input').value = proposal?.content || '';
   document.getElementById('s9archive-input').value = archive?.content || '';
-  card.scrollIntoView({behavior: 'smooth', block: 'start'});
+  card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
 async function saveS9Content(type) {
