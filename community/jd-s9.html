@@ -104,20 +104,45 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .no-book{font-size:.82rem;color:var(--tl);font-style:italic}
 
 /* ── Content area ── */
-.content-wrap{max-width:860px;margin:0 auto;padding:2rem 1.5rem 6rem}
+.content-wrap{padding:0 0 6rem}
 
-/* Section headers */
-.section-heading{display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:2px solid var(--be)}
-.section-heading-icon{width:32px;height:32px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0}
-.section-heading h2{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);letter-spacing:-.01em}
-.section-heading-sub{font-size:.78rem;color:var(--tl);margin-left:auto}
+/* Section block */
+.content-section{margin-bottom:0}
 
-.content-section{margin-bottom:3rem}
+/* Section banner */
+.section-banner{padding:1.5rem 0;margin-bottom:0}
+.section-banner-inner{max-width:860px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:.85rem}
+.section-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Sans',sans-serif}
+.section-title{font-family:'DM Sans',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.section-count{font-size:.78rem;font-weight:500;margin-left:auto;opacity:.7}
+
+/* 모임 전 — blue */
+#sec-before .section-banner{background:#EFF6FF;border-top:3px solid #2563EB;border-bottom:1px solid #BFDBFE}
+#sec-before .section-title{color:#1E3A8A}
+#sec-before .section-badge{background:#2563EB;color:#fff}
+#sec-before .section-count{color:#2563EB}
+
+/* 모임 후 — teal */
+#sec-rp .section-banner{background:#F0FDF4;border-top:3px solid #059669;border-bottom:1px solid #A7F3D0}
+#sec-rp .section-title{color:#064E3B}
+#sec-rp .section-badge{background:#059669;color:#fff}
+#sec-rp .section-count{color:#059669}
+
+/* Section body */
+.section-body{max-width:860px;margin:0 auto;padding:1.75rem 1.5rem 2.5rem}
+
+/* Sub-category label */
+.sub-cat-label{display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem}
+.sub-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sub-cat-dot.blue{background:#2563EB}
+.sub-cat-dot.teal{background:#059669}
+.sub-cat-name{font-size:.75rem;font-weight:700;color:var(--ts);letter-spacing:.06em;text-transform:uppercase}
 
 /* Sub-tabs */
-.sub-tabs{display:flex;gap:.4rem;margin-bottom:1rem}
-.sub-tab{padding:.35rem .9rem;border:1.5px solid var(--bd);background:transparent;color:var(--tl);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif}
-.sub-tab.active{background:var(--dk);border-color:var(--dk);color:#fff;font-weight:600}
+.sub-tabs{display:flex;gap:.35rem;margin-bottom:1rem}
+.sub-tab{padding:.38rem 1rem;border:1.5px solid var(--bd);background:transparent;color:var(--tl);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Pretendard',sans-serif;border-radius:20px}
+#sec-before .sub-tab.active{background:#2563EB;border-color:#2563EB;color:#fff;font-weight:700}
+#sec-rp .sub-tab.active{background:#059669;border-color:#059669;color:#fff;font-weight:700}
 
 /* Post form */
 .post-box{background:var(--wh);border:1px solid var(--bd);padding:1.1rem;margin-bottom:1.25rem}
@@ -298,15 +323,18 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 
   <!-- 모임 전 -->
   <div class="content-section" id="sec-before">
-    <div class="section-heading">
-      <div class="section-heading-icon">🙋</div>
-      <h2>모임 전</h2>
-      <span class="section-heading-sub" id="before-count"></span>
+    <div class="section-banner">
+      <div class="section-banner-inner">
+        <div class="section-badge">모임 전</div>
+        <div class="section-title">사전 질문</div>
+        <span class="section-count" id="before-count"></span>
+      </div>
     </div>
-
-    <!-- 사전 질문 -->
-    <div style="margin-bottom:1.75rem">
-      <div style="font-size:.75rem;font-weight:700;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.7rem">사전 질문</div>
+    <div class="section-body">
+      <div class="sub-cat-label">
+        <div class="sub-cat-dot blue"></div>
+        <div class="sub-cat-name">카테고리 선택</div>
+      </div>
       <div class="sub-tabs">
         <button class="sub-tab active" onclick="setQType('question_book',this)">📖 책 관련</button>
         <button class="sub-tab" onclick="setQType('question_work',this)">💼 실무 관련</button>
@@ -320,32 +348,33 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
       <div id="questionList" class="card-list"></div>
     </div>
-
   </div>
 
-  <!-- 모임 후 · 성찰 -->
+  <!-- 모임 후 -->
   <div class="content-section" id="sec-rp">
-    <div class="section-heading">
-      <div class="section-heading-icon">📝</div>
-      <h2>모임 후</h2>
-      <span class="section-heading-sub" id="rp-count"></span>
+    <div class="section-banner">
+      <div class="section-banner-inner">
+        <div class="section-badge">모임 후</div>
+        <div class="section-title">성찰</div>
+        <span class="section-count" id="rp-count"></span>
+      </div>
     </div>
-
-    <!-- 성찰 작성 -->
-    <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
-      <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
-      <div id="refl-fields">
-        <div style="margin-bottom:.85rem">
-          <div style="font-size:.72rem;font-weight:600;color:var(--tl);margin-bottom:.35rem">모임 후 — 오늘의 배움</div>
+    <div class="section-body">
+      <div class="sub-cat-label">
+        <div class="sub-cat-dot teal"></div>
+        <div class="sub-cat-name">오늘의 배움을 기록해요</div>
+      </div>
+      <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
+        <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
+        <div id="refl-fields">
           <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
         </div>
+        <div class="post-box-footer">
+          <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
+        </div>
       </div>
-      <div class="post-box-footer">
-        <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
-      </div>
+      <div id="rpList" class="card-list"></div>
     </div>
-
-    <div id="rpList" class="card-list"></div>
   </div>
 
 </div>
