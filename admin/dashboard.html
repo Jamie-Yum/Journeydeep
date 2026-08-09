@@ -220,7 +220,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
     <div class="nav-item active" onclick="showPanel('homepage')"><span class="nav-icon">🖼️</span><span class="nav-label">미디어 관리</span></div>
     <div class="nav-item" onclick="showPanel('gallery')"><span class="nav-icon">📸</span><span class="nav-label">갤러리</span></div>
     <div class="nav-item" onclick="showPanel('programs')"><span class="nav-icon">📋</span><span class="nav-label">프로그램</span></div>
-    <div class="nav-item" onclick="showPanel('proposals')"><span class="nav-icon">📝</span><span class="nav-label">발제문</span></div>
     <div class="nav-item" onclick="showPanel('columns')"><span class="nav-icon">✍️</span><span class="nav-label">칼럼</span></div>
     <div class="nav-item" onclick="showPanel('books')"><span class="nav-icon">📚</span><span class="nav-label">책 관리</span></div>
     <div class="nav-item" onclick="showPanel('applications')"><span class="nav-icon">📬</span><span class="nav-label">신청 현황</span></div>
@@ -283,42 +282,6 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
   </div>
 
-  <!-- 발제문 -->
-  <div id="panel-proposals" class="panel">
-    <div class="page-header">
-      <div class="page-title">발제문 관리</div>
-      <div class="page-sub">시즌별 발제문을 업로드하고 관리해요</div>
-    </div>
-    <div class="card">
-      <div class="card-title">새 발제문 추가</div>
-      <div class="form-grid">
-        <div class="field"><label>시즌</label><input id="pr_season" placeholder="예: 시즌 9"></div>
-        <div class="field"><label>회차</label><input id="pr_session" placeholder="예: 3회차"></div>
-        <div class="field"><label>도서 제목</label><input id="pr_book" placeholder="예: 익숙한 것과의 결별"></div>
-        <div class="field"><label>발제자</label><input id="pr_author" placeholder="이름"></div>
-        <div class="field field-full"><label>발제 내용</label><textarea id="pr_content" style="min-height:180px" placeholder="발제 내용을 입력해 주세요."></textarea></div>
-        <div class="field field-full">
-          <label>첨부 파일 / 이미지</label>
-          <div style="display:flex;gap:.5rem;align-items:center">
-            <input id="pr_file" placeholder="https://..." style="flex:1">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('pr_file_input').click()">📁 업로드</button>
-            <input type="file" id="pr_file_input" accept="image/*" style="display:none" onchange="inlineUpload(this.files[0],'pr_file','pr_file_preview');this.value=''">
-          </div>
-          <img id="pr_file_preview" src="" style="display:none;margin-top:.5rem;max-height:120px;object-fit:cover;border:1px solid var(--be);width:100%">
-        </div>
-      </div>
-      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-        <span id="pr_form_status" style="font-size:.82rem;font-weight:600;color:var(--ac)"></span>
-        <button class="btn btn-primary" id="pr_save_btn" onclick="saveProposal()">저장하기</button>
-        <button class="btn btn-ghost" id="pr_cancel_btn" style="display:none" onclick="prClearForm()">취소</button>
-        <button class="btn btn-ghost" onclick="previewProposal()">👁 미리보기</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">등록된 발제문 <button class="btn btn-ghost btn-sm" onclick="loadProposals()">새로고침</button></div>
-      <div id="pr_list"><div style="color:var(--tl);font-size:.88rem">불러오는 중...</div></div>
-    </div>
-  </div>
 
   <!-- 칼럼 -->
   <div id="panel-columns" class="panel">
