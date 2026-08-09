@@ -331,6 +331,30 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
   </div>
 </div>
 
+<!-- 발제문 / 아카이빙 -->
+<div class="extra-blocks" id="extraBlocks" style="max-width:860px;margin:.75rem auto 0;padding:0 1.5rem;display:flex;flex-direction:column;gap:.75rem">
+  <div id="block-proposal" style="display:none">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;padding-left:.25rem">
+      <span style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2D6BE4">📝 발제문</span>
+    </div>
+    <div id="proposalAdminBox" class="post-box" style="display:none;margin-bottom:.65rem">
+      <textarea id="proposalInput" placeholder="발제문 내용을 입력해주세요." rows="4"></textarea>
+      <div class="post-box-footer"><button class="btn-post" onclick="postProposal()">올리기</button></div>
+    </div>
+    <div id="proposalList" class="card-list"></div>
+  </div>
+  <div id="block-archive" style="display:none">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;padding-left:.25rem">
+      <span style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0A8A5C">📋 아카이빙</span>
+    </div>
+    <div id="archiveAdminBox" class="post-box" style="display:none;margin-bottom:.65rem">
+      <textarea id="archiveInput" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요." rows="4"></textarea>
+      <div class="post-box-footer"><button class="btn-post" onclick="postArchive()">올리기</button></div>
+    </div>
+    <div id="archiveList" class="card-list"></div>
+  </div>
+</div>
+
 <!-- Content -->
 <div class="content-wrap">
 
@@ -347,29 +371,15 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       <div class="sub-tabs" id="before-tabs">
         <button class="sub-tab active" onclick="setBeforeTab('question_book',this)">📖 책 관련</button>
         <button class="sub-tab" onclick="setBeforeTab('question_work',this)">💼 실무 관련</button>
-        <button class="sub-tab" id="tab-proposal" style="display:none" onclick="setBeforeTab('proposal',this)">📝 발제문</button>
       </div>
-      <!-- 사전질문 영역 -->
-      <div id="area-question">
-        <div class="post-box" id="qBox">
-          <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
-          <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
-          <div class="post-box-footer">
-            <button class="btn-post" onclick="postMessage()">올리기</button>
-          </div>
+      <div class="post-box" id="qBox">
+        <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
+        <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
+        <div class="post-box-footer">
+          <button class="btn-post" onclick="postMessage()">올리기</button>
         </div>
-        <div id="questionList" class="card-list"></div>
       </div>
-      <!-- 발제문 영역 -->
-      <div id="area-proposal" style="display:none">
-        <div class="post-box" id="proposalBox" style="display:none">
-          <textarea id="proposalInput" placeholder="발제문 내용을 입력해주세요." rows="5"></textarea>
-          <div class="post-box-footer">
-            <button class="btn-post" onclick="postProposal()">올리기</button>
-          </div>
-        </div>
-        <div id="proposalList" class="card-list"></div>
-      </div>
+      <div id="questionList" class="card-list"></div>
     </div>
   </div>
 
@@ -383,33 +393,16 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
     </div>
     <div class="section-body">
-      <div class="sub-tabs" id="after-tabs">
-        <button class="sub-tab active" onclick="setAfterTab('reflection',this)">💭 성찰</button>
-        <button class="sub-tab" id="tab-archive" style="display:none" onclick="setAfterTab('archive',this)">📋 아카이빙</button>
-      </div>
-      <!-- 성찰 영역 -->
-      <div id="area-reflection">
-        <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
-          <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
-          <div id="refl-fields">
-            <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
-          </div>
-          <div class="post-box-footer">
-            <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
-          </div>
+      <div id="refl-form-wrap" class="post-box" style="margin-bottom:1.25rem">
+        <span class="lock-msg">이름을 선택하면 성찰을 기록할 수 있어요</span>
+        <div id="refl-fields">
+          <textarea id="refl_q2" placeholder="오늘 모임에서 가장 인상 깊었던 것은?" rows="3"></textarea>
         </div>
-        <div id="rpList" class="card-list"></div>
-      </div>
-      <!-- 아카이빙 영역 -->
-      <div id="area-archive" style="display:none">
-        <div class="post-box" id="archiveBox" style="display:none">
-          <textarea id="archiveInput" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요." rows="5"></textarea>
-          <div class="post-box-footer">
-            <button class="btn-post" onclick="postArchive()">올리기</button>
-          </div>
+        <div class="post-box-footer">
+          <button class="btn-post" onclick="postReflection()">성찰 올리기</button>
         </div>
-        <div id="archiveList" class="card-list"></div>
       </div>
+      <div id="rpList" class="card-list"></div>
     </div>
   </div>
 
@@ -516,18 +509,19 @@ function updateFormLock(){
   const proposalOpen=lk.proposal===true;
   const archiveOpen=lk.archive===true;
 
-  // 발제문 탭 show/hide
-  const tabP=document.getElementById('tab-proposal');
-  if(tabP) tabP.style.display=(proposalOpen||_isAdmin())?'':'none';
-  // 아카이빙 탭 show/hide
-  const tabA=document.getElementById('tab-archive');
-  if(tabA) tabA.style.display=(archiveOpen||_isAdmin())?'':'none';
+  // 발제문 블록 show/hide
+  const blockP=document.getElementById('block-proposal');
+  if(blockP) blockP.style.display=(proposalOpen||_isAdmin())?'':'none';
+  if(proposalOpen||_isAdmin()) loadProposal();
+  const pAdminBox=document.getElementById('proposalAdminBox');
+  if(pAdminBox) pAdminBox.style.display=_isAdmin()?'':'none';
 
-  // 발제문/아카이빙 관리자 입력창 show/hide
-  const pBox=document.getElementById('proposalBox');
-  if(pBox) pBox.style.display=_isAdmin()?'':'none';
-  const aBox=document.getElementById('archiveBox');
-  if(aBox) aBox.style.display=_isAdmin()?'':'none';
+  // 아카이빙 블록 show/hide
+  const blockA=document.getElementById('block-archive');
+  if(blockA) blockA.style.display=(archiveOpen||_isAdmin())?'':'none';
+  if(archiveOpen||_isAdmin()) loadArchive();
+  const aAdminBox=document.getElementById('archiveAdminBox');
+  if(aAdminBox) aAdminBox.style.display=_isAdmin()?'':'none';
 
   // 기록 잠금 (사전질문 + 성찰)
   ['qBox','refl-form-wrap'].forEach(id=>{
@@ -657,37 +651,18 @@ function formatFullDate(d){
   return `${dt.getFullYear()}년 ${dt.getMonth()+1}월 ${dt.getDate()}일`;
 }
 
-// ── 탭 전환 ─────────────────────────────────────────
-let _beforeTab='question_book';
-let _afterTab='reflection';
-
+// ── 탭 전환 (사전질문 책/실무) ──────────────────────
 function setBeforeTab(tab, btn){
-  _beforeTab=tab;
+  _qType=tab;
   document.querySelectorAll('#before-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  document.getElementById('area-question').style.display=(tab==='proposal')?'none':'';
-  document.getElementById('area-proposal').style.display=(tab==='proposal')?'':'none';
-  if(tab!=='proposal') _qType=tab;
-  if(tab==='proposal') loadProposal();
-  else loadMessages();
-}
-
-function setAfterTab(tab, btn){
-  _afterTab=tab;
-  document.querySelectorAll('#after-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  document.getElementById('area-reflection').style.display=(tab==='archive')?'none':'';
-  document.getElementById('area-archive').style.display=(tab==='archive')?'':'none';
-  if(tab==='archive') loadArchive();
-  else loadReflections();
+  loadMessages();
 }
 
 // ── 데이터 로드 ─────────────────────────────────────
 async function loadAll(){
   loadMessages();
   loadReflections();
-  if(_beforeTab==='proposal') loadProposal();
-  if(_afterTab==='archive') loadArchive();
 }
 
 async function loadMessages(){
@@ -820,7 +795,7 @@ async function postProposal(){
   if(!_isAdmin())return;
   const txt=document.getElementById('proposalInput').value.trim();
   if(!txt)return;
-  const btn=document.querySelector('#proposalBox .btn-post');
+  const btn=document.querySelector('#proposalAdminBox .btn-post');
   btn.disabled=true;btn.textContent='올리는 중…';
   await fetch(`${SU}/rest/v1/JD_session_messages`,{
     method:'POST',headers:{...H,'Prefer':'return=minimal'},
@@ -835,7 +810,7 @@ async function postArchive(){
   if(!_isAdmin())return;
   const txt=document.getElementById('archiveInput').value.trim();
   if(!txt)return;
-  const btn=document.querySelector('#archiveBox .btn-post');
+  const btn=document.querySelector('#archiveAdminBox .btn-post');
   btn.disabled=true;btn.textContent='올리는 중…';
   await fetch(`${SU}/rest/v1/JD_session_messages`,{
     method:'POST',headers:{...H,'Prefer':'return=minimal'},
