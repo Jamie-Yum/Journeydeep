@@ -567,6 +567,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <button type="button" onclick="s9InsertLine('- ','s9archive-input')" title="목록" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">• 목록</button>
             <button type="button" onclick="s9InsertLine('## ','s9archive-input')" title="소제목" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">H</button>
             <button type="button" onclick="s9InsertLine('> ','s9archive-input')" title="인용" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">" 인용</button>
+            <button type="button" onclick="s9InsertDivider('s9archive-input')" title="구분선" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">— 구분선</button>
           </div>
           <textarea id="s9archive-input" rows="6" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
             style="width:100%;box-sizing:border-box;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
@@ -1119,6 +1120,15 @@ function s9InsertTag(before, after, targetId) {
   ta.value = ta.value.slice(0, s) + replacement + ta.value.slice(e);
   ta.selectionStart = s + before.length;
   ta.selectionEnd = s + before.length + (selected || '텍스트').length;
+  ta.focus();
+}
+function s9InsertDivider(targetId) {
+  const ta = document.getElementById(targetId || 's9proposal-input');
+  if (!ta) return;
+  const s = ta.selectionStart;
+  const insert = '\n---\n';
+  ta.value = ta.value.slice(0, s) + insert + ta.value.slice(s);
+  ta.selectionStart = ta.selectionEnd = s + insert.length;
   ta.focus();
 }
 function s9InsertLine(prefix, targetId) {
