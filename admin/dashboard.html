@@ -2571,7 +2571,7 @@ async function searchBooks() {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     });
     const data = await res.json();
-    _bkSearchItems = data.items || [];
+    _bkSearchItems = data.item || data.items || [];
     if (!_bkSearchItems.length) { msg.textContent = '검색 결과가 없어요. 직접 입력해 주세요.'; return; }
     msg.style.display = 'none';
     grid.style.display = 'grid';
