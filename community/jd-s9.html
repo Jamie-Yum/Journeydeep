@@ -227,7 +227,29 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
   .session-info-date{margin-top:.25rem}
   .goal-section{margin:2rem .75rem 0}
   .section-body{padding:1.25rem 1rem 2.5rem}
+  .cnt-card{padding:1.1rem 1.25rem}
 }
+
+/* ── Content blocks (proposal / archive) ── */
+.extra-block-hd{display:flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Sans',sans-serif;padding-bottom:.65rem;margin-bottom:.85rem;border-bottom:2px solid}
+.extra-block-hd.blue{color:#2D6BE4;border-color:rgba(45,107,228,.18)}
+.extra-block-hd.teal{color:#0A8A5C;border-color:rgba(10,138,92,.18)}
+.cnt-card{background:var(--wh);border-radius:var(--r);box-shadow:var(--sw);padding:1.5rem 1.75rem;margin-bottom:.75rem;border-top:3px solid}
+.cnt-card.blue{border-top-color:#2D6BE4}
+.cnt-card.teal{border-top-color:#0A8A5C}
+.cnt-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1.1rem;padding-top:.7rem;border-top:1px solid var(--be)}
+.cnt-author.blue{font-size:.75rem;font-weight:700;color:#2D6BE4}
+.cnt-author.teal{font-size:.75rem;font-weight:700;color:#0A8A5C}
+.cnt-date{font-size:.7rem;color:var(--tl)}
+/* markdown rendering */
+.md-body{font-size:.88rem;color:var(--ts);line-height:1.9}
+.md-hr{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--bd),transparent);margin:1.25rem 0}
+.md-h{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--dk);margin:.9rem 0 .3rem;letter-spacing:-.01em}
+.md-bq{border-left:3px solid var(--ac);padding:.45rem 0 .45rem .9rem;color:var(--ts);margin:.5rem 0;font-style:italic}
+.md-ul{padding-left:1.25rem;margin:.4rem 0;list-style:disc}
+.md-ul li{margin:.25rem 0;line-height:1.8}
+.md-p{margin:.15rem 0;line-height:1.85}
+.md-br{height:.4rem}
 </style>
 </head><body>
 
@@ -336,12 +358,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <!-- 발제문 / 아카이빙 -->
 <div class="extra-blocks" id="extraBlocks" style="max-width:860px;margin:.75rem auto 0;padding:0 1.5rem;display:flex;flex-direction:column;gap:.75rem">
   <div id="block-proposal" style="display:none">
-    <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2D6BE4;margin-bottom:.6rem;padding-left:.25rem">📝 발제문</div>
-    <div id="proposalList" class="card-list"></div>
+    <div class="extra-block-hd blue"><span>📝</span><span>발제문 및 활동</span></div>
+    <div id="proposalList"></div>
   </div>
   <div id="block-archive" style="display:none">
-    <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0A8A5C;margin-bottom:.6rem;padding-left:.25rem">📋 아카이빙</div>
-    <div id="archiveList" class="card-list"></div>
+    <div class="extra-block-hd teal"><span>📋</span><span>아카이빙</span></div>
+    <div id="archiveList"></div>
   </div>
 </div>
 
@@ -666,10 +688,13 @@ async function loadProposal(){
   const data=await r.json();
   const el=document.getElementById('proposalList');
   if(!el)return;
-  if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아직 발제문이 없어요.</div>';return;}
-  el.innerHTML=data.map(m=>`<div class="msg-card">
-    <div class="card-body">${escH(m.content)}</div>
-    <div style="font-size:.7rem;color:var(--tl);margin-top:.5rem;text-align:right">${m.author} · ${new Date(m.created_at).toLocaleDateString('ko')}</div>
+  if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아직 발제문 및 활동 내용이 없어요.</div>';return;}
+  el.innerHTML=data.map(m=>`<div class="cnt-card blue">
+    <div class="md-body">${renderMd(m.content)}</div>
+    <div class="cnt-footer">
+      <span class="cnt-author blue">${escH(m.author)}</span>
+      <span class="cnt-date">${new Date(m.created_at).toLocaleDateString('ko',{month:'long',day:'numeric'})}</span>
+    </div>
   </div>`).join('');
 }
 
@@ -679,9 +704,12 @@ async function loadArchive(){
   const el=document.getElementById('archiveList');
   if(!el)return;
   if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아카이빙 내용이 아직 없어요.</div>';return;}
-  el.innerHTML=data.map(m=>`<div class="msg-card">
-    <div class="card-body">${escH(m.content)}</div>
-    <div style="font-size:.7rem;color:var(--tl);margin-top:.5rem;text-align:right">${m.author} · ${new Date(m.created_at).toLocaleDateString('ko')}</div>
+  el.innerHTML=data.map(m=>`<div class="cnt-card teal">
+    <div class="md-body">${renderMd(m.content)}</div>
+    <div class="cnt-footer">
+      <span class="cnt-author teal">${escH(m.author)}</span>
+      <span class="cnt-date">${new Date(m.created_at).toLocaleDateString('ko',{month:'long',day:'numeric'})}</span>
+    </div>
   </div>`).join('');
 }
 
@@ -785,6 +813,37 @@ async function postReflection(){
 function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
 
 function escH(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function mdInline(s){
+  return escH(s)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>');
+}
+function renderMd(raw){
+  if(!raw)return'';
+  const lines=raw.split('\n');
+  let html='', inList=false;
+  for(const line of lines){
+    if(line.trim()==='---'){
+      if(inList){html+='</ul>';inList=false;}
+      html+='<hr class="md-hr">';
+    } else if(line.startsWith('## ')){
+      if(inList){html+='</ul>';inList=false;}
+      html+=`<div class="md-h">${mdInline(line.slice(3))}</div>`;
+    } else if(line.startsWith('> ')){
+      if(inList){html+='</ul>';inList=false;}
+      html+=`<div class="md-bq">${mdInline(line.slice(2))}</div>`;
+    } else if(line.startsWith('- ')){
+      if(!inList){html+='<ul class="md-ul">';inList=true;}
+      html+=`<li>${mdInline(line.slice(2))}</li>`;
+    } else {
+      if(inList){html+='</ul>';inList=false;}
+      html+=line.trim()===''?'<div class="md-br"></div>':`<div class="md-p">${mdInline(line)}</div>`;
+    }
+  }
+  if(inList)html+='</ul>';
+  return html;
+}
 
 // nav 드롭다운 (모바일)
 document.addEventListener('click',function(e){
