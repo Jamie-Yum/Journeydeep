@@ -545,11 +545,11 @@ tr:hover td{background:rgba(37,99,235,.03)}
         <div>
           <div style="font-size:.75rem;font-weight:700;color:#2D6BE4;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem">📝 발제문 및 활동</div>
           <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem">
-            <button type="button" onclick="s9InsertTag('**','**')" title="굵게" style="padding:.2rem .5rem;font-size:.75rem;font-weight:700;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">B</button>
-            <button type="button" onclick="s9InsertTag('*','*')" title="기울임" style="padding:.2rem .5rem;font-size:.75rem;font-style:italic;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">I</button>
-            <button type="button" onclick="s9InsertLine('- ')" title="목록" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">• 목록</button>
-            <button type="button" onclick="s9InsertLine('## ')" title="소제목" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">H</button>
-            <button type="button" onclick="s9InsertLine('> ')" title="인용" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">" 인용</button>
+            <button type="button" onclick="s9InsertTag('**','**','s9proposal-input')" title="굵게" style="padding:.2rem .5rem;font-size:.75rem;font-weight:700;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">B</button>
+            <button type="button" onclick="s9InsertTag('*','*','s9proposal-input')" title="기울임" style="padding:.2rem .5rem;font-size:.75rem;font-style:italic;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">I</button>
+            <button type="button" onclick="s9InsertLine('- ','s9proposal-input')" title="목록" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">• 목록</button>
+            <button type="button" onclick="s9InsertLine('## ','s9proposal-input')" title="소제목" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">H</button>
+            <button type="button" onclick="s9InsertLine('> ','s9proposal-input')" title="인용" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">" 인용</button>
           </div>
           <textarea id="s9proposal-input" rows="6" placeholder="발제문 및 활동 내용을 입력해주세요."
             style="width:100%;box-sizing:border-box;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
@@ -561,6 +561,13 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <div>
           <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem">📋 아카이빙</div>
+          <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem">
+            <button type="button" onclick="s9InsertTag('**','**','s9archive-input')" title="굵게" style="padding:.2rem .5rem;font-size:.75rem;font-weight:700;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">B</button>
+            <button type="button" onclick="s9InsertTag('*','*','s9archive-input')" title="기울임" style="padding:.2rem .5rem;font-size:.75rem;font-style:italic;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">I</button>
+            <button type="button" onclick="s9InsertLine('- ','s9archive-input')" title="목록" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">• 목록</button>
+            <button type="button" onclick="s9InsertLine('## ','s9archive-input')" title="소제목" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">H</button>
+            <button type="button" onclick="s9InsertLine('> ','s9archive-input')" title="인용" style="padding:.2rem .5rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);cursor:pointer;border-radius:3px">" 인용</button>
+          </div>
           <textarea id="s9archive-input" rows="6" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
             style="width:100%;box-sizing:border-box;padding:.7rem .9rem;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:vertical;outline:none;line-height:1.7;transition:border-color .2s"
             onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
@@ -1103,8 +1110,8 @@ async function saveS9Locks() {
 
 let _s9SelSession = null;
 
-function s9InsertTag(before, after) {
-  const ta = document.getElementById('s9proposal-input');
+function s9InsertTag(before, after, targetId) {
+  const ta = document.getElementById(targetId || 's9proposal-input');
   if (!ta) return;
   const s = ta.selectionStart, e = ta.selectionEnd;
   const selected = ta.value.slice(s, e);
@@ -1114,8 +1121,8 @@ function s9InsertTag(before, after) {
   ta.selectionEnd = s + before.length + (selected || '텍스트').length;
   ta.focus();
 }
-function s9InsertLine(prefix) {
-  const ta = document.getElementById('s9proposal-input');
+function s9InsertLine(prefix, targetId) {
+  const ta = document.getElementById(targetId || 's9proposal-input');
   if (!ta) return;
   const s = ta.selectionStart;
   const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
