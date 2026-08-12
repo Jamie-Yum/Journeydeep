@@ -464,7 +464,7 @@ async function init(){
     fetch(`${SU}/rest/v1/JD_programs?badge=eq.%EC%8B%9C%EC%A6%8C%209&select=sessions&limit=1`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_books?category=eq.%EC%8B%9C%EC%A6%8C%209&is_recommended=eq.false&select=title,author,cover_url,session&order=sort_order.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_site_settings?key=in.(members_v1,s9_goals,s9_session_locks)&select=key,value`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_applications?season=eq.%EC%8B%9C%EC%A6%8C%209&select=fields`,{headers:H})
+    fetch(`${SU}/rest/v1/JD_applications?season=like.${encodeURIComponent('시즌 9')}*&select=fields`,{headers:H})
   ]);
   const [progs, books, settRows, appRows] = await Promise.all([progRes.json(), booksRes.json(), settRes.json(), appRes.json()]);
 
