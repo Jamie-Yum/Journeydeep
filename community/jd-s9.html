@@ -472,8 +472,9 @@ async function init(){
   if(Array.isArray(appRows)){
     appRows.forEach(row=>{
       try{
-        const f=JSON.parse(row.fields||'{}');
-        const name=f['성함']||f['성함을 알려주세요.']||f['이름']||'';
+        const f=JSON.parse(typeof row.fields==='string'?row.fields:JSON.stringify(row.fields)||'{}');
+        const rawName=f['성함']||f['성함을 알려주세요.']||f['이름']||'';
+        const name=rawName.replace(/\s*[\(\（].*?[\)\）]/g,'').trim(); // 괄호 안 내용 제거
         const phone=(f['전화번호']||'').replace(/\D/g,'');
         if(name&&phone.length>=4) _pinMap[name]=phone.slice(-4);
       }catch(e){}
