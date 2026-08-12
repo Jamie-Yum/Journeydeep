@@ -769,10 +769,6 @@ async function loadProposal(){
   if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아직 발제문 및 활동 내용이 없어요.</div>';return;}
   el.innerHTML=data.map(m=>`<div class="cnt-card blue">
     <div class="md-body">${renderMd(m.content)}</div>
-    <div class="cnt-footer">
-      <span class="cnt-author blue">${escH(m.author)}</span>
-      <span class="cnt-date">${new Date(m.created_at).toLocaleDateString('ko',{month:'long',day:'numeric'})}</span>
-    </div>
   </div>`).join('');
 }
 
@@ -784,10 +780,6 @@ async function loadArchive(){
   if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아카이빙 내용이 아직 없어요.</div>';return;}
   el.innerHTML=data.map(m=>`<div class="cnt-card teal">
     <div class="md-body">${renderMd(m.content)}</div>
-    <div class="cnt-footer">
-      <span class="cnt-author teal">${escH(m.author)}</span>
-      <span class="cnt-date">${new Date(m.created_at).toLocaleDateString('ko',{month:'long',day:'numeric'})}</span>
-    </div>
   </div>`).join('');
 }
 
