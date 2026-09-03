@@ -318,13 +318,26 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 (function(){
   var SU='https://dvlrzbckneucpvlacdll.supabase.co';
   var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2bHJ6YmNrbmV1Y3B2bGFjZGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5ODE0OTUsImV4cCI6MjA5MDU1NzQ5NX0.ofzGfyjndiT-FAIcG9TCFtUSXsagTBYOnhsP91vx0sE';
+  // 캐시된 값 즉시 적용 (깜빡임 방지)
+  try{
+    var cachedImg=localStorage.getItem('jd_hero_img');
+    var cachedH=localStorage.getItem('jd_hero_mh');
+    if(cachedImg){var el=document.getElementById('home_hero_image');if(el)el.src=cachedImg;}
+    if(cachedH)document.documentElement.style.setProperty('--hero-mobile-h',cachedH);
+  }catch(e){}
   // 히어로 이미지: JD_site_settings
   fetch(SU+'/rest/v1/JD_site_settings?select=key,value',{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
   .then(function(r){return r.json();}).then(function(rows){
     if(!Array.isArray(rows))return;
     rows.forEach(function(row){
-      if((row.key==='hero_index'||row.key==='home_hero_image')&&row.value){var el=document.getElementById('home_hero_image');if(el)el.src=row.value;}
-      if(row.key==='hero_mobile_height'&&row.value)document.documentElement.style.setProperty('--hero-mobile-h',row.value);
+      if((row.key==='hero_index'||row.key==='home_hero_image')&&row.value){
+        var el=document.getElementById('home_hero_image');if(el)el.src=row.value;
+        try{localStorage.setItem('jd_hero_img',row.value);}catch(e){}
+      }
+      if(row.key==='hero_mobile_height'&&row.value){
+        document.documentElement.style.setProperty('--hero-mobile-h',row.value);
+        try{localStorage.setItem('jd_hero_mh',row.value);}catch(e){}
+      }
     });
   }).catch(function(){});
   // 책 마퀴: JD_books 전체 로딩
