@@ -613,28 +613,36 @@ function updateFormLock(){
   if(blockA) blockA.style.display=archiveOpen?'':'none';
   if(archiveOpen) loadArchive();
 
-  // 사전 질문 폼 잠금
-  const qBox=document.getElementById('qBox');
-  if(qBox){
-    const locked=!_me||questionLocked;
-    qBox.classList.toggle('locked',locked);
-    qBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
-    qBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
-    const lockMsg=qBox.querySelector('.lock-msg');
-    if(lockMsg) lockMsg.textContent=questionLocked?'사전 질문 기간이 아니에요':'이름을 선택하면 질문을 올릴 수 있어요';
+  // 사전 질문 섹션 show/hide
+  const secBefore=document.getElementById('sec-before');
+  if(secBefore) secBefore.style.display=questionLocked?'none':'';
+  if(!questionLocked){
+    const qBox=document.getElementById('qBox');
+    if(qBox){
+      const locked=!_me;
+      qBox.classList.toggle('locked',locked);
+      qBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
+      qBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
+      const lockMsg=qBox.querySelector('.lock-msg');
+      if(lockMsg) lockMsg.textContent='이름을 선택하면 질문을 올릴 수 있어요';
+    }
   }
 
-  // 성찰 폼 잠금
-  const rBox=document.getElementById('refl-form-wrap');
-  if(rBox){
-    const locked=!_me||reflectionLocked;
-    rBox.classList.toggle('locked',locked);
-    rBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
-    rBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
-    const fields=rBox.querySelector('#refl-fields');
-    if(fields) fields.style.display=locked?'none':'';
-    const lockMsg=rBox.querySelector('.lock-msg');
-    if(lockMsg) lockMsg.textContent=reflectionLocked?'성찰 기간이 아니에요':'이름을 선택하면 성찰을 기록할 수 있어요';
+  // 성찰 섹션 show/hide
+  const secRp=document.getElementById('sec-rp');
+  if(secRp) secRp.style.display=reflectionLocked?'none':'';
+  if(!reflectionLocked){
+    const rBox=document.getElementById('refl-form-wrap');
+    if(rBox){
+      const locked=!_me;
+      rBox.classList.toggle('locked',locked);
+      rBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
+      rBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
+      const fields=rBox.querySelector('#refl-fields');
+      if(fields) fields.style.display=locked?'none':'';
+      const lockMsg=rBox.querySelector('.lock-msg');
+      if(lockMsg) lockMsg.textContent='이름을 선택하면 성찰을 기록할 수 있어요';
+    }
   }
   // 목표 입력창
   document.getElementById('goalLockedMsg').style.display=_me?'none':'';
