@@ -506,13 +506,14 @@ tr:hover td{background:rgba(37,99,235,.03)}
     </div>
     <div class="card" style="padding:0;overflow:hidden">
       <!-- 테이블 헤더 -->
-      <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 56px 64px 36px;gap:0;padding:.65rem 1.25rem;background:var(--bg);border-bottom:1.5px solid var(--bd);align-items:center">
+      <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 44px 56px 64px 36px;gap:0;padding:.65rem 1.25rem;background:var(--bg);border-bottom:1.5px solid var(--bd);align-items:center">
         <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">회차</div>
         <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">날짜</div>
         <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-transform:uppercase">도서</div>
         <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">공개</div>
-        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">기록</div>
-        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">발제문 및 활동</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">사전질문</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">성찰</div>
+        <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">발제문</div>
         <div style="font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.06em;text-align:center">아카이빙</div>
         <div></div>
       </div>
@@ -996,9 +997,9 @@ let _s9ProgId = null;
 let _s9Locks = {}; // {"1회차": {record:bool, proposal:bool, archive:bool}}
 
 function normalizeLock(val) {
-  if (!val || val === false) return {locked:false, record:false, proposal:false, archive:false};
-  if (val === true) return {locked:false, record:true, proposal:true, archive:true};
-  return {locked:false, record:true, proposal:false, archive:false, ...val};
+  if (!val || val === false) return {locked:false, record:false, question:false, reflection:false, proposal:false, archive:false};
+  if (val === true) return {locked:false, record:true, question:true, reflection:true, proposal:true, archive:true};
+  return {locked:false, record:true, question:false, reflection:false, proposal:false, archive:false, ...val};
 }
 
 async function loadS9Sessions() {
@@ -1046,7 +1047,7 @@ function renderS9Sessions(sessions, books) {
     const lk = normalizeLock(_s9Locks[s.n]);
     const isSelected = _s9SelSession?.label === s.n;
     return `
-    <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 56px 64px 36px;gap:0;padding:.75rem 1.25rem;align-items:center;border-bottom:1px solid var(--bd);background:${isSelected?'rgba(45,107,228,.04)':'var(--wh)'};transition:background .15s">
+    <div style="display:grid;grid-template-columns:90px 1fr 1fr 44px 44px 44px 56px 64px 36px;gap:0;padding:.75rem 1.25rem;align-items:center;border-bottom:1px solid var(--bd);background:${isSelected?'rgba(45,107,228,.04)':'var(--wh)'};transition:background .15s">
       <div>
         <div style="font-size:.82rem;font-weight:700;color:var(--dk)">${s.n}</div>
         <span style="font-size:.65rem;font-weight:700;padding:.1rem .45rem;border-radius:6px;background:${statusBg};color:${statusColor}">${status}</span>
@@ -1060,7 +1061,8 @@ function renderS9Sessions(sessions, books) {
         ${bk.title||'—'}${bk.author?`<span style="color:var(--tl);font-size:.72rem"> · ${bk.author}</span>`:''}
       </div>
       <div style="display:flex;justify-content:center">${swToggle(s.n,'visible',lk.visible!==false)}</div>
-      <div style="display:flex;justify-content:center">${swToggle(s.n,'record',lk.record)}</div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'question',lk.question)}</div>
+      <div style="display:flex;justify-content:center">${swToggle(s.n,'reflection',lk.reflection)}</div>
       <div style="display:flex;justify-content:center">${swToggle(s.n,'proposal',lk.proposal)}</div>
       <div style="display:flex;justify-content:center">${swToggle(s.n,'archive',lk.archive)}</div>
       <div style="display:flex;justify-content:center">

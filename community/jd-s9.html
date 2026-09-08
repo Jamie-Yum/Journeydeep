@@ -505,8 +505,8 @@ async function init(){
   // normalize: old boolean format → object format
   Object.keys(rawLocks).forEach(k=>{
     const v=rawLocks[k];
-    if(typeof v==='boolean') _locks[k]={record:v,proposal:false,archive:false};
-    else _locks[k]={record:true,proposal:false,archive:false,visible:true,...v};
+    if(typeof v==='boolean') _locks[k]={record:v,question:v,reflection:v,proposal:false,archive:false};
+    else _locks[k]={record:true,question:false,reflection:false,proposal:false,archive:false,visible:true,...v};
   });
 
   renderNameGrid(_memberNames);
@@ -598,9 +598,10 @@ function updateIdentityUI(){
 function updateFormLock(){
   const curLabel=_sessions[_curN-1]?.label||'';
   const lk=_locks[curLabel]||{};
-  const recordLocked=lk.record===false;
   const proposalOpen=lk.proposal===true;
   const archiveOpen=lk.archive===true;
+  const questionLocked=lk.question===false;
+  const reflectionLocked=lk.reflection===false;
 
   // 발제문 블록 show/hide
   const blockP=document.getElementById('block-proposal');
@@ -612,22 +613,29 @@ function updateFormLock(){
   if(blockA) blockA.style.display=archiveOpen?'':'none';
   if(archiveOpen) loadArchive();
 
-  // 기록 잠금 (사전질문 + 성찰)
-  ['qBox','refl-form-wrap'].forEach(id=>{
-    const box=document.getElementById(id);
-    if(!box)return;
-    const locked=!_me||recordLocked;
-    box.classList.toggle('locked',locked);
-    box.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
-    box.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
-    const fields=box.querySelector('#refl-fields');
+  // 사전 질문 폼 잠금
+  const qBox=document.getElementById('qBox');
+  if(qBox){
+    const locked=!_me||questionLocked;
+    qBox.classList.toggle('locked',locked);
+    qBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
+    qBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
+    const lockMsg=qBox.querySelector('.lock-msg');
+    if(lockMsg) lockMsg.textContent=questionLocked?'사전 질문 기간이 아니에요':'이름을 선택하면 질문을 올릴 수 있어요';
+  }
+
+  // 성찰 폼 잠금
+  const rBox=document.getElementById('refl-form-wrap');
+  if(rBox){
+    const locked=!_me||reflectionLocked;
+    rBox.classList.toggle('locked',locked);
+    rBox.querySelectorAll('textarea').forEach(t=>t.disabled=locked);
+    rBox.querySelectorAll('.btn-post').forEach(b=>b.disabled=locked);
+    const fields=rBox.querySelector('#refl-fields');
     if(fields) fields.style.display=locked?'none':'';
-    const lockMsg=box.querySelector('.lock-msg');
-    if(lockMsg){
-      if(recordLocked) lockMsg.textContent='모임 날짜 이후에 기록할 수 있어요';
-      else lockMsg.textContent=id==='qBox'?'이름을 선택하면 질문을 올릴 수 있어요':'이름을 선택하면 성찰을 기록할 수 있어요';
-    }
-  });
+    const lockMsg=rBox.querySelector('.lock-msg');
+    if(lockMsg) lockMsg.textContent=reflectionLocked?'성찰 기간이 아니에요':'이름을 선택하면 성찰을 기록할 수 있어요';
+  }
   // 목표 입력창
   document.getElementById('goalLockedMsg').style.display=_me?'none':'';
   document.getElementById('goalInputWrap').style.display=_me?'block':'none';
