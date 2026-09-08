@@ -1163,7 +1163,7 @@ async function loadS9Records(n) {
   rEl.innerHTML = '<div style="font-size:.82rem;color:var(--tl)">불러오는 중…</div>';
 
   const [qRes, rRes] = await Promise.all([
-    fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(question_book,question_work)&order=created_at.asc`, {headers: H}),
+    fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=in.(question_book,question_work,question_feeling)&order=created_at.asc`, {headers: H}),
     fetch(`${SUPA_URL}/rest/v1/JD_reflections?session=eq.${encodeURIComponent('시즌 9 ' + n + '회차')}&order=submitted_at.asc`, {headers: H})
   ]);
   const questions = await qRes.json();

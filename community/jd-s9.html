@@ -407,6 +407,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       <div class="sub-tabs" id="before-tabs">
         <button class="sub-tab active" onclick="setBeforeTab('question_book',this)">📖 책 관련 질문</button>
         <button class="sub-tab" onclick="setBeforeTab('question_work',this)">💼 실무 관련 질문</button>
+        <button class="sub-tab" onclick="setBeforeTab('question_feeling',this)">💬 느낀 점</button>
       </div>
       <div class="post-box" id="qBox">
         <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
@@ -773,7 +774,7 @@ async function loadAll(){
 }
 
 async function loadMessages(){
-  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work)&order=created_at.asc`,{headers:H});
+  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling)&order=created_at.asc`,{headers:H});
   const data=await r.json();
   if(!Array.isArray(data))return;
   const questions=data.filter(m=>m.type===_qType);
@@ -806,7 +807,8 @@ async function loadArchive(){
 function renderQuestions(data){
   const el=document.getElementById('questionList');
   if(!data.length){el.innerHTML='<div class="empty-note">아직 질문이 없어요. 첫 번째로 올려보세요!</div>';return;}
-  el.innerHTML=data.map(m=>msgCard(m,_qType==='question_book'?'tag-book 📖 책':'tag-work 💼 실무')).join('');
+  const tagMap={question_book:'tag-book 📖 책',question_work:'tag-work 💼 실무',question_feeling:'tag-feeling 💬 느낀 점'};
+  el.innerHTML=data.map(m=>msgCard(m,tagMap[m.type]||'tag-book')).join('');
 }
 
 function msgCard(m,tagInfo){
