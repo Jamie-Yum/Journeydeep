@@ -764,6 +764,12 @@ function setBeforeTab(tab, btn){
   _qType=tab;
   document.querySelectorAll('#before-tabs .sub-tab').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  const placeholders={
+    question_book:'이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요.',
+    question_work:'업무나 조직 현장에서 연결되는 질문이나 고민을 적어주세요.',
+    question_feeling:'책을 읽으며 느낀 점, 마음에 남은 문장이나 감상을 자유롭게 적어주세요.'
+  };
+  document.getElementById('qInput').placeholder=placeholders[tab]||'';
   loadMessages();
 }
 
