@@ -592,19 +592,12 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div style="display:flex;flex-direction:column;gap:1.5rem">
         <!-- 발제문 에디터 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
+          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
             <div style="font-size:.75rem;font-weight:700;color:#2D6BE4;display:flex;align-items:center;gap:.35rem">📝 발제문 및 활동</div>
-            <div style="display:flex;gap:.25rem">
-              <button onclick="s9SetEditorMode('proposal','edit',this)" class="s9edtab s9edtab-proposal active" style="font-size:.72rem;padding:.2rem .6rem;border:1px solid var(--ac);background:var(--ac);color:#fff;border-radius:4px;cursor:pointer">✏️ 편집</button>
-              <button onclick="s9SetEditorMode('proposal','preview',this)" class="s9edtab s9edtab-proposal" style="font-size:.72rem;padding:.2rem .6rem;border:1px solid var(--bd);background:none;color:var(--tl);border-radius:4px;cursor:pointer">👁 미리보기</button>
-            </div>
           </div>
           <div id="tb-proposal" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;min-height:180px">
-            <textarea id="s9proposal-input" placeholder="발제문 및 활동 내용을 입력해주세요." oninput="s9UpdatePreview('proposal')"
-              style="width:100%;height:100%;min-height:180px;padding:.75rem .9rem;background:var(--wh);border:none;border-right:1px solid var(--bd);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:none;outline:none;line-height:1.75"></textarea>
-            <div id="s9proposal-preview" class="s9-preview" style="padding:.75rem 1rem;font-size:.88rem;line-height:1.75;color:var(--dk);overflow-y:auto;background:var(--wh)"></div>
-          </div>
+          <div id="s9proposal-editor" contenteditable="true" data-placeholder="발제문 및 활동 내용을 입력해주세요."
+            style="min-height:180px;padding:.85rem 1rem;background:var(--wh);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);line-height:1.75;outline:none"></div>
           <div style="padding:.5rem .85rem;background:var(--sf);border-top:1px solid var(--bd);display:flex;gap:.5rem;align-items:center">
             <button class="btn btn-primary btn-sm" onclick="saveS9Content('proposal')">저장</button>
             <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
@@ -612,19 +605,12 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <!-- 아카이빙 에디터 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
+          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
             <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;display:flex;align-items:center;gap:.35rem">📋 아카이빙</div>
-            <div style="display:flex;gap:.25rem">
-              <button onclick="s9SetEditorMode('archive','edit',this)" class="s9edtab s9edtab-archive active" style="font-size:.72rem;padding:.2rem .6rem;border:1px solid var(--ac);background:var(--ac);color:#fff;border-radius:4px;cursor:pointer">✏️ 편집</button>
-              <button onclick="s9SetEditorMode('archive','preview',this)" class="s9edtab s9edtab-archive" style="font-size:.72rem;padding:.2rem .6rem;border:1px solid var(--bd);background:none;color:var(--tl);border-radius:4px;cursor:pointer">👁 미리보기</button>
-            </div>
           </div>
           <div id="tb-archive" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;min-height:180px">
-            <textarea id="s9archive-input" placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요." oninput="s9UpdatePreview('archive')"
-              style="width:100%;height:100%;min-height:180px;padding:.75rem .9rem;background:var(--wh);border:none;border-right:1px solid var(--bd);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);resize:none;outline:none;line-height:1.75"></textarea>
-            <div id="s9archive-preview" class="s9-preview" style="padding:.75rem 1rem;font-size:.88rem;line-height:1.75;color:var(--dk);overflow-y:auto;background:var(--wh)"></div>
-          </div>
+          <div id="s9archive-editor" contenteditable="true" data-placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
+            style="min-height:180px;padding:.85rem 1rem;background:var(--wh);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);line-height:1.75;outline:none"></div>
           <div style="padding:.5rem .85rem;background:var(--sf);border-top:1px solid var(--bd);display:flex;gap:.5rem;align-items:center">
             <button class="btn btn-primary btn-sm" onclick="saveS9Content('archive')">저장</button>
             <span id="s9archive-msg" style="font-size:.8rem;color:var(--tl)"></span>
@@ -942,8 +928,8 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 
 function initAll() {
   loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks();
-  s9RenderToolbar('tb-proposal', 's9proposal-input');
-  s9RenderToolbar('tb-archive', 's9archive-input');
+  s9RenderToolbar('tb-proposal', 's9proposal-editor');
+  s9RenderToolbar('tb-archive', 's9archive-editor');
 }
 
 // Nav
@@ -1167,119 +1153,56 @@ async function saveS9Locks() {
 
 let _s9SelSession = null;
 
-function s9InsertTag(before, after, targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const selected = ta.value.slice(s, e);
-  const replacement = before + (selected || '텍스트') + after;
-  ta.value = ta.value.slice(0, s) + replacement + ta.value.slice(e);
-  ta.selectionStart = s + before.length;
-  ta.selectionEnd = s + before.length + (selected || '텍스트').length;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
-}
-function s9InsertDivider(targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart;
-  const insert = '\n---\n';
-  ta.value = ta.value.slice(0, s) + insert + ta.value.slice(s);
-  ta.selectionStart = ta.selectionEnd = s + insert.length;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
-}
-function s9InsertLine(prefix, targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart;
-  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
-  ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
-  ta.selectionStart = ta.selectionEnd = lineStart + prefix.length;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
-}
-function s9RenderToolbar(containerId, targetId) {
+function s9RenderToolbar(containerId, editorId) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  const bs = 'padding:.2rem .55rem;font-size:.75rem;border:1px solid var(--bd);background:var(--wh);color:var(--dk);cursor:pointer;border-radius:4px;line-height:1.4;transition:background .15s';
-  const sep = '<div style="width:1px;background:var(--bd);margin:0 .1rem;align-self:stretch"></div>';
+  const sep = '<div class="rich-sep"></div>';
   el.innerHTML = `
-    <button type="button" onclick="s9InsertTag('**','**','${targetId}')" title="굵게 (Ctrl+B)" style="${bs};font-weight:700">B</button>
-    <button type="button" onclick="s9InsertTag('*','*','${targetId}')" title="기울임 (Ctrl+I)" style="${bs};font-style:italic">I</button>
-    <button type="button" onclick="s9InsertTag('~~','~~','${targetId}')" title="취소선" style="${bs};text-decoration:line-through">S</button>
+    <select class="rich-select" onchange="s9FmtBlock(this.value,'${editorId}');this.value=''">
+      <option value="">스타일</option>
+      <option value="p">본문</option>
+      <option value="h2">제목</option>
+      <option value="h3">소제목</option>
+      <option value="blockquote">인용</option>
+    </select>
     ${sep}
-    <button type="button" onclick="s9InsertLine('## ','${targetId}')" title="제목" style="${bs};font-weight:600">H2</button>
-    <button type="button" onclick="s9InsertLine('### ','${targetId}')" title="소제목" style="${bs};font-weight:500;font-size:.7rem">H3</button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('bold','${editorId}')" title="굵게"><b>B</b></button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('italic','${editorId}')" title="기울임"><i>I</i></button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('underline','${editorId}')" title="밑줄"><u>U</u></button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('strikeThrough','${editorId}')" title="취소선" style="text-decoration:line-through">S</button>
     ${sep}
-    <button type="button" onclick="s9InsertLine('- ','${targetId}')" title="글머리 목록" style="${bs}">• 목록</button>
-    <button type="button" onclick="s9InsertOrderedList('${targetId}')" title="번호 목록" style="${bs}">1. 목록</button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('insertUnorderedList','${editorId}')" title="글머리 목록">• 목록</button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('insertOrderedList','${editorId}')" title="번호 목록">1. 목록</button>
     ${sep}
-    <button type="button" onclick="s9InsertLine('> ','${targetId}')" title="인용" style="${bs}">" 인용</button>
-    <button type="button" onclick="s9InsertTag('\`','\`','${targetId}')" title="인라인 코드" style="${bs};font-family:monospace">코드</button>
-    <button type="button" onclick="s9InsertCodeBlock('${targetId}')" title="코드 블록" style="${bs};font-family:monospace">{ }</button>
-    ${sep}
-    <button type="button" onclick="s9InsertLink('${targetId}')" title="링크" style="${bs}">🔗 링크</button>
-    <button type="button" onclick="s9InsertDivider('${targetId}')" title="구분선" style="${bs}">— 구분선</button>
+    <button type="button" class="rich-btn" onclick="s9InsertLinkWysiwyg('${editorId}')" title="링크">🔗 링크</button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('insertHorizontalRule','${editorId}')" title="구분선">—</button>
+    <button type="button" class="rich-btn" onclick="s9Fmt('removeFormat','${editorId}')" title="서식 제거" style="font-size:.7rem;color:var(--tl)">✕서식</button>
   `;
-}
-function s9UpdatePreview(kind) {
-  const ta = document.getElementById('s9'+kind+'-input');
-  const pv = document.getElementById('s9'+kind+'-preview');
-  if (!ta || !pv || typeof marked === 'undefined') return;
-  const md = ta.value;
-  pv.innerHTML = md ? marked.parse(md) : '<span style="color:var(--tl);font-size:.85rem">미리보기가 여기 표시돼요.</span>';
-}
-function s9SetEditorMode(kind, mode, btn) {
-  const ta = document.getElementById('s9'+kind+'-input');
-  const pv = document.getElementById('s9'+kind+'-preview');
-  const wrap = ta.parentElement;
-  if (mode === 'preview') {
-    s9UpdatePreview(kind);
-    wrap.style.gridTemplateColumns = '0 1fr';
-    ta.style.display = 'none';
-    pv.style.borderLeft = 'none';
-  } else {
-    wrap.style.gridTemplateColumns = '1fr 1fr';
-    ta.style.display = '';
+  const ed = document.getElementById(editorId);
+  if (ed) {
+    ed.addEventListener('focus', () => ed.style.outline = '2px solid var(--ac)');
+    ed.addEventListener('blur', () => ed.style.outline = 'none');
+    ed.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key==='b'){e.preventDefault();s9Fmt('bold',editorId);}
+        else if (e.key==='i'){e.preventDefault();s9Fmt('italic',editorId);}
+        else if (e.key==='u'){e.preventDefault();s9Fmt('underline',editorId);}
+      }
+    });
   }
-  document.querySelectorAll('.s9edtab-'+kind).forEach(b => {
-    b.style.background = 'none'; b.style.color = 'var(--tl)'; b.style.borderColor = 'var(--bd)';
-  });
-  btn.style.background = 'var(--ac)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--ac)';
 }
-function s9InsertOrderedList(targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart;
-  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
-  ta.value = ta.value.slice(0, lineStart) + '1. ' + ta.value.slice(lineStart);
-  ta.selectionStart = ta.selectionEnd = lineStart + 3;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
+function s9Fmt(cmd, editorId) {
+  document.getElementById(editorId).focus();
+  document.execCommand(cmd, false, null);
 }
-function s9InsertCodeBlock(targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const selected = ta.value.slice(s, e);
-  const insert = '\n```\n' + (selected || '코드') + '\n```\n';
-  ta.value = ta.value.slice(0, s) + insert + ta.value.slice(e);
-  ta.selectionStart = 5 + s; ta.selectionEnd = 5 + s + (selected || '코드').length;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
+function s9FmtBlock(tag, editorId) {
+  if (!tag) return;
+  document.getElementById(editorId).focus();
+  document.execCommand('formatBlock', false, tag);
 }
-function s9InsertLink(targetId) {
-  const ta = document.getElementById(targetId || 's9proposal-input');
-  if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const selected = ta.value.slice(s, e) || '링크 텍스트';
-  const insert = '[' + selected + '](URL)';
-  ta.value = ta.value.slice(0, s) + insert + ta.value.slice(e);
-  ta.selectionStart = s + selected.length + 3;
-  ta.selectionEnd = s + insert.length - 1;
-  ta.focus();
-  s9UpdatePreview(targetId.includes('archive') ? 'archive' : 'proposal');
+function s9InsertLinkWysiwyg(editorId) {
+  const url = prompt('링크 URL을 입력하세요:', 'https://');
+  if (url) { document.getElementById(editorId).focus(); document.execCommand('createLink', false, url); }
 }
 function switchS9Tab(tab) {
   const isContent = tab === 'content';
@@ -1352,8 +1275,8 @@ async function selectS9Session(label, n) {
   document.getElementById('s9content-sub').textContent = '발제문·아카이빙을 작성하고 토글로 공개 여부를 제어하세요';
   document.getElementById('s9proposal-msg').textContent = '';
   document.getElementById('s9archive-msg').textContent = '';
-  document.getElementById('s9proposal-input').value = '';
-  document.getElementById('s9archive-input').value = '';
+  document.getElementById('s9proposal-editor').innerHTML = '';
+  document.getElementById('s9archive-editor').innerHTML = '';
   switchS9Tab('content');
 
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
@@ -1361,26 +1284,28 @@ async function selectS9Session(label, n) {
   const rows = await r.json();
   const proposal = rows.find(r => r.type === 'proposal');
   const archive = rows.find(r => r.type === 'archive');
-  document.getElementById('s9proposal-input').value = proposal?.content || '';
-  document.getElementById('s9archive-input').value = archive?.content || '';
-  s9UpdatePreview('proposal');
-  s9UpdatePreview('archive');
+  document.getElementById('s9proposal-editor').innerHTML = s9MdToHtml(proposal?.content || '');
+  document.getElementById('s9archive-editor').innerHTML = s9MdToHtml(archive?.content || '');
   card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
+function s9MdToHtml(content) {
+  if (!content) return '';
+  if (content.trim().startsWith('<')) return content; // 이미 HTML
+  return typeof marked !== 'undefined' ? marked.parse(content) : content;
+}
 async function saveS9Content(type) {
   if (!_s9SelSession) return;
-  const input = document.getElementById(`s9${type}-input`);
+  const editor = document.getElementById(`s9${type}-editor`);
   const msg = document.getElementById(`s9${type}-msg`);
-  const txt = input.value.trim();
-  if (!txt) return;
+  const html = editor.innerHTML.trim();
+  if (!html || html === '<br>') return;
   msg.textContent = '저장 중…'; msg.style.color = 'var(--tl)';
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'};
-  // 기존 항목 삭제 후 새로 삽입 (덮어쓰기)
   await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${_s9SelSession.n}&type=eq.${type}`, {method:'DELETE', headers:H});
   const res = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages`, {
     method: 'POST', headers: H,
-    body: JSON.stringify({season:'시즌 9', session_n: _s9SelSession.n, type, author:'관리자', content: txt})
+    body: JSON.stringify({season:'시즌 9', session_n: _s9SelSession.n, type, author:'관리자', content: html})
   });
   if (res.ok) { msg.textContent = '저장됐어요 ✓'; msg.style.color = '#10B981'; }
   else { msg.textContent = '저장 실패'; msg.style.color = '#EF4444'; }

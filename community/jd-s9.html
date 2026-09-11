@@ -795,7 +795,7 @@ async function loadProposal(){
   if(!el)return;
   if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아직 발제문 및 활동 내용이 없어요.</div>';return;}
   el.innerHTML=data.map(m=>`<div class="cnt-card blue">
-    <div class="md-body">${renderMd(m.content)}</div>
+    <div class="md-body">${renderContent(m.content)}</div>
   </div>`).join('');
 }
 
@@ -806,7 +806,7 @@ async function loadArchive(){
   if(!el)return;
   if(!Array.isArray(data)||!data.length){el.innerHTML='<div class="empty-note">아카이빙 내용이 아직 없어요.</div>';return;}
   el.innerHTML=data.map(m=>`<div class="cnt-card teal">
-    <div class="md-body">${renderMd(m.content)}</div>
+    <div class="md-body">${renderContent(m.content)}</div>
   </div>`).join('');
 }
 
@@ -916,6 +916,11 @@ function mdInline(s){
   return escH(s)
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>');
+}
+function renderContent(raw){
+  if(!raw)return'';
+  // HTML로 저장된 경우 그대로, 마크다운이면 renderMd 사용
+  return raw.trim().startsWith('<') ? raw : renderMd(raw);
 }
 function renderMd(raw){
   if(!raw)return'';
