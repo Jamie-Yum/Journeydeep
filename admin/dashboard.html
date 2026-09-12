@@ -605,8 +605,9 @@ tr:hover td{background:rgba(37,99,235,.03)}
         </div>
         <!-- 아카이빙 에디터 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
             <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;display:flex;align-items:center;gap:.35rem">📋 아카이빙</div>
+            <button class="btn btn-ghost btn-sm" onclick="openBookSearchModal()" style="font-size:.75rem;padding:.2rem .65rem">📚 책 추가</button>
           </div>
           <div id="tb-archive" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
           <div id="s9archive-editor" contenteditable="true" data-placeholder="모임에서 나왔던 대화, 인사이트, 컨텐츠를 정리해주세요."
@@ -3961,5 +3962,93 @@ async function hpPickFromAlbum(url) {
       });
     }).catch(function(){});
 })();
+</script>
+<!-- 책 검색 모달 -->
+<div id="bookSearchModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--wh);border-radius:var(--r);width:min(520px,94vw);max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.25)">
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:.95rem;font-weight:700;color:var(--dk)">📚 알라딘 책 검색</div>
+      <button onclick="closeBookSearchModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--tl);line-height:1;padding:.2rem">✕</button>
+    </div>
+    <div style="padding:.85rem 1.25rem;border-bottom:1px solid var(--bd);display:flex;gap:.5rem">
+      <input id="bsm-query" placeholder="책 제목 또는 저자 검색" onkeydown="if(event.key==='Enter')bsmSearch()"
+        style="flex:1;padding:.45rem .75rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);font-size:.9rem;font-family:'Pretendard',sans-serif;outline:none"
+        onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'">
+      <button class="btn btn-primary btn-sm" onclick="bsmSearch()">검색</button>
+    </div>
+    <div id="bsm-msg" style="display:none;padding:.6rem 1.25rem;font-size:.85rem;color:var(--tl)"></div>
+    <div id="bsm-results" style="display:none;overflow-y:auto;padding:.75rem 1.25rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem"></div>
+    <div style="padding:.75rem 1.25rem;border-top:1px solid var(--bd);font-size:.78rem;color:var(--tl)">책을 선택하면 아카이빙 에디터에 삽입돼요.</div>
+  </div>
+</div>
+
+<script>
+let _bsmItems = [];
+function openBookSearchModal() {
+  const m = document.getElementById('bookSearchModal');
+  m.style.display = 'flex';
+  setTimeout(() => document.getElementById('bsm-query').focus(), 50);
+}
+function closeBookSearchModal() {
+  document.getElementById('bookSearchModal').style.display = 'none';
+  document.getElementById('bsm-query').value = '';
+  document.getElementById('bsm-results').innerHTML = '';
+  document.getElementById('bsm-results').style.display = 'none';
+  document.getElementById('bsm-msg').style.display = 'none';
+  _bsmItems = [];
+}
+async function bsmSearch() {
+  const q = document.getElementById('bsm-query').value.trim();
+  if (!q) return;
+  const msg = document.getElementById('bsm-msg');
+  const grid = document.getElementById('bsm-results');
+  msg.textContent = '검색 중…'; msg.style.display = 'block';
+  grid.style.display = 'none'; grid.innerHTML = '';
+  try {
+    const res = await fetch(`${SUPA_URL}/functions/v1/aladin-search?q=${encodeURIComponent(q)}`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    const data = await res.json();
+    _bsmItems = data.item || data.items || [];
+    if (!_bsmItems.length) { msg.textContent = '검색 결과가 없어요.'; return; }
+    msg.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = _bsmItems.map((b, i) => `
+      <div onclick="bsmInsertBook(${i})" style="cursor:pointer;padding:4px;border:2px solid transparent;border-radius:6px;transition:border-color .15s"
+        onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='transparent'">
+        <img src="${b.cover||''}" alt="${b.title}" style="width:100%;aspect-ratio:2/3;object-fit:cover;background:#e2e8f0;display:block;border-radius:4px">
+        <div style="font-size:.68rem;font-weight:600;color:var(--dk);line-height:1.35;margin-top:.35rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${b.title}</div>
+        <div style="font-size:.62rem;color:var(--tl);margin-top:.1rem">${(b.author||'').split(' (')[0]}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    msg.textContent = '검색 오류가 발생했어요.';
+  }
+}
+function bsmInsertBook(idx) {
+  const b = _bsmItems[idx];
+  if (!b) return;
+  const editor = document.getElementById('s9archive-editor');
+  if (!editor) return;
+  const author = (b.author || '').split(' (')[0];
+  const html = `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#f0f9f5;border-left:3px solid #0A8A5C;border-radius:0 8px 8px 0;margin:8px 0">` +
+    (b.cover ? `<img src="${b.cover}" alt="${b.title}" style="width:56px;height:80px;object-fit:cover;border-radius:4px;flex-shrink:0">` : '') +
+    `<div><div style="font-weight:700;font-size:.92rem;color:#0A5C3A;line-height:1.4">${b.title}</div>` +
+    (author ? `<div style="font-size:.8rem;color:#555;margin-top:.2rem">${author}</div>` : '') +
+    `</div></div><p><br></p>`;
+  editor.focus();
+  // 커서 끝으로
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand('insertHTML', false, html);
+  closeBookSearchModal();
+}
+document.getElementById('bookSearchModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBookSearchModal();
+});
 </script>
 </body></html>
