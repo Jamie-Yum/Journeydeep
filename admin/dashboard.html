@@ -1176,6 +1176,7 @@ function s9RenderToolbar(containerId, editorId) {
     <button type="button" class="rich-btn" onclick="s9Fmt('insertOrderedList','${editorId}')" title="번호 목록">1. 목록</button>
     ${sep}
     <button type="button" class="rich-btn" onclick="s9InsertLinkWysiwyg('${editorId}')" title="링크">🔗 링크</button>
+    <button type="button" class="rich-btn" onclick="s9InsertYoutube('${editorId}')" title="유튜브 임베드">▶ YouTube</button>
     <button type="button" class="rich-btn" onclick="s9Fmt('insertHorizontalRule','${editorId}')" title="구분선">—</button>
     <button type="button" class="rich-btn" onclick="s9Fmt('removeFormat','${editorId}')" title="서식 제거" style="font-size:.7rem;color:var(--tl)">✕서식</button>
   `;
@@ -1204,6 +1205,23 @@ function s9FmtBlock(tag, editorId) {
 function s9InsertLinkWysiwyg(editorId) {
   const url = prompt('링크 URL을 입력하세요:', 'https://');
   if (url) { document.getElementById(editorId).focus(); document.execCommand('createLink', false, url); }
+}
+function s9InsertYoutube(editorId) {
+  const input = prompt('YouTube URL을 입력하세요:', 'https://www.youtube.com/watch?v=');
+  if (!input) return;
+  const match = input.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  if (!match) { alert('유효한 YouTube URL이 아니에요.'); return; }
+  const vid = match[1];
+  const html = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:8px 0"><iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:8px" allowfullscreen></iframe></div><p><br></p>`;
+  const editor = document.getElementById(editorId);
+  editor.focus();
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand('insertHTML', false, html);
 }
 function switchS9Tab(tab) {
   const isContent = tab === 'content';
