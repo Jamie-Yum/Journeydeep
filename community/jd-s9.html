@@ -513,7 +513,17 @@ async function init(){
   renderNameGrid(_memberNames);
   renderGoals();
   renderTimeline();
-  setSession(1);
+  // 오늘 날짜 기준으로 가장 가까운 공개 회차 자동 선택
+  // 1) 오늘 이후 중 가장 가까운 공개 회차
+  // 2) 없으면 가장 최근 지난 공개 회차
+  const visibleSessions=_sessions.filter(s=>(_locks[s.label]?.visible)!==false);
+  const todayDate=today;
+  let autoN=1;
+  const upcoming=visibleSessions.filter(s=>s.date>=todayDate);
+  const past=visibleSessions.filter(s=>s.date<todayDate);
+  if(upcoming.length) autoN=upcoming[0].n;
+  else if(past.length) autoN=past[past.length-1].n;
+  setSession(autoN);
   updateIdentityUI();
 }
 
