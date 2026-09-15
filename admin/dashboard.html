@@ -1190,6 +1190,7 @@ function s9RenderToolbar(containerId, editorId) {
     ${sep}
     <button type="button" class="rich-btn" onclick="s9InsertLinkWysiwyg('${editorId}')" title="링크">🔗 링크</button>
     <button type="button" class="rich-btn" onclick="s9InsertYoutube('${editorId}')" title="유튜브 임베드">▶ YouTube</button>
+    <button type="button" class="rich-btn" onclick="openOgModal('${editorId}')" title="링크 미리보기 카드">🖼 링크 카드</button>
     <button type="button" class="rich-btn" onclick="s9Fmt('insertHorizontalRule','${editorId}')" title="구분선">—</button>
     <button type="button" class="rich-btn" onclick="s9Fmt('removeFormat','${editorId}')" title="서식 제거" style="font-size:.7rem;color:var(--tl)">✕서식</button>
   `;
@@ -1230,6 +1231,66 @@ function s9InsertYoutube(editorId) {
 }
 function closeYtModal() {
   document.getElementById('ytModal').style.display = 'none';
+}
+
+let _ogEditorId = '', _ogData = null;
+function openOgModal(editorId) {
+  _ogEditorId = editorId;
+  _ogData = null;
+  document.getElementById('ogUrlInput').value = '';
+  document.getElementById('ogPreview').style.display = 'none';
+  document.getElementById('ogLoading').style.display = 'none';
+  document.getElementById('ogError').style.display = 'none';
+  document.getElementById('ogInsertBtn').style.display = 'none';
+  document.getElementById('ogModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('ogUrlInput').focus(), 60);
+}
+function closeOgModal() {
+  document.getElementById('ogModal').style.display = 'none';
+}
+async function fetchOgPreview() {
+  const url = document.getElementById('ogUrlInput').value.trim();
+  if (!url) return;
+  document.getElementById('ogPreview').style.display = 'none';
+  document.getElementById('ogInsertBtn').style.display = 'none';
+  document.getElementById('ogError').style.display = 'none';
+  document.getElementById('ogLoading').style.display = 'block';
+  try {
+    const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+    const json = await res.json();
+    document.getElementById('ogLoading').style.display = 'none';
+    if (json.status !== 'success') throw new Error('조회 실패');
+    const d = json.data;
+    _ogData = { url: d.url || url, title: d.title || '', desc: d.description || '', img: d.image?.url || '', domain: new URL(url).hostname };
+    document.getElementById('ogTitle').textContent = _ogData.title || _ogData.domain;
+    document.getElementById('ogDesc').textContent = _ogData.desc;
+    document.getElementById('ogDomain').textContent = _ogData.domain;
+    const imgEl = document.getElementById('ogImg');
+    if (_ogData.img) { imgEl.src = _ogData.img; imgEl.style.display = 'block'; }
+    else imgEl.style.display = 'none';
+    document.getElementById('ogPreview').style.display = 'block';
+    document.getElementById('ogInsertBtn').style.display = 'inline-block';
+  } catch(e) {
+    document.getElementById('ogLoading').style.display = 'none';
+    document.getElementById('ogError').textContent = 'OG 정보를 가져오지 못했어요. URL을 확인해주세요.';
+    document.getElementById('ogError').style.display = 'block';
+  }
+}
+function insertOgCard() {
+  if (!_ogData) return;
+  const { url, title, desc, img, domain } = _ogData;
+  const imgHtml = img ? `<img src="${img}" alt="" style="width:100%;max-height:200px;object-fit:cover;display:block;border-radius:8px 8px 0 0">` : '';
+  const html = `<a href="${url}" target="_blank" rel="noopener" style="display:block;text-decoration:none;border:1.5px solid #e2e8f0;border-radius:8px;overflow:hidden;margin:8px 0;max-width:480px;background:#fff">${imgHtml}<div style="padding:.75rem 1rem"><div style="font-weight:700;font-size:.88rem;color:#1a1a2e;line-height:1.4;margin-bottom:.3rem">${title||domain}</div>${desc?`<div style="font-size:.78rem;color:#64748b;line-height:1.5;margin-bottom:.3rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${desc}</div>`:''}<div style="font-size:.72rem;color:#2563eb">${domain}</div></div></a><p><br></p>`;
+  closeOgModal();
+  const editor = document.getElementById(_ogEditorId);
+  editor.focus();
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand('insertHTML', false, html);
 }
 function confirmYoutube() {
   const input = document.getElementById('ytUrlInput').value.trim();
@@ -4171,6 +4232,31 @@ document.getElementById('bookSearchModal').addEventListener('click', function(e)
 });
 </script>
 <!-- 출석 빠른입력 팝업 -->
+<div id="ogModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);align-items:center;justify-content:center">
+  <div style="background:var(--wh);border-radius:var(--r);padding:1.5rem;width:400px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:.9rem">
+    <div style="font-size:.88rem;font-weight:700;color:var(--dk)">🖼 링크 카드 삽입</div>
+    <div style="display:flex;gap:.5rem">
+      <input id="ogUrlInput" type="text" placeholder="https://..." style="flex:1;padding:.45rem .65rem;font-size:.83rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);outline:none;background:var(--bg);color:var(--dk);font-family:'Pretendard',sans-serif"
+        onkeydown="if(event.key==='Enter')fetchOgPreview()">
+      <button onclick="fetchOgPreview()" style="padding:.45rem .9rem;background:var(--ac);color:#fff;border:none;border-radius:var(--r-sm);font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap">조회</button>
+    </div>
+    <div id="ogPreview" style="display:none;border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden;font-size:.82rem">
+      <img id="ogImg" src="" alt="" style="width:100%;max-height:180px;object-fit:cover;display:none">
+      <div style="padding:.75rem 1rem;display:flex;flex-direction:column;gap:.25rem">
+        <div id="ogTitle" style="font-weight:700;color:var(--dk);line-height:1.4"></div>
+        <div id="ogDesc" style="color:var(--tl);font-size:.78rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden"></div>
+        <div id="ogDomain" style="color:var(--ac);font-size:.72rem;margin-top:.2rem"></div>
+      </div>
+    </div>
+    <div id="ogLoading" style="display:none;text-align:center;color:var(--tl);font-size:.82rem;padding:.5rem">불러오는 중...</div>
+    <div id="ogError" style="display:none;color:#ef4444;font-size:.8rem"></div>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end">
+      <button onclick="closeOgModal()" style="padding:.4rem 1rem;border:1px solid var(--bd);background:none;border-radius:var(--r-sm);font-size:.82rem;cursor:pointer;color:var(--ts)">취소</button>
+      <button id="ogInsertBtn" onclick="insertOgCard()" style="display:none;padding:.4rem 1.1rem;background:var(--ac);color:#fff;border:none;border-radius:var(--r-sm);font-size:.82rem;font-weight:600;cursor:pointer">삽입</button>
+    </div>
+  </div>
+</div>
+
 <div id="ytModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);align-items:center;justify-content:center">
   <div style="background:var(--wh);border-radius:var(--r);padding:1.5rem;width:340px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:.9rem">
     <div style="font-size:.88rem;font-weight:700;color:var(--dk)">▶ YouTube 삽입</div>
