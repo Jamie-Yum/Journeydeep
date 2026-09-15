@@ -2848,7 +2848,7 @@ async function loadBooks() {
           <div style="font-weight:600;font-size:11px;line-height:1.3;">${b.title}</div>
           ${b.author ? `<div style="font-size:10px;color:var(--tl);margin-top:2px;">${b.author}</div>` : ''}
           <div style="font-size:9px;margin-top:2px;${b.is_recommended?'color:#e07;':'color:var(--accent)'}">
-            ${b.is_recommended ? '⭐ 추천책' : (b.category||'')}
+            ${b.is_recommended ? '⭐ 추천책' : (b.category||'') + (b.session ? ' · ' + b.session : '')}
           </div>
         </div>
         <div style="padding:3px 5px 5px;display:flex;gap:3px;">
