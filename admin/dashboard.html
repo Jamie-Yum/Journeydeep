@@ -220,6 +220,19 @@ tr:hover td{background:rgba(37,99,235,.03)}
 .m-total-row td{font-weight:700;border-top:2px solid rgba(100,116,139,.3);background:var(--bg)!important;font-size:.75rem}
 [contenteditable]:focus{outline:2px solid var(--ac);outline-offset:-1px;background:#fffbf0!important}
 .m-legend{font-size:.72rem;color:var(--tl);margin-top:.75rem;padding:.5rem .75rem;background:var(--bg);border-left:3px solid rgba(100,116,139,.3)}
+.att-popup{position:fixed;z-index:9999;background:var(--wh);border:1.5px solid var(--bd);border-radius:var(--r-sm);box-shadow:0 8px 28px rgba(0,0,0,.18);padding:.6rem;display:none;flex-direction:column;gap:.45rem;min-width:180px}
+.att-popup.open{display:flex}
+.att-popup-row{display:flex;flex-wrap:wrap;gap:.3rem}
+.att-pb{padding:.3rem .65rem;font-size:.75rem;border:1px solid var(--bd);background:var(--bg);border-radius:4px;cursor:pointer;font-family:'Pretendard',sans-serif;white-space:nowrap;transition:all .15s}
+.att-pb:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.att-pb.neg{border-color:rgba(239,68,68,.35);color:#ef4444}
+.att-pb.neg:hover{background:#ef4444;color:#fff;border-color:#ef4444}
+.att-pb.pos{border-color:rgba(37,99,235,.35);color:var(--ac)}
+.att-pb.pos:hover{background:var(--ac);color:#fff}
+.att-popup-input{width:100%;padding:.3rem .55rem;font-size:.78rem;border:1px solid var(--bd);border-radius:4px;outline:none;font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk)}
+.att-popup-input:focus{border-color:var(--ac)}
+.att-cell{cursor:pointer!important}
+.att-cell:hover{background:rgba(45,107,228,.08)!important}
 </style>
 </head>
 <body>
@@ -3318,9 +3331,7 @@ function renderMemberSeason(si) {
       const v = m.att[ci] !== undefined ? m.att[ci] : '';
       const cls = cellClass(v);
       const disp = cellDisplay(v);
-      return `<td class="${cls}" contenteditable="true"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
-        onblur="updateCell(${si},${mi},${ci},this.innerText.trim())">${disp}</td>`;
+      return `<td class="att-cell ${cls}" onclick="openAttPopup(${si},${mi},${ci},this)">${disp}</td>`;
     }).join('');
     const memberDeposit = m.deposit !== undefined ? m.deposit : s.deposit;
     const totalN = memberDeposit + m.att.reduce((sum, v) => sum + parseAmt(v), 0);
@@ -3412,6 +3423,38 @@ function updateMemberDeposit(si, mi, val) {
   membersData.seasons[si].members[mi].deposit = n;
   renderMemberSeason(si);
 }
+
+let _attCtx = null;
+function openAttPopup(si, mi, ci, el) {
+  _attCtx = {si, mi, ci};
+  const popup = document.getElementById('attPopup');
+  const rect = el.getBoundingClientRect();
+  let top = rect.bottom + 4;
+  let left = rect.left;
+  // 화면 밖으로 나가지 않게 조정
+  if (left + 200 > window.innerWidth) left = window.innerWidth - 204;
+  if (top + 180 > window.innerHeight) top = rect.top - 184;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+  popup.classList.add('open');
+  const inp = document.getElementById('attPopupInput');
+  inp.value = '';
+  setTimeout(() => inp.focus(), 60);
+}
+function selectAtt(val) {
+  if (!val || !_attCtx) return;
+  const {si, mi, ci} = _attCtx;
+  membersData.seasons[si].members[mi].att[ci] = val;
+  closeAttPopup();
+  renderMemberSeason(si);
+}
+function closeAttPopup() {
+  document.getElementById('attPopup').classList.remove('open');
+  _attCtx = null;
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#attPopup') && !e.target.closest('.att-cell')) closeAttPopup();
+});
 
 function addMemberRow(si) {
   const sc = membersData.seasons[si].sessions.length;
@@ -4077,4 +4120,21 @@ document.getElementById('bookSearchModal').addEventListener('click', function(e)
   if (e.target === this) closeBookSearchModal();
 });
 </script>
+<!-- 출석 빠른입력 팝업 -->
+<div class="att-popup" id="attPopup">
+  <div class="att-popup-row">
+    <button class="att-pb pos" onclick="selectAtt('O')">✓ 출석</button>
+    <button class="att-pb" onclick="selectAtt('통보결석')">통보결석</button>
+  </div>
+  <div class="att-popup-row">
+    <button class="att-pb neg" onclick="selectAtt('-5000')">지각 -₩5,000</button>
+    <button class="att-pb neg" onclick="selectAtt('-7000')">지각 -₩7,000</button>
+  </div>
+  <div class="att-popup-row">
+    <button class="att-pb neg" onclick="selectAtt('-10000')">늦통결 -₩10,000</button>
+    <button class="att-pb neg" onclick="selectAtt('X')">✕ 결석</button>
+  </div>
+  <input class="att-popup-input" id="attPopupInput" placeholder="직접 입력 후 Enter (예: 1889)"
+    onkeydown="if(event.key==='Enter')selectAtt(this.value.trim())">
+</div>
 </body></html>
