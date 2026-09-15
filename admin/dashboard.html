@@ -2834,7 +2834,10 @@ async function loadBooks() {
     const sorted = [...filtered].sort((a, b) => {
       if (!!a.is_recommended !== !!b.is_recommended) return a.is_recommended ? 1 : -1;
       const d = _bkSeasonNum(a.category||'') - _bkSeasonNum(b.category||'');
-      return d !== 0 ? d : (a.sort_order||0) - (b.sort_order||0);
+      if (d !== 0) return d;
+      const sa = parseInt((a.session||'').replace(/\D/g,'')) || 999;
+      const sb = parseInt((b.session||'').replace(/\D/g,'')) || 999;
+      return sa - sb;
     });
     list.innerHTML = sorted.map(b => `
       <div style="border:1px solid rgba(100,116,139,.2);background:var(--bg);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
