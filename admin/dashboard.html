@@ -3322,7 +3322,8 @@ function renderMemberSeason(si) {
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
         onblur="updateCell(${si},${mi},${ci},this.innerText.trim())">${disp}</td>`;
     }).join('');
-    const totalN = s.deposit + m.att.reduce((sum, v) => sum + parseAmt(v), 0);
+    const memberDeposit = m.deposit !== undefined ? m.deposit : s.deposit;
+    const totalN = memberDeposit + m.att.reduce((sum, v) => sum + parseAmt(v), 0);
     membersData.seasons[si].members[mi].total = totalN;
     const totalCls = totalN < 0 ? 'm-neg' : totalN > 0 ? 'm-pos' : '';
     const totalDisp = fmtAmt(totalN);
@@ -3334,7 +3335,9 @@ function renderMemberSeason(si) {
       <td class="m-phone" contenteditable="true"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
         onblur="updateMember(${si},${mi},'phone',this.innerText.trim())">${m.phone}</td>
-      <td style="color:var(--tl)">₩${s.deposit.toLocaleString()}</td>
+      <td contenteditable="true" style="color:var(--tl);min-width:72px"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+        onblur="updateMemberDeposit(${si},${mi},this.innerText.trim())">₩${memberDeposit.toLocaleString()}</td>
       ${cells}
       <td class="${totalCls}" style="font-weight:700;background:rgba(37,99,235,.04)">${totalDisp}</td>
       <td class="m-note" contenteditable="true"
@@ -3403,6 +3406,11 @@ function updateMember(si, mi, field, val) {
 function updateMemberTotal(si, mi, val) {
   const n = parseInt(val.replace(/[₩+,\s]/g, '')) || 0;
   membersData.seasons[si].members[mi].total = val.includes('-') ? -Math.abs(n) : n;
+}
+function updateMemberDeposit(si, mi, val) {
+  const n = parseInt(val.replace(/[₩,\s]/g, '')) || 0;
+  membersData.seasons[si].members[mi].deposit = n;
+  renderMemberSeason(si);
 }
 
 function addMemberRow(si) {
