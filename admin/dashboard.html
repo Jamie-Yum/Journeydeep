@@ -2203,6 +2203,12 @@ function fmtAmt(n) {
   if (n === 0) return '₩0';
   return (n < 0 ? '-₩' : '₩') + Math.abs(n).toLocaleString();
 }
+function fmtPhone(p) {
+  const d = (p || '').replace(/\D/g, '');
+  if (d.length === 11) return d.slice(0,3) + '-' + d.slice(3,7) + '-' + d.slice(7);
+  if (d.length === 10) return d.slice(0,3) + '-' + d.slice(3,6) + '-' + d.slice(6);
+  return p || '';
+}
 
 function cellClass(v) {
   if (!v || v === '') return '';
@@ -3371,7 +3377,7 @@ function renderMemberSeason(si) {
         onblur="updateMember(${si},${mi},'name',this.innerText.trim())">${m.name}</td>
       <td class="m-phone" contenteditable="true"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
-        onblur="updateMember(${si},${mi},'phone',this.innerText.trim())">${m.phone}</td>
+        onblur="updateMember(${si},${mi},'phone',this.innerText.trim())">${fmtPhone(m.phone)}</td>
       <td contenteditable="true" style="color:var(--tl);min-width:72px"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
         onblur="updateMemberDeposit(${si},${mi},this.innerText.trim())">₩${memberDeposit.toLocaleString()}</td>
