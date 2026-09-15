@@ -1219,14 +1219,29 @@ function s9InsertLinkWysiwyg(editorId) {
   const url = prompt('링크 URL을 입력하세요:', 'https://');
   if (url) { document.getElementById(editorId).focus(); document.execCommand('createLink', false, url); }
 }
+let _ytEditorId = '';
 function s9InsertYoutube(editorId) {
-  const input = prompt('YouTube URL을 입력하세요:', 'https://www.youtube.com/watch?v=');
+  _ytEditorId = editorId;
+  document.getElementById('ytUrlInput').value = '';
+  document.querySelector('input[name="ytSize"][value="medium"]').checked = true;
+  const modal = document.getElementById('ytModal');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('ytUrlInput').focus(), 60);
+}
+function closeYtModal() {
+  document.getElementById('ytModal').style.display = 'none';
+}
+function confirmYoutube() {
+  const input = document.getElementById('ytUrlInput').value.trim();
   if (!input) return;
   const match = input.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
   if (!match) { alert('유효한 YouTube URL이 아니에요.'); return; }
   const vid = match[1];
-  const html = `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:8px 0"><iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:8px" allowfullscreen></iframe></div><p><br></p>`;
-  const editor = document.getElementById(editorId);
+  const size = document.querySelector('input[name="ytSize"]:checked').value;
+  const maxW = size === 'small' ? '360px' : size === 'medium' ? '560px' : '100%';
+  const html = `<div style="max-width:${maxW};margin:8px 0"><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px"><iframe src="https://www.youtube.com/embed/${vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;border-radius:8px" allowfullscreen></iframe></div></div><p><br></p>`;
+  closeYtModal();
+  const editor = document.getElementById(_ytEditorId);
   editor.focus();
   const sel = window.getSelection();
   const range = document.createRange();
@@ -4156,6 +4171,34 @@ document.getElementById('bookSearchModal').addEventListener('click', function(e)
 });
 </script>
 <!-- 출석 빠른입력 팝업 -->
+<div id="ytModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.4);align-items:center;justify-content:center">
+  <div style="background:var(--wh);border-radius:var(--r);padding:1.5rem;width:340px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:.9rem">
+    <div style="font-size:.88rem;font-weight:700;color:var(--dk)">▶ YouTube 삽입</div>
+    <div>
+      <label style="font-size:.72rem;font-weight:600;color:var(--tl);display:block;margin-bottom:.35rem">URL</label>
+      <input id="ytUrlInput" type="text" placeholder="https://www.youtube.com/watch?v=..." style="width:100%;padding:.45rem .65rem;font-size:.83rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);outline:none;background:var(--bg);color:var(--dk);font-family:'Pretendard',sans-serif">
+    </div>
+    <div>
+      <label style="font-size:.72rem;font-weight:600;color:var(--tl);display:block;margin-bottom:.5rem">사이즈</label>
+      <div style="display:flex;gap:.4rem">
+        <label style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.5rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);cursor:pointer;font-size:.75rem;color:var(--ts)">
+          <input type="radio" name="ytSize" value="small" style="accent-color:var(--ac)"> 소
+        </label>
+        <label style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.5rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);cursor:pointer;font-size:.75rem;color:var(--ts)">
+          <input type="radio" name="ytSize" value="medium" checked style="accent-color:var(--ac)"> 중
+        </label>
+        <label style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.5rem;border:1.5px solid var(--bd);border-radius:var(--r-sm);cursor:pointer;font-size:.75rem;color:var(--ts)">
+          <input type="radio" name="ytSize" value="large" style="accent-color:var(--ac)"> 대
+        </label>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end">
+      <button onclick="closeYtModal()" style="padding:.4rem 1rem;border:1px solid var(--bd);background:none;border-radius:var(--r-sm);font-size:.82rem;cursor:pointer;color:var(--ts)">취소</button>
+      <button onclick="confirmYoutube()" style="padding:.4rem 1.1rem;background:var(--ac);color:#fff;border:none;border-radius:var(--r-sm);font-size:.82rem;font-weight:600;cursor:pointer">삽입</button>
+    </div>
+  </div>
+</div>
+
 <div class="att-popup" id="attPopup">
   <div class="att-popup-row">
     <button class="att-pb pos" onclick="selectAtt('O')">✓ 출석</button>
