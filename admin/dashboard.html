@@ -3302,6 +3302,31 @@ function feeUpdateGuest(si,gi,field,val) { feeData(si).guestGroups[gi][field]=fi
 function feeUpdateExpenseLabel(si,ei,val) { feeData(si).expenseItems[ei].label=val; saveMembersData(false); renderFeesDashboard(); }
 function feeUpdateExpense(si,ei,ci,val) { const item=feeData(si).expenseItems[ei]; if(!item.amounts)item.amounts=[]; item.amounts[ci]=Number(val)||0; saveMembersData(false); renderFeesDashboard(); }
 
+function settleSession(si, ci) {
+  const s = membersData.seasons[si];
+  const regulars = s.members.filter(m => !m.note.includes('게스트'));
+  let totalFines = 0;
+  regulars.forEach(m => {
+    const amt = parseAmt(m.att[ci] || '');
+    if (amt < 0) totalFines += amt;
+  });
+  if (totalFines === 0) { alert('이 회차에 분배할 벌금이 없어요.'); return; }
+  const attendeeIdxs = [];
+  s.members.forEach((m, idx) => {
+    if (!m.note.includes('게스트') && m.att[ci] === 'O') attendeeIdxs.push(idx);
+  });
+  if (attendeeIdxs.length === 0) { alert('출석 인원이 없어요.'); return; }
+  const total = Math.abs(totalFines);
+  const base = Math.floor(total / attendeeIdxs.length);
+  let leftover = total - base * attendeeIdxs.length;
+  attendeeIdxs.forEach(idx => {
+    const extra = leftover > 0 ? 1 : 0;
+    if (extra) leftover--;
+    s.members[idx].att[ci] = String(base + extra);
+  });
+  renderMemberSeason(si);
+}
+
 function deleteSeason(i) {
   const name = membersData.seasons[i].name;
   if (!confirm(`"${name}" 시즌을 삭제할까요?\n포함된 모든 회원/모임 데이터가 함께 삭제돼요.`)) return;
@@ -3322,8 +3347,9 @@ function switchSeason(i) {
 function renderMemberSeason(si) {
   const s = membersData.seasons[si];
   const sc = s.sessions.length;
-  const thSessions = s.sessions.map(ss =>
-    `<th>${ss.n}<br><small style="font-weight:400;opacity:.7">${ss.d}</small></th>`
+  const thSessions = s.sessions.map((ss, ci) =>
+    `<th>${ss.n}<br><small style="font-weight:400;opacity:.7">${ss.d}</small><br>
+    <button onclick="event.stopPropagation();settleSession(${si},${ci})" style="font-size:.62rem;padding:.1rem .35rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:3px;cursor:pointer;margin-top:.2rem">정산</button></th>`
   ).join('');
 
   const rows = s.members.map((m, mi) => {
