@@ -111,7 +111,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .sn-label{font-size:.72rem;font-weight:700;color:var(--tl);letter-spacing:.06em;margin-bottom:.2rem}
 .session-node.active .sn-label{color:var(--ac)}
 .sn-date{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.3rem}
-.sn-book{font-size:.72rem;color:var(--tl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+.sn-book{font-size:.72rem;color:var(--tl);line-height:1.45;margin-top:.1rem}.sn-book-item{display:block;word-break:keep-all;overflow-wrap:break-word}
 .sn-dot{width:8px;height:8px;border-radius:50%;background:var(--be);position:absolute;top:-5.5px;left:1rem}
 .session-node.done .sn-dot{background:rgba(45,107,228,.5)}
 .session-node.active .sn-dot{background:var(--ac);box-shadow:0 0 0 3px rgba(45,107,228,.2)}
@@ -309,7 +309,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 
   <!-- 이름 선택 -->
   <div class="name-prompt" id="namePicker">
-    <div class="name-prompt-label">참여하시는 분의 이름을 선택해주세요</div>
+    <div class="name-prompt-label">본인의 이름을 선택해주세요.</div>
     <div class="name-grid" id="nameGrid"></div>
   </div>
 
@@ -488,9 +488,10 @@ async function init(){
   const today=new Date().toISOString().slice(0,10);
   const rawSessions=progs[0]?.sessions||[];
   _sessions=rawSessions.map((s,i)=>{
-    const bk=books.find(b=>b.session===s.n)||{};
+    const bks=books.filter(b=>b.session===s.n);
+    const bk=bks[0]||{};
     const status=s.d<today?'done':s.d===today?'today':'upcoming';
-    return {n:i+1, label:s.n, date:s.d, status, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
+    return {n:i+1, label:s.n, date:s.d, status, books:bks, book:bk.title||'', author:bk.author||'', cover_url:bk.cover_url||''};
   });
 
   const memrow=settRows.find(r=>r.key==='members_v1');
@@ -726,7 +727,7 @@ function renderTimeline(){
       <div class="sn-dot"></div>
       <div class="sn-label">${s.label}</div>
       <div class="sn-date">${formatDate(s.date)}${!isVisible?' 🔒':''}</div>
-      ${s.book?`<div class="sn-book">${s.book}</div>`:''}
+      ${s.books&&s.books.length?`<div class="sn-book">${s.books.map(b=>`<span class="sn-book-item">${b.title}</span>`).join('')}</div>`:''}
     </button>`;
   }).join('');
 }
@@ -740,15 +741,22 @@ function setSession(n){
   });
   // 세션 카드 업데이트
   if(s){
-    const hasBook=s.book&&s.book.trim();
     const bookInfo=document.querySelector('.session-info-book');
-    if(hasBook){
+    const bks=s.books||[];
+    if(bks.length){
       bookInfo.style.display='flex';
-      document.getElementById('bookTitle').textContent=s.book;
-      document.getElementById('bookAuthor').textContent=s.author||'';
       const thumb=document.getElementById('bookThumb');
-      if(s.cover_url){thumb.innerHTML=`<img src="${s.cover_url}" alt="">`;}
+      if(bks[0].cover_url){thumb.innerHTML=`<img src="${bks[0].cover_url}" alt="">`;}
       else{thumb.innerHTML='📚';}
+      const titleEl=document.getElementById('bookTitle');
+      const authorEl=document.getElementById('bookAuthor');
+      if(bks.length===1){
+        titleEl.textContent=bks[0].title||'';
+        authorEl.textContent=bks[0].author||'';
+      } else {
+        titleEl.innerHTML=bks.map(b=>`<div style="margin-bottom:.2rem">${b.title}${b.author?`<span style="font-weight:400;opacity:.7;font-size:.8em"> · ${b.author}</span>`:''}</div>`).join('');
+        authorEl.textContent='';
+      }
     } else {
       bookInfo.style.display='none';
     }
