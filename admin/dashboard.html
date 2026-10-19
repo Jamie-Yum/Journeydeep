@@ -2941,7 +2941,7 @@ async function loadBooks() {
       const sb = parseInt((b.session||'').replace(/\D/g,'')) || 999;
       return sa - sb;
     });
-    list.innerHTML = sorted.map(b => `
+    const makeBookCard = b => `
       <div style="border:1px solid rgba(100,116,139,.2);background:var(--bg);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;" onclick='editBook(${JSON.stringify(b).replace(/'/g,"&#39;")})'>
         ${b.cover_url && b.cover_url.startsWith('http')
           ? `<img src="${b.cover_url}" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">`
@@ -2958,7 +2958,29 @@ async function loadBooks() {
           <button style="flex:1;font-size:9px;padding:2px 0;border:1px solid var(--border);background:none;cursor:pointer;color:#2563eb" onclick='event.stopPropagation();openBookCard(${JSON.stringify(b).replace(/'/g,"&#39;")})'>카드</button>
           <button style="flex:1;font-size:9px;padding:2px 0;border:1px solid var(--border);background:none;cursor:pointer;color:var(--danger)" onclick='event.stopPropagation();deleteBook(${b.id})'>삭제</button>
         </div>
-      </div>`).join('');
+      </div>`;
+
+    // 추천책/전체는 그루핑 없이 flat
+    const useGrouping = !['추천책','추천 저자','전체'].includes(_bkActiveFilter);
+    if (!useGrouping) {
+      list.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem">${sorted.map(makeBookCard).join('')}</div>`;
+    } else {
+      // 회차별 그루핑
+      const sessionOrder = [], sessionMap = {};
+      sorted.forEach(b => {
+        const k = b.session || '';
+        if (!sessionMap[k]) { sessionMap[k] = []; sessionOrder.push(k); }
+        sessionMap[k].push(b);
+      });
+      list.innerHTML = sessionOrder.map(k => {
+        const cards = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem">${sessionMap[k].map(makeBookCard).join('')}</div>`;
+        if (!k) return cards;
+        return `<div style="margin-bottom:.75rem">
+          <div style="font-size:.7rem;font-weight:700;color:var(--ac);letter-spacing:.06em;padding:.3rem 0;margin-bottom:.4rem;border-bottom:1px solid var(--bd)">${k}</div>
+          ${cards}
+        </div>`;
+      }).join('');
+    }
   }
 
   window._bkSetFilter = function(tab) {
