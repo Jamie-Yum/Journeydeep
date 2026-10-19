@@ -100,18 +100,21 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .timeline-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tl);margin-bottom:1rem}
 .timeline-track{display:flex;gap:0;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:none;background:var(--wh);border-radius:var(--r);box-shadow:var(--sw)}
 .timeline-track::-webkit-scrollbar{display:none}
-.session-node{flex:1;min-width:120px;cursor:pointer;padding:.85rem .75rem 1rem;border-top:3px solid var(--be);transition:all .2s;text-align:left;background:none;border-left:none;border-right:none;border-bottom:none;font-family:'Pretendard',sans-serif;position:relative}
+.session-node{flex:1;min-width:130px;cursor:pointer;padding:.9rem .8rem 1rem;border-top:3px solid var(--be);transition:all .2s;text-align:left;background:none;border-left:none;border-right:none;border-bottom:none;font-family:'Pretendard',sans-serif;position:relative}
 .session-node:first-child{border-radius:var(--r) 0 0 var(--r)}
 .session-node:last-child{border-radius:0 var(--r) var(--r) 0}
 .session-node:hover{border-top-color:rgba(45,107,228,.4);background:rgba(45,107,228,.03)}
-.session-node.active{border-top-color:var(--ac);background:rgba(45,107,228,.06)}
-.session-node.done{border-top-color:rgba(45,107,228,.35)}
-.session-node.locked{cursor:not-allowed;opacity:.45;border-top-color:var(--be)!important;background:none!important}
+.session-node.active{border-top-color:var(--ac);background:rgba(45,107,228,.07)}
+.session-node.done{border-top-color:rgba(45,107,228,.4)}
+.session-node.locked{cursor:not-allowed;opacity:.4;border-top-color:var(--be)!important;background:none!important}
 .session-node.locked:hover{border-top-color:var(--be)!important;background:none!important}
-.sn-label{font-size:.72rem;font-weight:700;color:var(--tl);letter-spacing:.06em;margin-bottom:.2rem}
+.sn-label{font-size:.68rem;font-weight:700;color:var(--tl);letter-spacing:.07em;margin-bottom:.25rem}
 .session-node.active .sn-label{color:var(--ac)}
-.sn-date{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;color:var(--dk);margin-bottom:.3rem}
-.sn-book{font-size:.72rem;color:var(--tl);line-height:1.45;margin-top:.1rem}.sn-book-item{display:block;word-break:keep-all;overflow-wrap:break-word}
+.sn-date{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;color:var(--dk);margin-bottom:.45rem}
+.sn-books{display:flex;flex-direction:column;gap:.25rem;margin-top:.1rem}
+.sn-book-item{display:inline-flex;align-items:flex-start;gap:.3rem;font-size:.68rem;color:var(--ts);line-height:1.4;word-break:keep-all}
+.sn-book-item::before{content:'📖';font-size:.62rem;flex-shrink:0;margin-top:.05rem}
+.session-node.active .sn-book-item{color:var(--ac)}
 .sn-dot{width:8px;height:8px;border-radius:50%;background:var(--be);position:absolute;top:-5.5px;left:1rem}
 .session-node.done .sn-dot{background:rgba(45,107,228,.5)}
 .session-node.active .sn-dot{background:var(--ac);box-shadow:0 0 0 3px rgba(45,107,228,.2)}
@@ -721,7 +724,7 @@ function renderTimeline(){
       <div class="sn-dot"></div>
       <div class="sn-label">${s.label}</div>
       <div class="sn-date">${formatDate(s.date)}${!isVisible?' 🔒':''}</div>
-      ${s.books&&s.books.length?`<div class="sn-book">${s.books.map(b=>`<span class="sn-book-item">${b.title}</span>`).join('')}</div>`:''}
+      ${s.books&&s.books.length?`<div class="sn-books">${s.books.map(b=>`<span class="sn-book-item">${b.title}</span>`).join('')}</div>`:''}
     </button>`;
   }).join('');
 }
