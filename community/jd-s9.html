@@ -368,13 +368,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <!-- Session Info -->
 <div class="session-card">
   <div class="session-info" id="sessionInfo">
-    <div class="session-info-book">
-      <div class="book-thumb" id="bookThumb">📚</div>
-      <div>
-        <div class="book-info-title" id="bookTitle"><span class="no-book">도서 미정</span></div>
-        <div class="book-info-author" id="bookAuthor"></div>
-      </div>
-    </div>
+    <div id="sessionBooksWrap" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:.6rem"></div>
     <div class="session-info-date" id="sessionDate"></div>
   </div>
 </div>
@@ -741,24 +735,19 @@ function setSession(n){
   });
   // 세션 카드 업데이트
   if(s){
-    const bookInfo=document.querySelector('.session-info-book');
+    const wrap=document.getElementById('sessionBooksWrap');
     const bks=s.books||[];
     if(bks.length){
-      bookInfo.style.display='flex';
-      const thumb=document.getElementById('bookThumb');
-      if(bks[0].cover_url){thumb.innerHTML=`<img src="${bks[0].cover_url}" alt="">`;}
-      else{thumb.innerHTML='📚';}
-      const titleEl=document.getElementById('bookTitle');
-      const authorEl=document.getElementById('bookAuthor');
-      if(bks.length===1){
-        titleEl.textContent=bks[0].title||'';
-        authorEl.textContent=bks[0].author||'';
-      } else {
-        titleEl.innerHTML=bks.map(b=>`<div style="margin-bottom:.2rem">${b.title}${b.author?`<span style="font-weight:400;opacity:.7;font-size:.8em"> · ${b.author}</span>`:''}</div>`).join('');
-        authorEl.textContent='';
-      }
+      wrap.innerHTML=bks.map(b=>`
+        <div class="session-info-book">
+          <div class="book-thumb">${b.cover_url?`<img src="${b.cover_url}" alt="">`:'📚'}</div>
+          <div>
+            <div class="book-info-title">${b.title||''}</div>
+            ${b.author?`<div class="book-info-author">${b.author}</div>`:''}
+          </div>
+        </div>`).join('');
     } else {
-      bookInfo.style.display='none';
+      wrap.innerHTML=`<div class="session-info-book"><span class="no-book">도서 미정</span></div>`;
     }
     document.getElementById('sessionDate').textContent=s.label+' · '+formatFullDate(s.date);
   }
