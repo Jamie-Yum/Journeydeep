@@ -128,6 +128,20 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .timeline-item:first-child .timeline-dot{background:var(--te);box-shadow:0 0 0 2px var(--te)}
 .timeline-season{font-family:'DM Sans',sans-serif;font-size:.72rem;font-style:italic;color:var(--ac);margin-bottom:.1rem}
 .timeline-title{font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;color:var(--dk)}.timeline-desc{display:none}
+.communities-section{background:var(--bg)}
+.communities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+.community-card{background:var(--wh);border-radius:var(--r);border:1px solid var(--bd);padding:2rem 1.75rem;display:flex;flex-direction:column;gap:1rem;transition:all .35s;position:relative;overflow:hidden}
+.community-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(26,26,46,.12);border-color:rgba(45,107,228,.2)}
+.community-card-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .75rem;border-radius:var(--r-pill);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;width:fit-content}
+.badge-active{background:rgba(16,185,129,.1);color:#059669;border:1px solid rgba(16,185,129,.25)}
+.badge-coming{background:rgba(100,116,139,.1);color:var(--ol);border:1px solid rgba(100,116,139,.2)}
+.community-card-icon{font-size:2rem;line-height:1}
+.community-card-name{font-family:'DM Sans',sans-serif;font-size:1.35rem;font-weight:800;color:var(--dk);letter-spacing:-.02em;line-height:1.2}
+.community-card-sub{font-size:.82rem;font-weight:600;color:var(--ac);letter-spacing:.04em}
+.community-card-desc{font-size:.88rem;color:var(--ts);line-height:1.75;flex:1}
+.community-card-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:600;color:var(--ac);text-decoration:none;letter-spacing:.02em;transition:gap .2s}
+.community-card-link:hover{gap:.65rem}
+@media(max-width:900px){.communities-grid{grid-template-columns:1fr}}
 .faq-section{background:var(--bg)}.faq-list{margin-top:3rem;max-width:700px}
 .faq-item{border-bottom:1px solid rgba(100,116,139,.4);padding:1.5rem 0}
 .faq-q{font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:600;color:var(--dk);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem}.faq-q::after{content:'+';font-size:1.2rem;color:var(--ac);transition:transform .3s}.faq-item.open .faq-q::after{transform:rotate(45deg)}
@@ -188,7 +202,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     <li class="nav-li has-dropdown">
       <a href="#journeys" class="nav-link-item"><span class="nav-link-main" data-navid="program">Program</span></a>
       <div class="nav-dropdown">
-        <a href="program/jd.html" class="nav-dd-item" data-navchild="jd-s9">조니딥 시즌 9</a></div>
+        <a href="program/jd.html" class="nav-dd-item" data-navchild="jd-s9">조니딥 — 조직문화 북클럽</a>
+        <div class="nav-dd-divider"></div>
+        <a href="#communities" class="nav-dd-item" style="color:var(--tl)">YES AI CAN <span style="font-size:.7rem;opacity:.6">오픈 예정</span></a>
+        <a href="#communities" class="nav-dd-item" style="color:var(--tl)">FUNCILITATION <span style="font-size:.7rem;opacity:.6">오픈 예정</span></a>
+      </div>
     </li>
     <li class="nav-li has-dropdown">
       <a href="#together" class="nav-link-item"><span class="nav-link-main" data-navid="activity">Activity</span></a>
@@ -283,7 +301,53 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
     </div>
   </div>
 </div>
-</div></section><section class="section" id="gallery-books" style="background:var(--bg);padding-bottom:0">
+</div></section>
+
+<section class="section communities-section" id="communities">
+  <div class="section-container">
+    <div class="section-eyebrow reveal">Our Communities</div>
+    <h2 class="section-title reveal">조니딥이 운영하는<br>모임들</h2>
+    <p class="section-desc reveal">조직문화, AI 활용, 퍼실리테이션 — 각기 다른 주제로 함께 배우고 실천하는 커뮤니티입니다.</p>
+    <div class="communities-grid">
+
+      <div class="community-card reveal">
+        <span class="community-card-badge badge-active">● 시즌 9 진행 중</span>
+        <div class="community-card-icon">📖</div>
+        <div>
+          <div class="community-card-name">조니딥</div>
+          <div class="community-card-sub">조직문화 북클럽</div>
+        </div>
+        <p class="community-card-desc">조직문화와 교육에 대한 책을 함께 읽고 토론합니다. 2022년부터 시즌제로 운영되며, 매 시즌 4–5권의 책을 깊이 탐구합니다.</p>
+        <a href="program/jd.html" class="community-card-link">자세히 보기 →</a>
+      </div>
+
+      <div class="community-card reveal">
+        <span class="community-card-badge badge-coming">○ 오픈 예정</span>
+        <div class="community-card-icon">🤖</div>
+        <div>
+          <div class="community-card-name">YES AI CAN</div>
+          <div class="community-card-sub">AI 활용 실전 모임</div>
+        </div>
+        <p class="community-card-desc">AI 도구를 실제 업무와 일상에 적용하며 함께 실험합니다. 이론보다 실천, 배움보다 활용에 집중하는 모임입니다.</p>
+        <span style="font-size:.82rem;color:var(--tl)">곧 모집 예정이에요</span>
+      </div>
+
+      <div class="community-card reveal">
+        <span class="community-card-badge badge-coming">○ 오픈 예정</span>
+        <div class="community-card-icon">🎯</div>
+        <div>
+          <div class="community-card-name">FUNCILITATION</div>
+          <div class="community-card-sub">퍼실리테이션 실전 모임</div>
+        </div>
+        <p class="community-card-desc">퍼실리테이션 기법을 직접 설계하고 실습합니다. 회의, 워크숍, 팀 활동을 더 잘 이끌고 싶은 분들을 위한 모임입니다.</p>
+        <span style="font-size:.82rem;color:var(--tl)">곧 모집 예정이에요</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="gallery-books" style="background:var(--bg);padding-bottom:0">
 <div class="section-container">
   <div class="section-eyebrow reveal">Moments</div>
   <h2 class="section-title reveal">함께한 순간들</h2>
