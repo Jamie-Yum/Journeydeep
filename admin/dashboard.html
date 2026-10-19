@@ -427,6 +427,32 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div class="page-sub">홈화면 사진과 이미지 리소스를 관리해요</div>
     </div>
     <div class="card">
+      <div class="card-title">모임 공개 설정</div>
+      <p style="font-size:.85rem;color:var(--tl);margin-bottom:1.25rem">홈페이지에서 각 모임 카드의 공개 여부를 설정해요. 비공개 시 섹션이 숨겨집니다.</p>
+      <div style="display:flex;flex-direction:column;gap:.85rem" id="commVisToggles">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--bd)">
+          <div>
+            <div style="font-weight:600;font-size:.88rem;color:var(--dk)">🤖 YES AI CAN</div>
+            <div style="font-size:.75rem;color:var(--tl)">AI 활용 실전 모임</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+            <input type="checkbox" id="tog-yes-ai-can" style="width:16px;height:16px;accent-color:var(--ac)" onchange="saveCommVisibility()">
+            <span id="tog-yes-ai-can-lbl" style="font-size:.8rem;color:var(--tl)">비공개</span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--bd)">
+          <div>
+            <div style="font-weight:600;font-size:.88rem;color:var(--dk)">🎯 FUNCILITATION</div>
+            <div style="font-size:.75rem;color:var(--tl)">퍼실리테이션 실전 모임</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+            <input type="checkbox" id="tog-funcilitation" style="width:16px;height:16px;accent-color:var(--ac)" onchange="saveCommVisibility()">
+            <span id="tog-funcilitation-lbl" style="font-size:.8rem;color:var(--tl)">비공개</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="card">
       <div class="card-title">모바일 히어로 높이</div>
       <p style="font-size:.85rem;color:var(--tl);margin-bottom:1.25rem">모바일(900px 이하)에서 히어로 섹션의 높이를 조절해요.</p>
       <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
@@ -941,7 +967,7 @@ if (sessionStorage.getItem('jd_admin') === '1') {
 }
 
 function initAll() {
-  loadHomepagePhotos(); loadHeroMobileH(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks();
+  loadHomepagePhotos(); loadHeroMobileH(); loadCommVisibility(); loadPrograms(); loadProposals(); loadColumns(); initApplications(); initMembers(); loadBooks();
   s9RenderToolbar('tb-proposal', 's9proposal-editor');
   s9RenderToolbar('tb-archive', 's9archive-editor');
 }
@@ -952,7 +978,7 @@ function showPanel(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
-  if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); }
+  if (id === 'homepage') { loadHomepagePhotos(); loadHeroMobileH(); loadCommVisibility(); }
   if (id === 'gallery') { loadGallery(); }
   if (id === 'navcfg') { loadNavCfg(); }
   if (id === 's9sessions') { loadS9Sessions(); }
@@ -3736,6 +3762,42 @@ async function loadHeroMobileH() {
     document.getElementById('hero_mobile_h_range').value = vh;
     document.getElementById('hero_mobile_h_label').textContent = vh + 'vh';
   }
+}
+
+async function loadCommVisibility() {
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings?key=eq.community_visibility&select=value`, {
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+  });
+  const rows = await res.json();
+  let cv = { yes_ai_can: false, funcilitation: false };
+  if (rows && rows[0]) { try { cv = JSON.parse(rows[0].value); } catch(e) {} }
+  const setTog = (id, val) => {
+    const cb = document.getElementById('tog-' + id);
+    const lbl = document.getElementById('tog-' + id + '-lbl');
+    if (cb) cb.checked = !!val;
+    if (lbl) lbl.textContent = val ? '공개' : '비공개';
+    if (lbl) lbl.style.color = val ? 'var(--ac)' : 'var(--tl)';
+  };
+  setTog('yes-ai-can', cv.yes_ai_can);
+  setTog('funcilitation', cv.funcilitation);
+}
+async function saveCommVisibility() {
+  const cv = {
+    yes_ai_can: document.getElementById('tog-yes-ai-can').checked,
+    funcilitation: document.getElementById('tog-funcilitation').checked
+  };
+  ['yes-ai-can', 'funcilitation'].forEach(id => {
+    const lbl = document.getElementById('tog-' + id + '-lbl');
+    const val = document.getElementById('tog-' + id).checked;
+    if (lbl) { lbl.textContent = val ? '공개' : '비공개'; lbl.style.color = val ? 'var(--ac)' : 'var(--tl)'; }
+  });
+  const res = await fetch(`${SUPA_URL}/rest/v1/JD_site_settings`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ key: 'community_visibility', value: JSON.stringify(cv) })
+  });
+  if (res.ok) toast(cv.yes_ai_can || cv.funcilitation ? '모임 공개 설정이 저장됐어요 ✓' : '모임이 비공개로 설정됐어요 ✓');
+  else toast('저장 실패', true);
 }
 
 async function loadHomepagePhotos() {

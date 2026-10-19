@@ -321,7 +321,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
         <a href="program/jd.html" class="community-card-link">자세히 보기 →</a>
       </div>
 
-      <div class="community-card reveal">
+      <div class="community-card reveal" id="comm-yes-ai-can">
         <span class="community-card-badge badge-coming">○ 오픈 예정</span>
         <div class="community-card-icon">🤖</div>
         <div>
@@ -332,7 +332,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
         <span style="font-size:.82rem;color:var(--tl)">곧 모집 예정이에요</span>
       </div>
 
-      <div class="community-card reveal">
+      <div class="community-card reveal" id="comm-funcilitation">
         <span class="community-card-badge badge-coming">○ 오픈 예정</span>
         <div class="community-card-icon">🎯</div>
         <div>
@@ -401,6 +401,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
       if(row.key==='hero_mobile_height'&&row.value){
         document.documentElement.style.setProperty('--hero-mobile-h',row.value);
         try{localStorage.setItem('jd_hero_mh',row.value);}catch(e){}
+      }
+      if(row.key==='community_visibility'&&row.value){
+        try{
+          var cv=JSON.parse(row.value);
+          if(!cv.yes_ai_can) document.getElementById('comm-yes-ai-can').style.display='none';
+          if(!cv.funcilitation) document.getElementById('comm-funcilitation').style.display='none';
+          if(!cv.yes_ai_can&&!cv.funcilitation){
+            var sec=document.getElementById('communities');
+            if(sec) sec.style.display='none';
+          }
+        }catch(e){}
       }
     });
   }).catch(function(){});
