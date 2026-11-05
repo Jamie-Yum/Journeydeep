@@ -1069,7 +1069,7 @@ function buildSlideshow(sess,proposalHtml,photos=[]){
 
   const defs=[
     sloMakeCover(sess,photos),
-    sloMakeSection('01 · Opening','근황 토크','#6490F5','모임 전 성찰에서 미리 작성한 내용을 나눠요.'),
+    sloMakeSection('01 · Opening','근황 토크','#6490F5','오늘의 기분, 요즘의 생각들을 나눠요.'),
     sloMakeChat(),
     sloMakeSection('02 · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
     ...sections.map(s=>sloMakeProposal(s.title,s.content)),
