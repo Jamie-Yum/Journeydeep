@@ -660,6 +660,35 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <div id="s9q-list" style="display:flex;flex-direction:column;gap:.35rem"></div>
           </div>
         </div>
+        <!-- 슬라이드 구성 편집 -->
+        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);cursor:pointer" onclick="const p=document.getElementById('slide-cfg-panel');p.style.display=p.style.display==='none'?'flex':'none'">
+            <div style="font-size:.75rem;font-weight:700;color:#6490F5;display:flex;align-items:center;gap:.35rem">🎞 슬라이드 구성 <span style="font-weight:400;opacity:.6">(근황토크·디브리핑·아우트로 텍스트)</span></div>
+            <span style="font-size:.7rem;color:var(--tl)">접기/펼치기</span>
+          </div>
+          <div id="slide-cfg-panel" style="display:none;padding:.75rem .85rem;background:var(--wh);flex-direction:column;gap:.75rem">
+            <div>
+              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">📢 근황 토크</div>
+              <input id="scfg-chat-q" placeholder="질문 (기본: 요즘 어떻게 지내셨나요?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
+              <input id="scfg-chat-sub" placeholder="부제 (기본: 모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">🧩 디브리핑</div>
+              <input id="scfg-d1-q" placeholder="질문 1 (기본: 오늘 대화에서 가장 기억에 남는 한 문장은?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
+              <input id="scfg-d1-hint" placeholder="힌트 1 (기본: 돌아가며 한 명씩)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
+              <input id="scfg-d2-q" placeholder="질문 2 (기본: 다음 모임 전까지 내가 해볼 한 가지는?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
+              <input id="scfg-d2-hint" placeholder="힌트 2 (기본: 작아도 괜찮아요)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">🎬 아우트로</div>
+              <input id="scfg-outro" placeholder="마무리 메시지 (기본: 수고 많으셨습니다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <button class="btn btn-primary btn-sm" onclick="saveSlideConfig()">저장</button>
+              <span id="scfg-msg" style="font-size:.8rem;color:var(--tl)"></span>
+            </div>
+          </div>
+        </div>
         <!-- 아카이빙 에디터 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
@@ -1218,6 +1247,9 @@ function s9RenderToolbar(containerId, editorId) {
   const sep = '<div class="rich-sep"></div>';
   el.innerHTML = `
     <button type="button" class="rich-btn" onclick="s9FmtBlock('h3','${editorId}')" title="슬라이드 구분 제목 (H3)" style="font-weight:800;font-size:.78rem;color:#7C3AED;border-color:rgba(124,58,237,.3)">H3 슬라이드↵</button>
+    <button type="button" class="rich-btn" onclick="s9InsertQBlock('ox','${editorId}')" title="O/X 질문 블록 삽입" style="font-size:.74rem;color:#0A8A5C;border-color:rgba(10,138,92,.3)">O/X 질문↵</button>
+    <button type="button" class="rich-btn" onclick="s9InsertQBlock('likert','${editorId}')" title="리커트 질문 블록 삽입" style="font-size:.74rem;color:#7C3AED;border-color:rgba(124,58,237,.3)">리커트↵</button>
+    <button type="button" class="rich-btn" onclick="s9InsertQBlock('open','${editorId}')" title="주관식 질문 블록 삽입" style="font-size:.74rem;color:#2D6BE4;border-color:rgba(45,107,228,.3)">주관식↵</button>
     <select class="rich-select" onchange="s9FmtBlock(this.value,'${editorId}');this.value=''">
       <option value="">스타일</option>
       <option value="p">본문</option>
@@ -1261,6 +1293,17 @@ function s9FmtBlock(tag, editorId) {
   if (!tag) return;
   document.getElementById(editorId).focus();
   document.execCommand('formatBlock', false, tag);
+}
+function s9InsertQBlock(fmt, editorId) {
+  const cfgs = {
+    ox:     {color:'#0A8A5C', bg:'rgba(10,138,92,.07)',  border:'#4EC994', label:'O/X 질문'},
+    likert: {color:'#5B21B6', bg:'rgba(124,58,237,.07)', border:'#7C3AED', label:'리커트 질문'},
+    open:   {color:'#1D4ED8', bg:'rgba(45,107,228,.07)', border:'#2D6BE4', label:'주관식 질문'},
+  };
+  const c = cfgs[fmt] || cfgs.open;
+  const html = `<div data-qfmt="${fmt}" style="border-left:3px solid ${c.border};background:${c.bg};color:${c.color};padding:.45rem .85rem;border-radius:0 8px 8px 0;margin:.4rem 0;font-size:.88rem">[${c.label}] 질문 내용을 입력하세요</div><p><br></p>`;
+  document.getElementById(editorId).focus();
+  document.execCommand('insertHTML', false, html);
 }
 function s9InsertLinkWysiwyg(editorId) {
   const url = prompt('링크 URL을 입력하세요:', 'https://');
@@ -1441,6 +1484,7 @@ async function selectS9Session(label, n) {
   document.getElementById('s9proposal-editor').innerHTML = s9MdToHtml(proposal?.content || '');
   document.getElementById('s9archive-editor').innerHTML = s9MdToHtml(archive?.content || '');
   loadS9Questions();
+  loadSlideConfig();
   card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
@@ -1496,6 +1540,41 @@ async function deleteS9Question(id) {
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
   await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?id=eq.${id}`, {method:'DELETE', headers:H});
   loadS9Questions();
+}
+async function loadSlideConfig() {
+  if (!_s9SelSession) return;
+  const n = _s9SelSession.n;
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  const r = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=eq.slide_config&order=created_at.desc&limit=1`, {headers: H});
+  const data = await r.json();
+  let cfg = {};
+  if (Array.isArray(data) && data.length) { try { cfg = JSON.parse(data[0].content); } catch {} }
+  document.getElementById('scfg-chat-q').value = cfg.chat_q || '';
+  document.getElementById('scfg-chat-sub').value = cfg.chat_sub || '';
+  document.getElementById('scfg-d1-q').value = cfg.debrief_q1 || '';
+  document.getElementById('scfg-d1-hint').value = cfg.debrief_hint1 || '';
+  document.getElementById('scfg-d2-q').value = cfg.debrief_q2 || '';
+  document.getElementById('scfg-d2-hint').value = cfg.debrief_hint2 || '';
+  document.getElementById('scfg-outro').value = cfg.outro || '';
+}
+async function saveSlideConfig() {
+  if (!_s9SelSession) return;
+  const n = _s9SelSession.n;
+  const cfg = {
+    chat_q: document.getElementById('scfg-chat-q').value.trim(),
+    chat_sub: document.getElementById('scfg-chat-sub').value.trim(),
+    debrief_q1: document.getElementById('scfg-d1-q').value.trim(),
+    debrief_hint1: document.getElementById('scfg-d1-hint').value.trim(),
+    debrief_q2: document.getElementById('scfg-d2-q').value.trim(),
+    debrief_hint2: document.getElementById('scfg-d2-hint').value.trim(),
+    outro: document.getElementById('scfg-outro').value.trim(),
+  };
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'};
+  await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${n}&type=eq.slide_config`, {method:'DELETE', headers:H});
+  await fetch(`${SUPA_URL}/rest/v1/JD_session_messages`, {method:'POST', headers:H, body:JSON.stringify({season:'시즌 9',session_n:n,type:'slide_config',author:'admin',content:JSON.stringify(cfg)})});
+  const msg = document.getElementById('scfg-msg');
+  msg.textContent = '저장됨 ✓';
+  setTimeout(() => { msg.textContent = ''; }, 2000);
 }
 
 async function saveS9Content(type) {

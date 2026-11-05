@@ -1170,12 +1170,13 @@ renderFmRow();
 let _sloSlides=[], _sloCur=0;
 
 async function openSlideshow(){
-  const [rp,ra,rq]=await Promise.all([
+  const [rp,ra,rq,rc]=await Promise.all([
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.proposal&order=created_at.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling,admin_question)&order=created_at.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H})
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.slide_config&order=created_at.desc&limit=1`,{headers:H})
   ]);
-  const [proposals,questions,archives]=await Promise.all([rp.json(),rq.json(),ra.json()]);
+  const [proposals,questions,archives,cfgRows]=await Promise.all([rp.json(),rq.json(),ra.json(),rc.json()]);
   const html=Array.isArray(proposals)&&proposals.length?proposals.map(m=>m.content).join(''):'';
   const photos=[];
   if(Array.isArray(archives)){
@@ -1185,8 +1186,10 @@ async function openSlideshow(){
       tmp.querySelectorAll('img').forEach(img=>photos.push(img.src));
     });
   }
+  let slideCfg={};
+  if(Array.isArray(cfgRows)&&cfgRows.length){try{slideCfg=JSON.parse(cfgRows[0].content);}catch{}}
   const sess=_sessions.find(s=>s.n===_curN);
-  buildSlideshow(sess,html,photos,Array.isArray(questions)?questions:[]);
+  buildSlideshow(sess,html,photos,Array.isArray(questions)?questions:[],slideCfg);
   document.getElementById('slideOverlay').classList.add('open');
   document.addEventListener('keydown',sloKey);
 }
@@ -1202,22 +1205,39 @@ function sloKey(e){
   if(e.key==='ArrowLeft'){e.preventDefault();sloGo(-1);}
 }
 
-function buildSlideshow(sess,proposalHtml,photos=[],questions=[]){
+function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={}){
   const deck=document.getElementById('sloDeck');
   const prog=document.getElementById('sloProgress');
   deck.innerHTML=''; prog.innerHTML='';
   _sloSlides=[]; _sloCur=0;
 
-  // 발제문 HTML을 <h3> 단위로 분리
+  // 발제문 HTML을 문서 순서대로 파싱 — H3는 섹션 제목, data-qfmt는 인라인 질문
   const parser=new DOMParser();
   const doc=parser.parseFromString(proposalHtml,'text/html');
-  const h3s=Array.from(doc.querySelectorAll('h3'));
-  const sections=h3s.map(h3=>{
-    const title=h3.textContent.replace(/^[\s🔵🔴🟡🟢]+/,'').trim();
-    let content='', el=h3.nextElementSibling;
-    while(el&&el.tagName!=='H3'){content+=el.outerHTML; el=el.nextElementSibling;}
-    return {title,content};
+  const inlineSlides=[];
+  let curTitle='',curContent='';
+  function flushSec(){if(curTitle||curContent.trim()){inlineSlides.push({type:'section',title:curTitle,content:curContent});curTitle='';curContent='';}}
+  Array.from(doc.body.children).forEach(el=>{
+    if(el.dataset&&el.dataset.qfmt){
+      flushSec();
+      inlineSlides.push({type:'question',text:el.textContent.trim(),format:el.dataset.qfmt});
+    } else if(el.tagName==='H3'){
+      flushSec();
+      curTitle=el.textContent.replace(/^[\s🔵🔴🟡🟢]+/,'').trim();
+    } else {
+      curContent+=el.outerHTML;
+    }
   });
+  flushSec();
+
+  // cfg 기본값
+  const chatQ=cfg.chat_q||'요즘 어떻게 지내셨나요?';
+  const chatSub=cfg.chat_sub||'모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.';
+  const dq1=cfg.debrief_q1||'오늘 대화에서 가장 기억에 남는 한 문장은?';
+  const dh1=cfg.debrief_hint1||'돌아가며 한 명씩';
+  const dq2=cfg.debrief_q2||'다음 모임 전까지 내가 해볼 한 가지는?';
+  const dh2=cfg.debrief_hint2||'작아도 괜찮아요';
+  const outroText=cfg.outro||'수고 많으셨습니다.';
 
   const qSlides=questions.length?[
     sloMakeSection('02 · 질문','질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
@@ -1225,15 +1245,15 @@ function buildSlideshow(sess,proposalHtml,photos=[],questions=[]){
   ]:[];
   const defs=[
     sloMakeCover(sess,photos),
-    sloMakeSection('01 · Opening','근황 토크','#6490F5','오늘의 기분, 요즘의 생각들을 나눠요.'),
-    sloMakeChat(),
+    sloMakeSection('01 · Opening','근황 토크','#6490F5',chatSub),
+    sloMakeChat(chatQ,chatSub),
     ...qSlides,
     sloMakeSection(questions.length?'03 · 발제문':'02 · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
-    ...sections.map(s=>sloMakeProposal(s.title,s.content)),
+    ...inlineSlides.map(s=>s.type==='question'?sloMakeInlineQuestion(s):sloMakeProposal(s.title,s.content)),
     sloMakeSection(questions.length?'04 · Debrief':'03 · Debrief','디브리핑','#4EC994','오늘을 함께 마무리해요.'),
-    sloMakeDebrief('오늘 대화에서 가장 기억에 남는 한 문장은?','돌아가며 한 명씩'),
-    sloMakeDebrief('다음 모임 전까지 내가 해볼 한 가지는?','작아도 괜찮아요'),
-    sloMakeOutro(),
+    sloMakeDebrief(dq1,dh1),
+    sloMakeDebrief(dq2,dh2),
+    sloMakeOutro(outroText),
   ];
 
   const TOTAL=defs.length;
@@ -1288,12 +1308,12 @@ function sloMakeSection(eyebrow,title,color,sub){
   </div>`;
 }
 
-function sloMakeChat(){
+function sloMakeChat(q='요즘 어떻게 지내셨나요?',sub='모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.'){
   return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
     <div class="slo-eyebrow" style="color:rgba(100,144,245,.7)">근황 토크</div>
     <div class="slo-rule" style="background:#6490F5"></div>
-    <div class="slo-q">요즘 어떻게 지내셨나요?</div>
-    <div style="font-size:.88rem;color:rgba(255,255,255,.32)">모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.</div>
+    <div class="slo-q">${escH(q)}</div>
+    <div style="font-size:.88rem;color:rgba(255,255,255,.32)">${escH(sub)}</div>
   </div>`;
 }
 
@@ -1313,11 +1333,14 @@ function sloMakeDebrief(q,hint){
   </div>`;
 }
 
-function sloMakeOutro(){
+function sloMakeOutro(text='수고 많으셨습니다.'){
   return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
     <div class="slo-eyebrow">Outro</div>
-    <div style="font-family:'DM Sans',sans-serif;font-size:2.8rem;font-weight:800;color:#EDEAF8;line-height:1.25">수고 많으셨습니다.</div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:2.8rem;font-weight:800;color:#EDEAF8;line-height:1.25">${escH(text)}</div>
   </div>`;
+}
+function sloMakeInlineQuestion(s){
+  return sloMakeQuestion({content:JSON.stringify({text:s.text||'',format:s.format||'open'}),type:'admin_question'});
 }
 
 function sloMakeQuestion(m){
