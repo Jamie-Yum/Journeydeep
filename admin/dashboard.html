@@ -654,10 +654,23 @@ tr:hover td{background:rgba(37,99,235,.03)}
           </div>
         </div>
 
-        <!-- ③ 발제문 -->
+        <!-- ③ 책의 뒷모습 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #F97DA8;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(249,125,168,.5);min-width:1.6rem">③</span>
+            <span style="font-size:.78rem;font-weight:700;color:#F97DA8">책의 뒷모습</span>
+            <span style="font-size:.72rem;color:var(--tl);margin-left:.25rem">저자·구절에 대한 질문 2개</span>
+          </div>
+          <div style="padding:.65rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.35rem">
+            <input id="scfg-bb1" placeholder="질문 1 (기본: 저자에 대한 느낌은 어땠나요?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+            <input id="scfg-bb2" placeholder="질문 2 (기본: 책에서 함께 나누고 싶은 구절은?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+          </div>
+        </div>
+
+        <!-- ④ 발제문 -->
         <div style="border:1.5px solid var(--bd);border-left:3px solid #A07BFF;border-radius:var(--r-sm);overflow:hidden">
           <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
-            <span style="font-size:.64rem;font-weight:700;color:rgba(160,123,255,.5);min-width:1.6rem">③</span>
+            <span style="font-size:.64rem;font-weight:700;color:rgba(160,123,255,.5);min-width:1.6rem">④</span>
             <span style="font-size:.78rem;font-weight:700;color:#A07BFF">발제문</span>
             <span style="font-size:.72rem;color:var(--tl);margin-left:.25rem">H3 버튼으로 슬라이드 구분 · 질문 버튼으로 질문 슬라이드 삽입</span>
           </div>
@@ -670,10 +683,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
           </div>
         </div>
 
-        <!-- ④ 디브리핑 -->
+        <!-- ⑤ 디브리핑 -->
         <div style="border:1.5px solid var(--bd);border-left:3px solid #4EC994;border-radius:var(--r-sm);overflow:hidden">
           <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
-            <span style="font-size:.64rem;font-weight:700;color:rgba(78,201,148,.5);min-width:1.6rem">④</span>
+            <span style="font-size:.64rem;font-weight:700;color:rgba(78,201,148,.5);min-width:1.6rem">⑤</span>
             <span style="font-size:.78rem;font-weight:700;color:#4EC994">디브리핑</span>
           </div>
           <div style="padding:.65rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.35rem">
@@ -688,10 +701,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
           </div>
         </div>
 
-        <!-- ⑤ 아우트로 -->
+        <!-- ⑥ 아우트로 -->
         <div style="border:1.5px solid var(--bd);border-left:3px solid #EDEAF8;border-radius:var(--r-sm);overflow:hidden">
           <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
-            <span style="font-size:.64rem;font-weight:700;color:rgba(237,234,248,.5);min-width:1.6rem">⑤</span>
+            <span style="font-size:.64rem;font-weight:700;color:rgba(237,234,248,.5);min-width:1.6rem">⑥</span>
             <span style="font-size:.78rem;font-weight:700;color:rgba(237,234,248,.7)">아우트로</span>
           </div>
           <div style="padding:.65rem .85rem;background:var(--wh)">
@@ -1577,6 +1590,8 @@ async function loadSlideConfig() {
   if (Array.isArray(data) && data.length) { try { cfg = JSON.parse(data[0].content); } catch {} }
   document.getElementById('scfg-chat-q').value = cfg.chat_q || '';
   document.getElementById('scfg-chat-sub').value = cfg.chat_sub || '';
+  document.getElementById('scfg-bb1').value = cfg.bookback_q1 || '';
+  document.getElementById('scfg-bb2').value = cfg.bookback_q2 || '';
   document.getElementById('scfg-d1-q').value = cfg.debrief_q1 || '';
   document.getElementById('scfg-d1-hint').value = cfg.debrief_hint1 || '';
   document.getElementById('scfg-d2-q').value = cfg.debrief_q2 || '';
@@ -1589,6 +1604,8 @@ async function saveSlideConfig() {
   const cfg = {
     chat_q: document.getElementById('scfg-chat-q').value.trim(),
     chat_sub: document.getElementById('scfg-chat-sub').value.trim(),
+    bookback_q1: document.getElementById('scfg-bb1').value.trim(),
+    bookback_q2: document.getElementById('scfg-bb2').value.trim(),
     debrief_q1: document.getElementById('scfg-d1-q').value.trim(),
     debrief_hint1: document.getElementById('scfg-d1-hint').value.trim(),
     debrief_q2: document.getElementById('scfg-d2-q').value.trim(),

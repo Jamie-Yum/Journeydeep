@@ -1185,13 +1185,14 @@ renderFmRow();
 let _sloSlides=[], _sloCur=0;
 
 async function openSlideshow(){
-  const [rp,ra,rq,rc]=await Promise.all([
+  const [rp,ra,rq,rc,rm]=await Promise.all([
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.proposal&order=created_at.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling,admin_question)&order=created_at.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.slide_config&order=created_at.desc&limit=1`,{headers:H})
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.slide_config&order=created_at.desc&limit=1`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.mood&order=created_at.asc`,{headers:H})
   ]);
-  const [proposals,questions,archives,cfgRows]=await Promise.all([rp.json(),rq.json(),ra.json(),rc.json()]);
+  const [proposals,questions,archives,cfgRows,moodRows]=await Promise.all([rp.json(),rq.json(),ra.json(),rc.json(),rm.json()]);
   const html=Array.isArray(proposals)&&proposals.length?proposals.map(m=>m.content).join(''):'';
   const photos=[];
   if(Array.isArray(archives)){
@@ -1203,8 +1204,9 @@ async function openSlideshow(){
   }
   let slideCfg={};
   if(Array.isArray(cfgRows)&&cfgRows.length){try{slideCfg=JSON.parse(cfgRows[0].content);}catch{}}
+  const moods=Array.isArray(moodRows)?moodRows:[];
   const sess=_sessions.find(s=>s.n===_curN);
-  buildSlideshow(sess,html,photos,Array.isArray(questions)?questions:[],slideCfg);
+  buildSlideshow(sess,html,photos,Array.isArray(questions)?questions:[],slideCfg,moods);
   document.getElementById('slideOverlay').classList.add('open');
   document.addEventListener('keydown',sloKey);
 }
@@ -1220,7 +1222,7 @@ function sloKey(e){
   if(e.key==='ArrowLeft'){e.preventDefault();sloGo(-1);}
 }
 
-function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={}){
+function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={},moods=[]){
   const deck=document.getElementById('sloDeck');
   const prog=document.getElementById('sloProgress');
   deck.innerHTML=''; prog.innerHTML='';
@@ -1246,8 +1248,9 @@ function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={}){
   flushSec();
 
   // cfg 기본값
-  const chatQ=cfg.chat_q||'요즘 어떻게 지내셨나요?';
-  const chatSub=cfg.chat_sub||'모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.';
+  const chatSub=cfg.chat_sub||'오늘의 기분, 요즘의 생각들을 나눠요.';
+  const bbq1=cfg.bookback_q1||'저자에 대한 느낌은 어땠나요?';
+  const bbq2=cfg.bookback_q2||'책에서 함께 나누고 싶은 구절은?';
   const dq1=cfg.debrief_q1||'오늘 대화에서 가장 기억에 남는 한 문장은?';
   const dh1=cfg.debrief_hint1||'돌아가며 한 명씩';
   const dq2=cfg.debrief_q2||'다음 모임 전까지 내가 해볼 한 가지는?';
@@ -1255,17 +1258,21 @@ function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={}){
   const outroText=cfg.outro||'수고 많으셨습니다.';
 
   const qSlides=questions.length?[
-    sloMakeSection('02 · 질문','질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
+    sloMakeSection('03 · 질문','질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
     ...questions.map(m=>sloMakeQuestion(m))
   ]:[];
+  const n=questions.length;
   const defs=[
     sloMakeCover(sess,photos),
     sloMakeSection('01 · Opening','근황 토크','#6490F5',chatSub),
-    sloMakeChat(chatQ,chatSub),
+    sloMakeChat(chatSub,moods),
+    sloMakeSection('02 · 책의 뒷모습','책의 뒷모습','#F97DA8','책과 저자에 대한 첫인상을 나눠요.'),
+    sloMakeBookBack(bbq1),
+    sloMakeBookBack(bbq2),
     ...qSlides,
-    sloMakeSection(questions.length?'03 · 발제문':'02 · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
+    sloMakeSection((n?'04':'03')+' · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
     ...inlineSlides.map(s=>s.type==='question'?sloMakeInlineQuestion(s):sloMakeProposal(s.title,s.content)),
-    sloMakeSection(questions.length?'04 · Debrief':'03 · Debrief','디브리핑','#4EC994','오늘을 함께 마무리해요.'),
+    sloMakeSection((n?'05':'04')+' · Debrief','디브리핑','#4EC994','오늘을 함께 마무리해요.'),
     sloMakeDebrief(dq1,dh1),
     sloMakeDebrief(dq2,dh2),
     sloMakeOutro(outroText),
@@ -1323,12 +1330,33 @@ function sloMakeSection(eyebrow,title,color,sub){
   </div>`;
 }
 
-function sloMakeChat(q='요즘 어떻게 지내셨나요?',sub='모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.'){
+function sloMakeChat(sub='오늘의 기분, 요즘의 생각들을 나눠요.',moods=[]){
+  const moodCards=moods.map(row=>{
+    try{
+      const d=JSON.parse(row.content);
+      const m=MOODS.find(x=>x.id===d.id)||{svg:'',color:'#94A3B8'};
+      const mini=m.svg.replace(/width="68" height="68"/,'width="40" height="40"');
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:.35rem;background:rgba(255,255,255,.05);border-radius:14px;padding:.6rem .75rem;min-width:72px">
+        <div style="width:40px;height:40px">${mini}</div>
+        <div style="font-size:.7rem;color:${d.color||m.color};font-weight:700">${escH(d.label||'')}</div>
+        <div style="font-size:.62rem;color:rgba(255,255,255,.35)">${escH(row.author||'')}</div>
+      </div>`;
+    }catch{return '';}
+  }).join('');
+  const moodsHtml=moods.length?`<div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem">${moodCards}</div>`:'';
   return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
     <div class="slo-eyebrow" style="color:rgba(100,144,245,.7)">근황 토크</div>
     <div class="slo-rule" style="background:#6490F5"></div>
-    <div class="slo-q">${escH(q)}</div>
+    <div class="slo-q">오늘의 기분은?</div>
     <div style="font-size:.88rem;color:rgba(255,255,255,.32)">${escH(sub)}</div>
+    ${moodsHtml}
+  </div>`;
+}
+function sloMakeBookBack(q){
+  return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
+    <div class="slo-eyebrow" style="color:rgba(249,125,168,.7)">책의 뒷모습</div>
+    <div class="slo-rule" style="background:#F97DA8"></div>
+    <div class="slo-q">${escH(q)}</div>
   </div>`;
 }
 
