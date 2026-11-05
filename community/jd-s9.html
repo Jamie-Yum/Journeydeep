@@ -1054,7 +1054,7 @@ function processQBlocks(html){
     const text=el.textContent.trim();
     el.removeAttribute('style');
     el.style.cssText=`border-left:3px solid ${colors[fmt]};background:${bgs[fmt]};border-radius:0 10px 10px 0;padding:.55rem 1rem;margin:.6rem 0;display:block`;
-    el.innerHTML=`<span style="font-size:.62rem;font-weight:700;color:${colors[fmt]};letter-spacing:.07em;text-transform:uppercase;opacity:.8">${labels[fmt]||'질문'}</span><div style="font-size:.92rem;color:inherit;margin-top:.18rem">${escH(text)}</div>`;
+    el.innerHTML=`<div style="font-size:.92rem;color:inherit">${escH(text)}</div>`;
   });
   return wrap.innerHTML;
 }
