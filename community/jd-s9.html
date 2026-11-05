@@ -278,6 +278,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
   .cnt-card{padding:1.1rem 1.25rem}
 }
 
+/* ── Question Format Selector ── */
+.fmt-selector{display:flex;gap:.35rem;margin-bottom:.6rem;flex-wrap:wrap}
+.fmt-btn{padding:.28rem .8rem;border:1.5px solid var(--bd);border-radius:var(--r-pill);background:transparent;font-size:.74rem;font-weight:500;cursor:pointer;color:var(--tl);font-family:'Pretendard',sans-serif;transition:all .15s}
+.fmt-btn.active{background:#2D6BE4;border-color:#2D6BE4;color:#fff;font-weight:700}
+.fmt-badge{display:inline-block;padding:.08rem .45rem;border-radius:var(--r-pill);font-size:.6rem;font-weight:700;letter-spacing:.05em;margin-left:.35rem;vertical-align:middle}
+.fmt-badge-open{background:rgba(100,144,245,.12);color:#2D6BE4}
+.fmt-badge-ox{background:rgba(10,138,92,.12);color:#0A8A5C}
+.fmt-badge-likert{background:rgba(124,58,237,.12);color:#7C3AED}
 /* ── Feeling Monster ── */
 .fm-wrap{max-width:860px;margin:1.25rem auto 0;padding:0 1.5rem}
 .fm-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tl);margin-bottom:.85rem}
@@ -472,6 +480,11 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
       <div class="post-box" id="qBox">
         <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
+        <div class="fmt-selector">
+          <button class="fmt-btn active" onclick="setQFmt('open',this)">주관식</button>
+          <button class="fmt-btn" onclick="setQFmt('ox',this)">O / X</button>
+          <button class="fmt-btn" onclick="setQFmt('likert',this)">리커트 4단계</button>
+        </div>
         <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
         <div class="post-box-footer">
           <button class="btn-post" onclick="postMessage()">올리기</button>
@@ -909,13 +922,18 @@ function msgCard(m,tagInfo){
   const mine=_me&&m.author===_me;
   const t=new Date(m.created_at);
   const timeStr=`${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  const q=parseQ(m.content);
+  const fmtLabels={open:'주관식',ox:'O / X',likert:'리커트 4단계'};
+  const fmtBadge=q.format&&q.format!=='open'?`<span class="fmt-badge fmt-badge-${q.format}">${fmtLabels[q.format]||q.format}</span>`:'';
+  const bodyText=escH(q.text||m.content);
   return `<div class="msg-card${mine?' mine':''}">
     <div class="card-top">
       <span class="card-author">${escH(m.author)}</span>
       <span class="card-tag ${cls}">${labelParts.join(' ')}</span>
+      ${fmtBadge}
       <span class="card-time">${timeStr}</span>
     </div>
-    <div class="card-body">${escH(m.content)}</div>
+    <div class="card-body">${bodyText}</div>
   </div>`;
 }
 
@@ -957,6 +975,18 @@ function toggleRp(id){
 
 
 // ── 작성 ────────────────────────────────────────────
+let _qFmt='open';
+function setQFmt(fmt,btn){
+  _qFmt=fmt;
+  document.querySelectorAll('.fmt-selector .fmt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function parseQ(content){
+  if(!content)return{text:'',format:'open'};
+  try{if(content.trim().startsWith('{'))return JSON.parse(content);}catch(e){}
+  return{text:content,format:'open'};
+}
+
 async function postMessage(){
   if(!_me)return;
   const txt=document.getElementById('qInput').value.trim();
@@ -965,7 +995,7 @@ async function postMessage(){
   btn.disabled=true;btn.textContent='올리는 중…';
   await fetch(`${SU}/rest/v1/JD_session_messages`,{
     method:'POST',headers:{...H,'Prefer':'return=minimal'},
-    body:JSON.stringify({season:SEASON,session_n:_curN,type:_qType,author:_me,content:txt})
+    body:JSON.stringify({season:SEASON,session_n:_curN,type:_qType,author:_me,content:JSON.stringify({text:txt,format:_qFmt})})
   });
   document.getElementById('qInput').value='';
   btn.disabled=false;btn.textContent='올리기';
@@ -1140,11 +1170,12 @@ renderFmRow();
 let _sloSlides=[], _sloCur=0;
 
 async function openSlideshow(){
-  const [rp,ra]=await Promise.all([
+  const [rp,ra,rq]=await Promise.all([
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.proposal&order=created_at.asc`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling)&order=created_at.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H})
   ]);
-  const [proposals,archives]=await Promise.all([rp.json(),ra.json()]);
+  const [proposals,questions,archives]=await Promise.all([rp.json(),rq.json(),ra.json()]);
   const html=Array.isArray(proposals)&&proposals.length?proposals.map(m=>m.content).join(''):'';
   const photos=[];
   if(Array.isArray(archives)){
@@ -1155,7 +1186,7 @@ async function openSlideshow(){
     });
   }
   const sess=_sessions.find(s=>s.n===_curN);
-  buildSlideshow(sess,html,photos);
+  buildSlideshow(sess,html,photos,Array.isArray(questions)?questions:[]);
   document.getElementById('slideOverlay').classList.add('open');
   document.addEventListener('keydown',sloKey);
 }
@@ -1171,7 +1202,7 @@ function sloKey(e){
   if(e.key==='ArrowLeft'){e.preventDefault();sloGo(-1);}
 }
 
-function buildSlideshow(sess,proposalHtml,photos=[]){
+function buildSlideshow(sess,proposalHtml,photos=[],questions=[]){
   const deck=document.getElementById('sloDeck');
   const prog=document.getElementById('sloProgress');
   deck.innerHTML=''; prog.innerHTML='';
@@ -1188,13 +1219,18 @@ function buildSlideshow(sess,proposalHtml,photos=[]){
     return {title,content};
   });
 
+  const qSlides=questions.length?[
+    sloMakeSection('02 · 사전 질문','사전 질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
+    ...questions.map(m=>sloMakeQuestion(m))
+  ]:[];
   const defs=[
     sloMakeCover(sess,photos),
     sloMakeSection('01 · Opening','근황 토크','#6490F5','오늘의 기분, 요즘의 생각들을 나눠요.'),
     sloMakeChat(),
-    sloMakeSection('02 · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
+    ...qSlides,
+    sloMakeSection(questions.length?'03 · 발제문':'02 · 발제문','발제문','#A07BFF','오늘의 발제 질문들'),
     ...sections.map(s=>sloMakeProposal(s.title,s.content)),
-    sloMakeSection('03 · Debrief','디브리핑','#4EC994','오늘을 함께 마무리해요.'),
+    sloMakeSection(questions.length?'04 · Debrief':'03 · Debrief','디브리핑','#4EC994','오늘을 함께 마무리해요.'),
     sloMakeDebrief('오늘 대화에서 가장 기억에 남는 한 문장은?','돌아가며 한 명씩'),
     sloMakeDebrief('다음 모임 전까지 내가 해볼 한 가지는?','작아도 괜찮아요'),
     sloMakeOutro(),
@@ -1281,6 +1317,53 @@ function sloMakeOutro(){
   return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
     <div class="slo-eyebrow">Outro</div>
     <div style="font-family:'DM Sans',sans-serif;font-size:2.8rem;font-weight:800;color:#EDEAF8;line-height:1.25">수고 많으셨습니다.</div>
+  </div>`;
+}
+
+function sloMakeQuestion(m){
+  const q=parseQ(m.content);
+  const text=q.text||m.content||'';
+  const typeLabel={question_book:'📖 책 질문',question_work:'💼 실무 질문',question_feeling:'💬 느낀 점'}[m.type]||'질문';
+  if(q.format==='ox'){
+    return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
+      <div class="slo-eyebrow" style="color:rgba(245,184,76,.7)">${typeLabel} · O / X</div>
+      <div class="slo-q" style="max-width:720px">${escH(text)}</div>
+      <div style="display:flex;gap:1.5rem;margin-top:2rem;max-width:500px">
+        <div style="flex:1;border:2.5px solid #4EC994;border-radius:16px;padding:1.75rem 1rem;text-align:center">
+          <div style="font-family:'DM Sans',sans-serif;font-size:3.5rem;font-weight:900;color:#4EC994;line-height:1">O</div>
+          <div style="color:#4EC994;font-size:.9rem;margin-top:.5rem;font-weight:600">그렇다</div>
+        </div>
+        <div style="flex:1;border:2.5px solid #F87171;border-radius:16px;padding:1.75rem 1rem;text-align:center">
+          <div style="font-family:'DM Sans',sans-serif;font-size:3.5rem;font-weight:900;color:#F87171;line-height:1">X</div>
+          <div style="color:#F87171;font-size:.9rem;margin-top:.5rem;font-weight:600">아니다</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(q.format==='likert'){
+    const steps=[
+      {n:'4',label:'매우 그렇다',color:'#A07BFF'},
+      {n:'3',label:'그렇다',color:'#7B9FFF'},
+      {n:'2',label:'아니다',color:'#94A3B8'},
+      {n:'1',label:'매우 아니다',color:'#64748B'},
+    ];
+    return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
+      <div class="slo-eyebrow" style="color:rgba(245,184,76,.7)">${typeLabel} · 리커트 4단계</div>
+      <div class="slo-q" style="max-width:720px">${escH(text)}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem;max-width:640px">
+        ${steps.map(s=>`<div style="border:2px solid ${s.color};border-radius:12px;padding:1.25rem .75rem;text-align:center">
+          <div style="font-family:'DM Sans',sans-serif;font-size:2rem;font-weight:900;color:${s.color}">${s.n}</div>
+          <div style="font-size:.72rem;color:${s.color};margin-top:.4rem;font-weight:600;line-height:1.3">${s.label}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  // open (주관식)
+  return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
+    <div class="slo-eyebrow" style="color:rgba(245,184,76,.7)">${typeLabel} · 주관식</div>
+    <div class="slo-rule" style="background:#F5B84C"></div>
+    <div class="slo-q" style="max-width:760px">${escH(text)}</div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.25);margin-top:1rem">${escH(m.author)} 의 질문</div>
   </div>`;
 }
 
