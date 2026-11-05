@@ -628,71 +628,93 @@ tr:hover td{background:rgba(37,99,235,.03)}
       </div>
       <!-- 발제문·아카이빙 탭 -->
       <div id="s9pane-content">
-      <div style="display:flex;flex-direction:column;gap:1.5rem">
-        <!-- 발제문 에디터 -->
-        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
-            <div style="font-size:.75rem;font-weight:700;color:#2D6BE4;display:flex;align-items:center;gap:.35rem">📝 발제문 및 활동</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+
+        <!-- 슬라이드 순서 안내 레이블 -->
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tl);margin-bottom:.25rem">슬라이드 구성 순서</div>
+
+        <!-- ① 커버 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #EDEAF8;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(237,234,248,.5);min-width:1.6rem">①</span>
+            <span style="font-size:.78rem;font-weight:700;color:rgba(237,234,248,.7)">커버</span>
+            <span style="font-size:.72rem;color:var(--tl);margin-left:.25rem">날짜 · 책 · 멤버 자동 생성</span>
+          </div>
+        </div>
+
+        <!-- ② 근황 토크 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #6490F5;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(100,144,245,.5);min-width:1.6rem">②</span>
+            <span style="font-size:.78rem;font-weight:700;color:#6490F5">근황 토크</span>
+          </div>
+          <div style="padding:.65rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.35rem">
+            <input id="scfg-chat-q" placeholder="질문 (기본: 요즘 어떻게 지내셨나요?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+            <input id="scfg-chat-sub" placeholder="부제 (기본: 모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+          </div>
+        </div>
+
+        <!-- ③ 발제문 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #A07BFF;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(160,123,255,.5);min-width:1.6rem">③</span>
+            <span style="font-size:.78rem;font-weight:700;color:#A07BFF">발제문</span>
+            <span style="font-size:.72rem;color:var(--tl);margin-left:.25rem">H3 버튼으로 슬라이드 구분 · 질문 버튼으로 질문 슬라이드 삽입</span>
           </div>
           <div id="tb-proposal" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
           <div id="s9proposal-editor" contenteditable="true" data-placeholder="발제문 및 활동 내용을 입력해주세요."
-            style="min-height:180px;padding:.85rem 1rem;background:var(--wh);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);line-height:1.75;outline:none"></div>
+            style="min-height:200px;padding:.85rem 1rem;background:var(--wh);font-size:.88rem;font-family:'Pretendard',sans-serif;color:var(--dk);line-height:1.75;outline:none"></div>
           <div style="padding:.5rem .85rem;background:var(--sf);border-top:1px solid var(--bd);display:flex;gap:.5rem;align-items:center">
             <button class="btn btn-primary btn-sm" onclick="saveS9Content('proposal')">저장</button>
             <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
-        <!-- 질문 -->
-        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:.75rem;font-weight:700;color:#F59E0B;display:flex;align-items:center;gap:.35rem">❓ 질문 <span style="font-weight:400;opacity:.6">(슬라이드쇼에 자동 반영)</span></div>
+
+        <!-- ④ 디브리핑 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #4EC994;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(78,201,148,.5);min-width:1.6rem">④</span>
+            <span style="font-size:.78rem;font-weight:700;color:#4EC994">디브리핑</span>
           </div>
-          <div style="padding:.75rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.6rem">
+          <div style="padding:.65rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.35rem">
             <div style="display:flex;gap:.4rem">
-              <input id="s9q-input" placeholder="질문 또는 명제를 입력하세요" style="flex:1;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.45rem .7rem;font-size:.84rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
-              <select id="s9q-fmt" style="border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.45rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;background:var(--wh)">
-                <option value="open">주관식</option>
-                <option value="ox">O / X</option>
-                <option value="likert">리커트 4단계</option>
-              </select>
-              <button class="btn btn-primary btn-sm" onclick="addS9Question()">추가</button>
+              <input id="scfg-d1-q" placeholder="질문 1 (기본: 오늘 대화에서 가장 기억에 남는 한 문장은?)" style="flex:1;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
+              <input id="scfg-d1-hint" placeholder="힌트 (기본: 돌아가며 한 명씩)" style="width:180px;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
             </div>
-            <div id="s9q-list" style="display:flex;flex-direction:column;gap:.35rem"></div>
-          </div>
-        </div>
-        <!-- 슬라이드 구성 편집 -->
-        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);cursor:pointer" onclick="const p=document.getElementById('slide-cfg-panel');p.style.display=p.style.display==='none'?'flex':'none'">
-            <div style="font-size:.75rem;font-weight:700;color:#6490F5;display:flex;align-items:center;gap:.35rem">🎞 슬라이드 구성 <span style="font-weight:400;opacity:.6">(근황토크·디브리핑·아우트로 텍스트)</span></div>
-            <span style="font-size:.7rem;color:var(--tl)">접기/펼치기</span>
-          </div>
-          <div id="slide-cfg-panel" style="display:none;padding:.75rem .85rem;background:var(--wh);flex-direction:column;gap:.75rem">
-            <div>
-              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">📢 근황 토크</div>
-              <input id="scfg-chat-q" placeholder="질문 (기본: 요즘 어떻게 지내셨나요?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
-              <input id="scfg-chat-sub" placeholder="부제 (기본: 모임 전 성찰에서 미리 적어온 근황을 돌아가며 나눠봅시다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
-            </div>
-            <div>
-              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">🧩 디브리핑</div>
-              <input id="scfg-d1-q" placeholder="질문 1 (기본: 오늘 대화에서 가장 기억에 남는 한 문장은?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
-              <input id="scfg-d1-hint" placeholder="힌트 1 (기본: 돌아가며 한 명씩)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
-              <input id="scfg-d2-q" placeholder="질문 2 (기본: 다음 모임 전까지 내가 해볼 한 가지는?)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box;margin-bottom:.35rem">
-              <input id="scfg-d2-hint" placeholder="힌트 2 (기본: 작아도 괜찮아요)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
-            </div>
-            <div>
-              <div style="font-size:.7rem;font-weight:700;color:var(--tl);margin-bottom:.4rem">🎬 아우트로</div>
-              <input id="scfg-outro" placeholder="마무리 메시지 (기본: 수고 많으셨습니다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
-            </div>
-            <div style="display:flex;align-items:center;gap:.5rem">
-              <button class="btn btn-primary btn-sm" onclick="saveSlideConfig()">저장</button>
-              <span id="scfg-msg" style="font-size:.8rem;color:var(--tl)"></span>
+            <div style="display:flex;gap:.4rem">
+              <input id="scfg-d2-q" placeholder="질문 2 (기본: 다음 모임 전까지 내가 해볼 한 가지는?)" style="flex:1;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
+              <input id="scfg-d2-hint" placeholder="힌트 (기본: 작아도 괜찮아요)" style="width:180px;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
             </div>
           </div>
         </div>
+
+        <!-- ⑤ 아우트로 -->
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #EDEAF8;border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:.64rem;font-weight:700;color:rgba(237,234,248,.5);min-width:1.6rem">⑤</span>
+            <span style="font-size:.78rem;font-weight:700;color:rgba(237,234,248,.7)">아우트로</span>
+          </div>
+          <div style="padding:.65rem .85rem;background:var(--wh)">
+            <input id="scfg-outro" placeholder="마무리 메시지 (기본: 수고 많으셨습니다.)" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.82rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;box-sizing:border-box">
+          </div>
+        </div>
+
+        <!-- 슬라이드 구성 저장 -->
+        <div style="display:flex;align-items:center;gap:.5rem;padding:.25rem 0 .75rem">
+          <button class="btn btn-primary btn-sm" onclick="saveSlideConfig()">슬라이드 구성 저장</button>
+          <span id="scfg-msg" style="font-size:.8rem;color:var(--tl)"></span>
+        </div>
+
+        <!-- 구분선 -->
+        <div style="border-top:1.5px dashed var(--bd);margin:.25rem 0 .5rem"></div>
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tl);margin-bottom:.25rem">모임 기록</div>
+
         <!-- 아카이빙 에디터 -->
-        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
-            <div style="font-size:.75rem;font-weight:700;color:#0A8A5C;display:flex;align-items:center;gap:.35rem">📋 아카이빙</div>
+        <div style="border:1.5px solid var(--bd);border-left:3px solid #0A8A5C;border-radius:var(--r-sm);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <span style="font-size:.78rem;font-weight:700;color:#0A8A5C">📋 아카이빙</span>
+            </div>
             <button class="btn btn-ghost btn-sm" onclick="openBookSearchModal()" style="font-size:.75rem;padding:.2rem .65rem">📚 책 추가</button>
           </div>
           <div id="tb-archive" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
@@ -703,6 +725,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <span id="s9archive-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
+
+        <!-- 숨겨진 호환 요소 (기존 JS 참조용) -->
+        <div style="display:none"><div id="s9q-list"></div><input id="s9q-input"><select id="s9q-fmt"><option value="open">주관식</option></select><div id="slide-cfg-panel"></div></div>
+
       </div>
       </div><!-- /s9pane-content -->
       <!-- 기록 관리 탭 -->
@@ -1301,7 +1327,7 @@ function s9InsertQBlock(fmt, editorId) {
     open:   {color:'#1D4ED8', bg:'rgba(45,107,228,.07)', border:'#2D6BE4', label:'주관식 질문'},
   };
   const c = cfgs[fmt] || cfgs.open;
-  const html = `<div data-qfmt="${fmt}" style="border-left:3px solid ${c.border};background:${c.bg};color:${c.color};padding:.45rem .85rem;border-radius:0 8px 8px 0;margin:.4rem 0;font-size:.88rem">[${c.label}] 질문 내용을 입력하세요</div><p><br></p>`;
+  const html = `<div data-qfmt="${fmt}" style="border-left:3px solid ${c.border};background:${c.bg};color:${c.color};padding:.45rem .85rem;border-radius:0 8px 8px 0;margin:.4rem 0;font-size:.88rem">질문 내용을 입력하세요</div><p><br></p>`;
   document.getElementById(editorId).focus();
   document.execCommand('insertHTML', false, html);
 }
