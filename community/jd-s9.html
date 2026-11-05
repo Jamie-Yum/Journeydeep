@@ -3,7 +3,7 @@
 <title>시즌 9 활동 — 조니딥</title>
 <link rel="icon" href="https://www.journey-deep.kr/favicon.png" type="image/png">
 <meta property="og:title" content="시즌 9 활동 — 조니딥">
-<meta property="og:description" content="사전 질문, 한 마디, 발제문·성찰, 모임 써머리">
+<meta property="og:description" content="질문, 한 마디, 발제문·성찰, 모임 써머리">
 <meta property="og:image" content="https://www.journey-deep.kr/og.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -372,7 +372,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 <div class="identity-section">
   <div class="identity-eyebrow">JourneyDeep · Season 9</div>
   <h1 class="identity-title">시즌 9 활동</h1>
-  <p class="identity-sub">목표, 사전 질문, 성찰을 한 곳에서</p>
+  <p class="identity-sub">목표, 질문, 성찰을 한 곳에서</p>
 
   <!-- 이름 선택 -->
   <div class="name-prompt" id="namePicker">
@@ -711,7 +711,7 @@ function updateFormLock(){
   if(blockA) blockA.style.display=archiveOpen?'':'none';
   if(archiveOpen) loadArchive();
 
-  // 사전 질문 섹션 show/hide
+  // 질문 섹션 show/hide
   const secBefore=document.getElementById('sec-before');
   if(secBefore) secBefore.style.display=questionLocked?'none':'';
   if(!questionLocked){
@@ -1220,7 +1220,7 @@ function buildSlideshow(sess,proposalHtml,photos=[],questions=[]){
   });
 
   const qSlides=questions.length?[
-    sloMakeSection('02 · 사전 질문','사전 질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
+    sloMakeSection('02 · 질문','질문','#F5B84C','모임 전에 미리 올린 질문들을 함께 살펴봐요.'),
     ...questions.map(m=>sloMakeQuestion(m))
   ]:[];
   const defs=[

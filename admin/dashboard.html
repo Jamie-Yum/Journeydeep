@@ -642,10 +642,10 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
-        <!-- 사전 질문 -->
+        <!-- 질문 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
           <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:.75rem;font-weight:700;color:#F59E0B;display:flex;align-items:center;gap:.35rem">❓ 사전 질문 <span style="font-weight:400;opacity:.6">(슬라이드쇼에 자동 반영)</span></div>
+            <div style="font-size:.75rem;font-weight:700;color:#F59E0B;display:flex;align-items:center;gap:.35rem">❓ 질문 <span style="font-weight:400;opacity:.6">(슬라이드쇼에 자동 반영)</span></div>
           </div>
           <div style="padding:.75rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.6rem">
             <div style="display:flex;gap:.4rem">
@@ -680,7 +680,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
       <div id="s9pane-records" style="display:none">
         <div style="display:flex;gap:1.5rem">
           <div style="flex:1">
-            <div style="font-size:.75rem;font-weight:700;color:#6B63D8;margin-bottom:.75rem">💬 사전 질문</div>
+            <div style="font-size:.75rem;font-weight:700;color:#6B63D8;margin-bottom:.75rem">💬 질문</div>
             <div id="s9rec-questions" style="display:flex;flex-direction:column;gap:.5rem">
               <div style="font-size:.82rem;color:var(--tl)">회차를 선택하면 불러와요.</div>
             </div>
@@ -1449,7 +1449,7 @@ function s9MdToHtml(content) {
   if (content.trim().startsWith('<')) return content; // 이미 HTML
   return typeof marked !== 'undefined' ? marked.parse(content) : content;
 }
-// ── 사전 질문 관리 ──────────────────────────────────
+// ── 질문 관리 ──────────────────────────────────
 const FMT_LABELS = {open:'주관식', ox:'O / X', likert:'리커트 4단계'};
 const FMT_COLORS = {open:'#2D6BE4', ox:'#0A8A5C', likert:'#7C3AED'};
 
