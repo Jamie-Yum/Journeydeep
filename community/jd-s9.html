@@ -1248,7 +1248,7 @@ function buildSlideshow(sess,proposalHtml,photos=[],questions=[],cfg={},moods=[]
   flushSec();
 
   // cfg 기본값
-  const chatSub=cfg.chat_sub||'오늘의 기분, 요즘의 생각들을 나눠요.';
+  const chatSub=cfg.chat_sub||'최근 자신의 상황과 생각을 나눠봅시다.';
   const bbq1=cfg.bookback_q1||'저자에 대한 느낌은 어땠나요?';
   const bbq2=cfg.bookback_q2||'책에서 함께 나누고 싶은 구절은?';
   const dq1=cfg.debrief_q1||'오늘 대화에서 가장 기억에 남는 한 문장은?';
@@ -1330,7 +1330,7 @@ function sloMakeSection(eyebrow,title,color,sub){
   </div>`;
 }
 
-function sloMakeChat(sub='오늘의 기분, 요즘의 생각들을 나눠요.',moods=[]){
+function sloMakeChat(sub='최근 자신의 상황과 생각을 나눠봅시다.',moods=[]){
   const allCards=MOODS.map(m=>{
     const mini=m.svg.replace(/width="68" height="68"/,'width="38" height="38"');
     return `<div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;background:rgba(255,255,255,.05);border-radius:14px;padding:.55rem .7rem;min-width:68px">
