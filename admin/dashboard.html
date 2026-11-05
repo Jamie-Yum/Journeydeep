@@ -642,6 +642,24 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <span id="s9proposal-msg" style="font-size:.8rem;color:var(--tl)"></span>
           </div>
         </div>
+        <!-- 사전 질문 -->
+        <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
+          <div style="padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:.75rem;font-weight:700;color:#F59E0B;display:flex;align-items:center;gap:.35rem">❓ 사전 질문 <span style="font-weight:400;opacity:.6">(슬라이드쇼에 자동 반영)</span></div>
+          </div>
+          <div style="padding:.75rem .85rem;background:var(--wh);display:flex;flex-direction:column;gap:.6rem">
+            <div style="display:flex;gap:.4rem">
+              <input id="s9q-input" placeholder="질문 또는 명제를 입력하세요" style="flex:1;border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.45rem .7rem;font-size:.84rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none">
+              <select id="s9q-fmt" style="border:1.5px solid var(--bd);border-radius:var(--r-sm);padding:.45rem .6rem;font-size:.8rem;font-family:'Pretendard',sans-serif;color:var(--dk);outline:none;background:var(--wh)">
+                <option value="open">주관식</option>
+                <option value="ox">O / X</option>
+                <option value="likert">리커트 4단계</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="addS9Question()">추가</button>
+            </div>
+            <div id="s9q-list" style="display:flex;flex-direction:column;gap:.35rem"></div>
+          </div>
+        </div>
         <!-- 아카이빙 에디터 -->
         <div style="border:1.5px solid var(--bd);border-radius:var(--r-sm);overflow:hidden">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;background:var(--sf);border-bottom:1px solid var(--bd)">
@@ -1422,6 +1440,7 @@ async function selectS9Session(label, n) {
   const archive = rows.find(r => r.type === 'archive');
   document.getElementById('s9proposal-editor').innerHTML = s9MdToHtml(proposal?.content || '');
   document.getElementById('s9archive-editor').innerHTML = s9MdToHtml(archive?.content || '');
+  loadS9Questions();
   card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
@@ -1430,6 +1449,55 @@ function s9MdToHtml(content) {
   if (content.trim().startsWith('<')) return content; // 이미 HTML
   return typeof marked !== 'undefined' ? marked.parse(content) : content;
 }
+// ── 사전 질문 관리 ──────────────────────────────────
+const FMT_LABELS = {open:'주관식', ox:'O / X', likert:'리커트 4단계'};
+const FMT_COLORS = {open:'#2D6BE4', ox:'#0A8A5C', likert:'#7C3AED'};
+
+async function loadS9Questions() {
+  if (!_s9SelSession) return;
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  const r = await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?season=eq.시즌 9&session_n=eq.${_s9SelSession.n}&type=eq.admin_question&order=created_at.asc`, {headers: H});
+  const data = await r.json();
+  renderS9Questions(Array.isArray(data) ? data : []);
+}
+
+function renderS9Questions(data) {
+  const el = document.getElementById('s9q-list');
+  if (!el) return;
+  if (!data.length) { el.innerHTML = '<div style="font-size:.8rem;color:var(--tl)">아직 등록된 질문이 없어요.</div>'; return; }
+  el.innerHTML = data.map(m => {
+    let q = {text: m.content, format: 'open'};
+    try { if (m.content.startsWith('{')) q = JSON.parse(m.content); } catch(e) {}
+    const color = FMT_COLORS[q.format] || '#2D6BE4';
+    return `<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;background:var(--bg);border-radius:var(--r-sm);border-left:2.5px solid ${color}">
+      <span style="font-size:.7rem;font-weight:700;color:${color};white-space:nowrap">${FMT_LABELS[q.format]||'주관식'}</span>
+      <span style="font-size:.83rem;color:var(--dk);flex:1">${q.text||''}</span>
+      <button onclick="deleteS9Question(${m.id})" style="background:none;border:none;cursor:pointer;color:var(--tl);font-size:.85rem;padding:.1rem .3rem;line-height:1" title="삭제">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function addS9Question() {
+  if (!_s9SelSession) return;
+  const input = document.getElementById('s9q-input');
+  const fmtSel = document.getElementById('s9q-fmt');
+  const text = input.value.trim();
+  if (!text) return;
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'};
+  await fetch(`${SUPA_URL}/rest/v1/JD_session_messages`, {
+    method: 'POST', headers: H,
+    body: JSON.stringify({season:'시즌 9', session_n: _s9SelSession.n, type:'admin_question', author:'admin', content: JSON.stringify({text, format: fmtSel.value})})
+  });
+  input.value = '';
+  loadS9Questions();
+}
+
+async function deleteS9Question(id) {
+  const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
+  await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?id=eq.${id}`, {method:'DELETE', headers:H});
+  loadS9Questions();
+}
+
 async function saveS9Content(type) {
   if (!_s9SelSession) return;
   const editor = document.getElementById(`s9${type}-editor`);

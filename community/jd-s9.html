@@ -1172,7 +1172,7 @@ let _sloSlides=[], _sloCur=0;
 async function openSlideshow(){
   const [rp,ra,rq]=await Promise.all([
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.proposal&order=created_at.asc`,{headers:H}),
-    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling)&order=created_at.asc`,{headers:H}),
+    fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=in.(question_book,question_work,question_feeling,admin_question)&order=created_at.asc`,{headers:H}),
     fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.archive&order=created_at.asc`,{headers:H})
   ]);
   const [proposals,questions,archives]=await Promise.all([rp.json(),rq.json(),ra.json()]);
