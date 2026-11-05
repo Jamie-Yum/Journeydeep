@@ -1199,6 +1199,7 @@ function s9RenderToolbar(containerId, editorId) {
   if (!el) return;
   const sep = '<div class="rich-sep"></div>';
   el.innerHTML = `
+    <button type="button" class="rich-btn" onclick="s9FmtBlock('h3','${editorId}')" title="슬라이드 구분 제목 (H3)" style="font-weight:800;font-size:.78rem;color:#7C3AED;border-color:rgba(124,58,237,.3)">H3 슬라이드↵</button>
     <select class="rich-select" onchange="s9FmtBlock(this.value,'${editorId}');this.value=''">
       <option value="">스타일</option>
       <option value="p">본문</option>
