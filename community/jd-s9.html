@@ -244,6 +244,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
 .slo-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);cursor:pointer;transition:all .3s}
 .slo-dot.active{width:16px;border-radius:3px;background:#6490F5}
 .slo-eyebrow{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:1rem;font-weight:600}
+.slo-cover-title{font-family:'DM Sans',sans-serif;font-size:2rem;font-weight:800;color:#EDEAF8;letter-spacing:-.02em;margin-bottom:1.5rem;line-height:1.2}
 .slo-rule{width:2rem;height:1.5px;margin-bottom:1.5rem}
 .slo-big-title{font-family:'DM Sans',sans-serif;font-size:3.2rem;font-weight:800;line-height:1.2}
 .slo-q{font-size:1.9rem;font-weight:700;line-height:1.45;margin-bottom:1.5rem;max-width:760px;font-family:'DM Sans',sans-serif}
@@ -1233,7 +1234,7 @@ function sloMakeCover(sess,photos=[]){
     : '';
   const members=_memberNames.map(m=>`<span style="padding:.2rem .65rem;border:1px solid rgba(255,255,255,.1);border-radius:100px;font-size:.75rem;color:rgba(255,255,255,.45)">${m}</span>`).join('');
   return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
-    <div class="slo-eyebrow">${SEASON} · ${_curN}회차</div>
+    <div class="slo-cover-title">조니딥 ${SEASON} · ${_curN}회차</div>
     <div style="margin-bottom:1.5rem">${booksHtml}</div>
     ${photosHtml}
     <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:${photos.length?'1.5rem':'0'}">
