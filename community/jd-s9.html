@@ -480,11 +480,6 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
       </div>
       <div class="post-box" id="qBox">
         <span class="lock-msg">이름을 선택하면 질문을 올릴 수 있어요</span>
-        <div class="fmt-selector">
-          <button class="fmt-btn active" onclick="setQFmt('open',this)">주관식</button>
-          <button class="fmt-btn" onclick="setQFmt('ox',this)">O / X</button>
-          <button class="fmt-btn" onclick="setQFmt('likert',this)">리커트 4단계</button>
-        </div>
         <textarea id="qInput" placeholder="이번 책을 읽으며 떠오른 질문, 함께 이야기 나누고 싶은 것을 적어주세요." rows="3"></textarea>
         <div class="post-box-footer">
           <button class="btn-post" onclick="postMessage()">올리기</button>
