@@ -610,7 +610,16 @@ async function init(){
   const past=visibleSessions.filter(s=>s.date<todayDate);
   if(upcoming.length) autoN=upcoming[0].n;
   else if(past.length) autoN=past[past.length-1].n;
-  setSession(autoN);
+  // ?slide=N 파라미터: 어드민 미리보기용 — 해당 회차 선택 후 슬라이드쇼 자동 오픈
+  const _slideParam = new URLSearchParams(location.search).get('slide');
+  if (_slideParam) {
+    const targetN = parseInt(_slideParam);
+    const targetSess = _sessions.find(s => s.n === targetN);
+    if (targetSess) { setSession(targetN); setTimeout(openSlideshow, 400); }
+    else { setSession(autoN); }
+  } else {
+    setSession(autoN);
+  }
   updateIdentityUI();
 }
 

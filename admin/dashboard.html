@@ -674,6 +674,7 @@ tr:hover td{background:rgba(37,99,235,.03)}
             <span style="font-size:.64rem;font-weight:700;color:rgba(160,123,255,.5);min-width:1.6rem">④</span>
             <span style="font-size:.78rem;font-weight:700;color:#A07BFF">발제문</span>
             <span style="font-size:.72rem;color:var(--tl);margin-left:.25rem">H3 버튼으로 슬라이드 구분 · 질문 버튼으로 질문 슬라이드 삽입</span>
+            <button class="btn btn-ghost btn-sm" onclick="previewSlideshow()" style="margin-left:auto;font-size:.74rem;padding:.2rem .65rem;color:#A07BFF;border-color:rgba(160,123,255,.3)">🎞 슬라이드 미리보기</button>
           </div>
           <div id="tb-proposal" style="display:flex;gap:.25rem;flex-wrap:wrap;padding:.4rem .6rem;background:var(--bg);border-bottom:1px solid var(--bd)"></div>
           <div id="s9proposal-editor" contenteditable="true" data-placeholder="발제문 및 활동 내용을 입력해주세요."
@@ -1583,6 +1584,10 @@ async function deleteS9Question(id) {
   const H = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY};
   await fetch(`${SUPA_URL}/rest/v1/JD_session_messages?id=eq.${id}`, {method:'DELETE', headers:H});
   loadS9Questions();
+}
+function previewSlideshow() {
+  if (!_s9SelSession) { alert('회차를 먼저 선택하세요.'); return; }
+  window.open(`https://journey-deep.kr/community/jd-s9.html?slide=${_s9SelSession.n}`, '_blank');
 }
 async function loadSlideConfig() {
   if (!_s9SelSession) return;
