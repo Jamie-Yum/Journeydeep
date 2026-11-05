@@ -1049,8 +1049,8 @@ function processQBlocks(html){
   wrap.querySelectorAll('[data-qfmt]').forEach(el=>{
     const fmt=el.dataset.qfmt||'open';
     const labels={ox:'O / X',likert:'리커트',open:'주관식'};
-    const colors={ox:'#0A8A5C',likert:'#7C3AED',open:'#2D6BE4'};
-    const bgs={ox:'rgba(10,138,92,.07)',likert:'rgba(124,58,237,.07)',open:'rgba(45,107,228,.07)'};
+    const colors={ox:'#0A8A5C',likert:'#7C3AED',open:'#2D6BE4',quote:'#92400E'};
+    const bgs={ox:'rgba(10,138,92,.07)',likert:'rgba(124,58,237,.07)',open:'rgba(45,107,228,.07)',quote:'rgba(180,83,9,.07)'};
     const text=el.textContent.trim();
     el.removeAttribute('style');
     el.style.cssText=`border-left:3px solid ${colors[fmt]};background:${bgs[fmt]};border-radius:0 10px 10px 0;padding:.55rem 1rem;margin:.6rem 0;display:block`;
@@ -1386,6 +1386,15 @@ function sloMakeOutro(text='수고 많으셨습니다.'){
   </div>`;
 }
 function sloMakeInlineQuestion(s){
+  if(s.format==='quote'){
+    return `<div style="display:flex;flex-direction:column;justify-content:center;height:100%">
+      <div class="slo-eyebrow" style="color:rgba(245,158,11,.7)">인용</div>
+      <div class="slo-rule" style="background:#F59E0B"></div>
+      <div style="border-left:3px solid #F59E0B;padding:.5rem 0 .5rem 2rem;margin-top:.5rem">
+        <div style="font-size:1.45rem;font-weight:600;color:rgba(255,255,255,.85);line-height:1.6;font-style:italic">${escH(s.text||'')}</div>
+      </div>
+    </div>`;
+  }
   return sloMakeQuestion({content:JSON.stringify({text:s.text||'',format:s.format||'open'}),type:'admin_question'});
 }
 
