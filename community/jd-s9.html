@@ -277,6 +277,30 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
   .cnt-card{padding:1.1rem 1.25rem}
 }
 
+/* ── Feeling Monster ── */
+.fm-wrap{max-width:860px;margin:1.25rem auto 0;padding:0 1.5rem}
+.fm-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tl);margin-bottom:.85rem}
+.fm-row{display:flex;gap:.6rem;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:none}
+.fm-row::-webkit-scrollbar{display:none}
+.fm-card{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:.45rem;cursor:pointer;padding:.1rem}
+.fm-blob{width:68px;height:68px;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .2s,box-shadow .2s;font-size:0}
+.fm-blob svg{width:68px;height:68px;transition:transform .2s}
+.fm-card:hover .fm-blob svg{transform:scale(1.1)}
+.fm-card.selected .fm-blob svg{transform:scale(1.12)}
+.fm-card.selected .fm-blob::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2.5px solid currentColor;animation:fm-pulse .9s ease-in-out infinite alternate}
+@keyframes fm-pulse{from{opacity:.5;transform:scale(1)}to{opacity:1;transform:scale(1.06)}}
+.fm-name{font-size:.7rem;font-weight:600;color:var(--ts)}
+.fm-card.selected .fm-name{font-weight:800}
+.fm-detail-box{margin-top:.85rem;background:var(--wh);border-radius:var(--r);box-shadow:var(--sw);padding:1.1rem 1.25rem;display:flex;align-items:flex-start;gap:1rem;animation:fm-in .2s ease}
+@keyframes fm-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.fm-detail-icon{font-size:2.4rem;line-height:1;flex-shrink:0}
+.fm-detail-name{font-size:1rem;font-weight:800;color:var(--dk);margin-bottom:.25rem}
+.fm-detail-desc{font-size:.83rem;color:var(--ts);line-height:1.6}
+.fm-detail-btn{margin-top:.7rem;padding:.35rem 1rem;border:1.5px solid var(--bd);border-radius:var(--r-pill);background:transparent;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;color:var(--ts);transition:all .2s}
+.fm-detail-btn:hover{background:var(--dk);color:#fff;border-color:var(--dk)}
+.fm-detail-btn.saved{background:var(--dk);color:#fff;border-color:var(--dk)}
+.fm-others-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.fm-other-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .65rem;border-radius:var(--r-pill);font-size:.72rem;font-weight:500;border:1px solid var(--bd);color:var(--ts);background:var(--bg)}
 /* ── Content blocks (proposal / archive) ── */
 .extra-block-hd{display:flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Sans',sans-serif;padding-bottom:.65rem;margin-bottom:.85rem;border-bottom:2px solid}
 .extra-block-hd.blue{color:#2D6BE4;border-color:rgba(45,107,228,.18)}
@@ -417,6 +441,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--dk);li
     <div class="extra-block-hd teal"><span>📋</span><span>아카이빙</span></div>
     <div id="archiveList"></div>
   </div>
+</div>
+
+<!-- Feeling Monster -->
+<div class="fm-wrap" id="fmWrap">
+  <div class="fm-label">오늘의 기분</div>
+  <div class="fm-row" id="fmRow"></div>
+  <div id="fmDetailBox"></div>
+  <div class="fm-others-row" id="fmOthers"></div>
 </div>
 
 <!-- Content -->
@@ -830,6 +862,7 @@ function setBeforeTab(tab, btn){
 async function loadAll(){
   loadMessages();
   loadReflections();
+  loadMoods();
 }
 
 async function loadMessages(){
@@ -1014,6 +1047,93 @@ document.addEventListener('click',function(e){
 });
 
 init();
+
+// ── Feeling Monster ──────────────────────────────────
+const MOODS=[
+  {id:'excited', label:'신남', color:'#F5B84C', light:'#FEF3C7', desc:'에너지가 넘치고 뭔가 하고 싶은 기분이에요!',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="37" rx="28" ry="26" fill="#F5B84C"/><polygon points="20,14 23,6 26,14" fill="#F5B84C"/><polygon points="34,11 37,3 40,11" fill="#F5B84C"/><polygon points="48,14 51,6 54,14" fill="#F5B84C"/><path d="M22 33 L26 29 L30 33" stroke="#7C3D00" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M38 33 L42 29 L46 33" stroke="#7C3D00" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M24 44 Q34 52 44 44" stroke="#7C3D00" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'happy', label:'행복', color:'#F97DA8', light:'#FCE7F3', desc:'마음이 따뜻하고 포근해요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="36" rx="27" ry="27" fill="#F97DA8"/><ellipse cx="34" cy="8" rx="6" ry="5" fill="#F97DA8"/><path d="M23 32 Q25 28 27 32" stroke="#8B1A4A" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M41 32 Q43 28 45 32" stroke="#8B1A4A" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M23 43 Q34 53 45 43" stroke="#8B1A4A" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'calm', label:'평온', color:'#4EC994', light:'#D1FAE5', desc:'차분하고 고요한 상태예요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="36" rx="30" ry="24" fill="#4EC994"/><line x1="22" y1="31" x2="30" y2="31" stroke="#064E3B" stroke-width="2.5" stroke-linecap="round"/><line x1="38" y1="31" x2="46" y2="31" stroke="#064E3B" stroke-width="2.5" stroke-linecap="round"/><path d="M25 43 Q34 48 43 43" stroke="#064E3B" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'flutter', label:'설렘', color:'#A07BFF', light:'#EDE9FE', desc:'두근두근! 뭔가 기대되는 기분이에요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="37" rx="25" ry="27" fill="#A07BFF"/><circle cx="25" cy="30" r="4" fill="#3B0D99"/><circle cx="43" cy="30" r="4" fill="#3B0D99"/><circle cx="27" cy="28" r="1.5" fill="white"/><circle cx="45" cy="28" r="1.5" fill="white"/><circle cx="34" cy="43" r="5" fill="#7C3AED"/><circle cx="34" cy="43" r="3" fill="#A07BFF"/><text x="14" y="18" font-size="8" fill="#C4B5FD">✦</text><text x="47" y="20" font-size="7" fill="#C4B5FD">✦</text></svg>`},
+  {id:'thoughtful', label:'고민중', color:'#6490F5', light:'#DBEAFE', desc:'머릿속이 복잡하고 생각이 많아요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="37" rx="26" ry="25" fill="#6490F5"/><ellipse cx="50" cy="16" rx="8" ry="6" fill="#6490F5"/><ellipse cx="58" cy="10" rx="4" ry="3" fill="#6490F5"/><line x1="22" y1="30" x2="30" y2="33" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round"/><line x1="38" y1="30" x2="46" y2="33" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round"/><path d="M26 44 Q34 41 42 44" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'tired', label:'피곤', color:'#94A3B8', light:'#F1F5F9', desc:'몸과 마음이 조금 지쳐있어요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="38" rx="27" ry="24" fill="#94A3B8"/><path d="M22 30 Q26 33 30 30" stroke="#334155" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M38 30 Q42 33 46 30" stroke="#334155" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M26 46 Q34 43 42 46" stroke="#334155" stroke-width="2" stroke-linecap="round" fill="none"/><line x1="20" y1="22" x2="20" y2="18" stroke="#94A3B8" stroke-width="2"/><line x1="34" y1="20" x2="34" y2="15" stroke="#94A3B8" stroke-width="2"/><line x1="48" y1="22" x2="48" y2="18" stroke="#94A3B8" stroke-width="2"/></svg>`},
+  {id:'anxious', label:'불안', color:'#FB923C', light:'#FEF3C7', desc:'마음이 조마조마하고 긴장돼요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="37" rx="24" ry="26" fill="#FB923C"/><ellipse cx="25" cy="29" rx="4" ry="5" fill="#7C2D12"/><ellipse cx="43" cy="29" rx="4" ry="5" fill="#7C2D12"/><circle cx="27" cy="27" r="1.5" fill="white"/><circle cx="45" cy="27" r="1.5" fill="white"/><path d="M26 46 Q30 42 34 46 Q38 42 42 46" stroke="#7C2D12" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`},
+  {id:'heavy', label:'무거움', color:'#7DD3FC', light:'#E0F2FE', desc:'어딘가 무겁고 가라앉는 느낌이에요.',
+   svg:`<svg viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="34" cy="40" rx="28" ry="22" fill="#7DD3FC"/><path d="M22 32 Q26 29 30 32" stroke="#0C4A6E" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M38 32 Q42 29 46 32" stroke="#0C4A6E" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M26 48 Q34 44 42 48" stroke="#0C4A6E" stroke-width="2" stroke-linecap="round" fill="none"/><text x="28" y="20" font-size="9" fill="#BAE6FD">💧</text><text x="38" y="16" font-size="7" fill="#BAE6FD">💧</text></svg>`},
+];
+
+let _myMood=null;
+
+function renderFmRow(){
+  const row=document.getElementById('fmRow');
+  row.innerHTML=MOODS.map(m=>`
+    <div class="fm-card${_myMood===m.id?' selected':''}" onclick="selectMood('${m.id}')" style="color:${m.color}">
+      <div class="fm-blob">${m.svg}</div>
+      <div class="fm-name" style="color:${_myMood===m.id?m.color:'var(--ts)'}">${m.label}</div>
+    </div>`).join('');
+}
+
+function selectMood(id){
+  const m=MOODS.find(x=>x.id===id);
+  if(!m)return;
+  _myMood=id;
+  renderFmRow();
+  const box=document.getElementById('fmDetailBox');
+  const saved=_myMood===id;
+  box.innerHTML=`<div class="fm-detail-box" style="border-left:3px solid ${m.color}">
+    <div class="fm-detail-icon">${m.svg.replace(/width="68" height="68"/,'width="52" height="52"')}</div>
+    <div style="flex:1">
+      <div class="fm-detail-name" style="color:${m.color}">${m.label}</div>
+      <div class="fm-detail-desc">${m.desc}</div>
+      ${_me?`<button class="fm-detail-btn" id="fmSaveBtn" onclick="saveMood('${id}')" style="border-color:${m.color};color:${m.color}">지금 내 기분으로 등록</button>`:'<div style="font-size:.75rem;color:var(--tl);margin-top:.6rem">이름을 선택하면 기분을 등록할 수 있어요</div>'}
+    </div>
+  </div>`;
+}
+
+async function saveMood(id){
+  if(!_me)return;
+  const btn=document.getElementById('fmSaveBtn');
+  if(btn){btn.disabled=true;btn.textContent='등록 중…';}
+  const m=MOODS.find(x=>x.id===id);
+  // 이미 있으면 PATCH, 없으면 POST
+  const existing=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.mood&author=eq.${encodeURIComponent(_me)}&select=id`,{headers:H});
+  const rows=await existing.json();
+  const payload={season:SEASON,session_n:_curN,type:'mood',author:_me,content:JSON.stringify({id,label:m.label,color:m.color})};
+  if(rows.length){
+    await fetch(`${SU}/rest/v1/JD_session_messages?id=eq.${rows[0].id}`,{method:'PATCH',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(payload)});
+  } else {
+    await fetch(`${SU}/rest/v1/JD_session_messages`,{method:'POST',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify(payload)});
+  }
+  if(btn){btn.textContent='✓ 등록됐어요';btn.classList.add('saved');btn.style.color='#fff';btn.disabled=false;}
+  loadMoods();
+}
+
+async function loadMoods(){
+  const r=await fetch(`${SU}/rest/v1/JD_session_messages?season=eq.${encodeURIComponent(SEASON)}&session_n=eq.${_curN}&type=eq.mood&order=created_at.asc`,{headers:H});
+  const data=await r.json();
+  const el=document.getElementById('fmOthers');
+  if(!el)return;
+  if(!Array.isArray(data)||!data.length){el.innerHTML='';return;}
+  el.innerHTML=data.map(row=>{
+    try{
+      const d=JSON.parse(row.content);
+      return `<span class="fm-other-chip" style="border-color:${d.color}20;background:${d.color}12">
+        <span style="font-size:.8rem">${MOODS.find(m=>m.id===d.id)?.svg.replace(/width="68" height="68"/,'width="16" height="16"')||''}</span>
+        <span>${escH(row.author)}</span>
+        <span style="color:${d.color};font-weight:700">${d.label}</span>
+      </span>`;
+    }catch(e){return '';}
+  }).join('');
+}
+
+// 초기 렌더
+renderFmRow();
 
 // ── 슬라이드쇼 ───────────────────────────────────────
 let _sloSlides=[], _sloCur=0;
