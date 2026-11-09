@@ -2964,7 +2964,7 @@ async function glUploadFiles(files) {
         toast(`DB 저장 실패: ${dbRes.status} ${errTxt}`, true);
       }
     } else {
-      toast(`Storage 업로드 실패`, true);
+      toast(`Storage 업로드 실패: ${uploaded?._err||'알 수 없는 오류'}`, true);
     }
     done++;
   }
