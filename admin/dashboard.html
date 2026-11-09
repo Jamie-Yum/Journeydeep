@@ -2303,7 +2303,7 @@ async function uploadBlob(blob, fname) {
   if (!blob) { console.error('uploadBlob: blob is null'); return { ok: false, _err: 'blob null' }; }
   const res = await fetch(`${SUPA_URL}/storage/v1/object/jd-images/${fname}`, {
     method: 'POST',
-    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': blob.type || 'image/jpeg', 'x-upsert': 'true' },
+    headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': blob.type || 'image/jpeg' },
     body: blob
   });
   if (!res.ok) {
